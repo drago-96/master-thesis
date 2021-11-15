@@ -1,0 +1,66 @@
+\chapter{Mathematical background}
+
+The theory of elliptic curves is at the foundation of isogeny-based Cryptography, but in a very different style from classical Elliptic Curve Cryptography: the latter uses the group of points of a single curve, while the first uses graphs of elliptic curves.
+
+Our introduction on these topics will follow \cite{Silverman} and \cite{DeFeo_intro}.
+
+\section{Elliptic curves}
+
+We start by giving the most general definition of an elliptic curve over a field $K$.
+
+\begin{definition}
+    An \emph{elliptic curve} $E$ \emph{over} $K$ is a smooth projective curve of genus $1$, with a given $K$-rational point.
+\end{definition}
+
+Since we will work over finite fields of large characteristic, we will assume in all our theorems that $\car K\neq 2,3$. This allows us to simplify the representation of an elliptic curve.
+
+\begin{proposition}[Weierstrass model]
+    Let $E$ be an elliptic curve over $K$, with $\car K\neq 2,3$. Then $E$ is isomorphic to the curve $$ZY^2=X^3+aXZ^2+bZ^2$$ with $a,b\in K$ and $4a^3+27b^2\neq0$.
+    
+    The point $\Oc=(0:1:0)$ is called the \emph{point at infinity} of $E$, and it's the only point on $Z=0$.
+\end{proposition}
+
+Usually we then identify the curve with its affine patch at $Z\neq0$, i.e. with the equation $$y^2=x^3+ax+b,$$
+plus the point at infinity $\Oc$.
+
+Is is well known that any elliptic curve has a structure of abelian group, with $\Oc$ as the neutral element.
+
+\section{Isogenies}
+
+\begin{proposition}
+    Group map iff algebraic map that sends infinity to infinity.
+\end{proposition}
+
+Automorphisms.
+
+Separable and inseparable. Splitting lemma.
+
+Multiplication by $m$ and structure of $E[m]$.
+
+Dual isogeny.
+
+\section{Elliptic curves over finite fields}
+
+Frobenius.
+
+Hasse bounds.
+
+(Weil conjectures)
+
+Twists
+
+\section{Supersingularity}
+
+Equivalent conditions.
+
+(Bounds V.4.7)
+
+Special supersingular j-invariants.
+
+How to compute ss ec.
+
+\section{Quaternion algebras}
+
+\section{Deuring correspondence}
+
+

@@ -1,0 +1,37 @@
+\chapter{Universal Composability}
+
+\section{Introduction}
+
+\section{Instantiation of the framework}
+
+\section{The composition theorem}
+Only statement, with pictures.
+
+\section{The Simpler UC}
+We will use the ``Simpler Universal Composability" framework, also defined by Canetti.
+
+In this framework the number of parties is fixed, and they communicate with each other (and possibly with an ideal functionality) through a router controlled by the adversary.
+
+The communication is supposed to be authenticated, so each message has a \texttt{public header} and a \texttt{private content}.
+
+Formally, the adversary can only:
+\begin{itemize}
+    \item Read sender and recipient of each message
+    \item Read the \texttt{public header} of each message
+    \item Decide when and if deliver each message to the recipient
+\end{itemize}
+
+[picture with router]
+
+Moreover the adversary can corrupt any parties they want, formally by sending a $(\texttt{corrupt}, P_i)$ message through the router. The corrupted party will then follow the adversary instructions, and the environment will be notified.
+
+We will mostly be dealing with \emph{static} corruptions, which means that the adversary can only corrupt a fixed set of parties at the start of the protocol.
+
+\begin{definition}
+    Let $\pi$ be a protocol and $\mathcal F$ be an ideal functionality. We say that $\pi$ \emph{SUC-securely computes} $\mathcal F$ if for any PPT adversary $\adv$ there exists a PPT simulator $\sdv$ such that for any PPT environment $\zdv$ it holds that
+    $$ \{ \text{SUC-IDEAL}_{\Fun, \sdv, \zdv} \} \cindist \{ \text{SUC-REAL}_{\pi, \adv, \zdv} \}$$
+\end{definition}
+
+We observe that for any adversary $\adv$ and environment $\zdv$ there exists an environment $\zdv'$ that includes internally the adversary $\adv$ and communicates with a dummy adversary that simply relays messages between $\zdv'$ and the router.
+
+Since the definition quantifies over every adversary and environment, we can construct a simulator only for the dummy adversary.

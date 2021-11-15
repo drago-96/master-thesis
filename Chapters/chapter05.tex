@@ -1,0 +1,101 @@
+\chapter{Analysis of isogeny OT protocols}
+
+\section{The twist one}
+One of the simplest OT protocols based on isogenies is the one proposed by Lai, Galbraith and de Saint Guilhem in \cite{Lai_twists}; it works in the CSIDH setting, and makes a clever use of the twisting operation.
+
+The protocol written in figure \ref{prot_twist} is two-round and uses a trusted setup curve $E$. It is only proven to be semi-honest in the UC framework, but there is a version with three rounds that is secure with static malicious corruptions.
+
+The third round in the malicious secure version is added as a ``proof of decryption", which makes possible to extract the input of a malicious receiver.
+
+\begin{figure}
+    \myproc{Protocol $\Pi_{tw}$}{
+        \textbf{Sender} \> \> \textbf{Receiver} \\
+        \text{Input: }(m_0, m_1) \> \> \text{Input: }\sigma \\
+        s \sample Cl \> \> r \sample Cl \\
+        A = s\star E \> \> C = r\star E \\
+        \> \> \text{if } \sigma=1: C=C^t \\
+        \> \sendmessageleft*{C} \> \\
+        k_0 = H(s\star C) \> \>\\
+        k_1 = H(s\star C^t) \> \>\\
+        c_i = \enc_{k_i}(m_i) \> \> \\
+        \> \sendmessageright*{A, (c_0, c_1)} \> \\
+        \> \> k_\sigma = H(r\star A) \\
+        \> \> m_\sigma= \dec_{k_\sigma}(c_\sigma) \\
+    }
+    \caption{The twist OT protocol by Lai}
+    \label{prot_twist}
+\end{figure}
+
+
+\section{The ``explicit isogeny model"}
+Warning: experimental stuff ahead.
+
+We would like to use the Algebraic Group Model in the isogeny setting, since it's very helpful with proofs. However we don't want to restrict too much the power of the adversary. We will thus define a new model, analogous to AGM, and we argue that it doesn't differ too much from the plain model of UC security.
+
+\begin{definition}
+    We say that a Turing machine $\adv$ \emph{uses explicit isogenies} if whenever it outputs a supersingular elliptic curve $E$, it also outputs a computable isogeny $\phi:E_1\to E$, where $E_1$ is a curve that it has already seen, or their twist.
+\end{definition}
+{\color{red} Actually, such isogeny might not exist ... What do we do in such cases??}
+
+We then define what we mean by emulation and realization in this setting, which simply breaks down to the adversary and environment using explicit isogenies.
+
+\begin{definition}
+        Given two protocols $\pi$ and $\phi$, we say that $\pi$ \emph{EI-emulates} $\phi$ if for any adversary $\adv$ there is a simulator $\sdv$ such that for any environment $\edv$ with $(\edv,\adv)$ that use explicit isogenies we have that
+    $$EXEC_{\phi,\sdv,\edv} \cindist EXEC_{\pi,\adv,\edv}$$
+\end{definition}
+
+Finally, a protocol $\pi$ EI-realizes a functionality $\Fun$ if it EI-emulates the protocol $IDEAL_\Fun$.
+
+The EI model is obviously less expressive than the full plain model, but they might be actually closer than they seem. In fact, the following assumption seems to hold:\todo{search references}
+
+\begin{assumption}
+    Sampling a supersingular elliptic curve without learning its endomorphism ring is hard.
+\end{assumption}
+
+{\color{red}What we actually hope for is something like this:}
+\begin{theorem}
+    Suppose that the assumption holds. Then if a protocol $\pi$ EI-realizes $\Fun$, $\pi$ also UC-realizes $\Fun$.
+\end{theorem}
+\begin{proof}
+    The proof might go something like this: whenever $\adv$ outputs a supersingular curve $E$, by the assumption it must know its endomorphism ring. But then we can compute an isogeny from $E_0$ (the $j=0$ curve) via the equivalence between EndRing and $\ell$-IsogenyPath.
+
+    So it seems that the assumption implies that all environments and adversaries are actually EI.\todo{Does it really work? Who knows}
+\end{proof}
+
+Suppose now that we are in the CSIDH setting, with curves over $\F_p$ and a fixed order $\Oc=\End(E_0)$ inside $K=\Q(\sqrt{-p})$. We have the free and transitive action of $Cl(\Oc)$ on the set $Ell(\Oc)$ of elliptic curves having $\Oc$ as the endomorphism ring (defined over $\F_p$).
+
+In this setting, the EI assumption translates in the adversary being able to output a (smooth) class group element for every supersingular curve it outputs, i.e. always explain $E=x\star E_i$ (or $E_i^t$) for any $E_i$ that it has already seen.
+
+{\color{red} This might not directly translate to the EI assumption, but imposing a smooth degree on the isogeny might work. Another problem is the field of definition of the isogeny; maybe we really need different assumptions for SIDH and CSIDH?}
+
+\subsection{Proving security in the EI model}
+This is the big claim:
+
+\begin{theorem}
+    The protocol $\Pi_{tw}$ EI-realizes the functionality $\Fun_{OT}$.
+\end{theorem}
+\begin{proof}
+    We try to prove \textbf{honest sender and corrupted receiver}, as the other cases \emph{should} be almost equal to original proof.
+
+    The simulator backdoors the trusted setup functionality and sets the common curve $E=t\star E_0$ with a known $t$.
+
+    When it gets the curve $C$ from the receiver, there is also an explanation $C=x\star E_R$, with $E_R=E_0,E$ or $E^t$.
+
+    If $E_R=E_0$, the simulator uses random messages. If $E_R=E$, the simulator queries the functionality with $\sigma=0$ and gets the correct $m_0$; when $E_R=E^t$, the simulator gets $m_1$ by providing $\sigma=1$ to the functionality. Then it encrypts everything according to protocol, and uses the public key $A=s\star E$.
+
+    (Here there is the hybrid simulator with the correct message and using \indcpa)
+
+    Suppose that $C$ is explained as $x\star E$; then to be able to distinguish $m_1$ from random the environment has to query the RO for $s\star C^t$, which can be explained only as $y\star E_0, y\star E, y\star A$ or their twists.
+
+    We recall that $s\star C^t=s(x\star E)^t=s(xt)^{-1}E_0$. Then for each case we can equate this quantity with the new explanation.
+    \begin{itemize}
+        \item $s\star C^t = y\star E_0$ implies $s(xt)^{-1}=y$, from which $s$ can be computed, thus the simulator could have solved a computational CSIDH problem.
+        \item $s\star C^t = y\star E$ implies $s(xt)^{-1}=yt$, from which $\sdv$ can compute $s$.
+        \item $s\star C^t = y\star E^t$ implies $s(xt)^{-1}=yt^{-1}$, from which $\sdv$ can compute $s$.
+        \item $s\star C^t = y\star A$ implies $s(xt)^{-1}=yst$, from which the environment can compute $t$ and solve the CSIDH problem of the trusted setup.
+        \item $s\star C^t = y\star A^t$ implies $s(xt)^{-1}=y(st)^{-1}$, from which $\sdv$ can compute $s$.
+    \end{itemize}
+    In any case, someone is able to solve a CSIDH problem.\todo{Is it a problem who can solve what??}
+
+    The environment then cannot query on the other key, so isn't able to distinguish $m_{1-\sigma}$ from random.\todo{Write probabilities with queries and distinguisher reductions!}
+\end{proof}

@@ -1,0 +1,316 @@
+\chapter{What is Oblivious Transfer?}
+
+\section{Introduction}
+Oblivious Transfer is a functionality between two parties, one called \emph{sender} and the other \emph{receiver}. The sender has two messages $m_0,m_1$, while the receiver has a ``choice bit" $\sigma$; at the end of the execution the receiver should know $m_\sigma$ (but nothing about $m_{1-\sigma}$), and the sender shouldn't be able to know $\sigma$.
+
+It is one of the simplest examples of secure multi-party computation, but most importantly any MPC function can be reduced to a composition of many OT protocols. Thus the security and efficency of proposed OT protocols is of great importance.
+
+Efficiency usually is measured in number of rounds, size of the exchanged messages and actual time of computation (or number of operations). Security, as with most MPC protocols, is defined in the UC framework.
+
+The UC framework provides the most security for any protocol, since it gives protection against parallel executions and any kind of composition with other protocols. However full proofs for the case of an adaptive malicious adversary are usually difficult to do and may require some added technicalities to the protocol itself.
+
+Moreover, is has been proved that it's impossible to realize a UC-secure OT protocol in the \emph{plain model}. All protocols thus rely on a Random Oracle or a Common Reference String.
+
+We will define the security of our protocols based on the SUC framework, and in particular will have two parties denoted by S for the sender and R for the receiver.
+
+The full functionality is described below in figure \ref{func_ot_base}.
+
+Formally, any 2-party computation can be modeled by some function $f:\{0,1\}^\ast\times\{0,1\}^\ast\to\{0,1\}^\ast\times\{0,1\}^\ast$. For the Oblivious Transfer protocol one has $f_{OT}((m_0,m_1), \sigma)=(\lambda, m_\sigma)$, where $\lambda$ denotes the empty string.
+
+\begin{figure}
+    \begin{center}
+            \fbox{\parbox{0.9\linewidth}{\centering
+                \textbf{The functionality $\mathcal F_{OT}$}
+                \begin{enumerate}
+                    \item On input $(\texttt{receive}, sid, \sigma)$ from R, if no message with the same sid has been stored, store $(\texttt{receive}, sid, \sigma)$.
+                    \item On input $(\texttt{send}, sid, (m_0, m_1))$ from S, if no message with the same sid has been stored, store $(\texttt{send}, sid, (m_0, m_1))$.
+                    \item On input $(\texttt{deliver}, sid)$ from the simulator, if there have been stored both messages $(\texttt{receive}, sid, \sigma)$ and $(\texttt{send}, sid, (m_0, m_1))$, send $(\texttt{output}, sid, m_\sigma)$ to R.
+                \end{enumerate}
+
+        }}
+    \end{center}
+    \caption{The functionality for Oblivious Transfer in the SUC framework}
+    \label{func_ot_base}
+\end{figure}
+
+HERE: original oblivious transfer protocol. Other things?
+
+
+\section{Some insecure protocols}
+
+We now describe a couple of OT protocols based on Diffie-Hellman and prove their level of (in)security.
+
+Both protocols will use a fixed prime $p$, and a fixed generator $g$ of $\F_p^\ast$.
+
+Moreover we use a symmetric encryption scheme $\mathcal{E}=(\enc, \dec)$ defined over $(\mathcal{K, M, C})$, with $\mathcal{K}=\F_p^\ast$.
+
+\subsection{Eavesdropper secure}
+We describe a possible OT protocol which completely relies on the honesty of both parties.
+
+\begin{figure}
+    \myproc{Protocol 1}{
+        \textbf{Sender} \> \> \textbf{Receiver} \\
+        \text{Input: }(m_0, m_1) \> \> \text{Input: }\sigma \\
+        \> \> b_0, b_1 \sample \set{1,\dots, p-1} \\
+        \> \> B_i = g^{b_i} \\
+        \> \sendmessageleft*{(B_0, B_1)} \> \\
+        a_0, a_1 \sample \set{1,\dots, p-1} \> \> \\
+        A_i = g^{a_i} \> \> \\
+        k_i = B_i^{a_i} \> \> \\
+        c_i = \enc_{k_i}(m_i) \> \> \\
+        \> \sendmessageright*{(A_0, A_1, c_0, c_1)} \> \\
+        \> \> k_\sigma= A_\sigma^{b_\sigma} \\
+        \> \> m_\sigma= \dec_{k_\sigma}(c_\sigma) \\
+    }
+    \caption{The example protocol number 1}
+    \label{prot_dummy_1}
+\end{figure}
+
+\begin{proposition}
+    The protocol 1 does not SUC-securely computes $\Fun_{OT}$ even with a semi-honest adversary.
+\end{proposition}
+
+\begin{proof}
+    We need to show that there exists an adversary such that for any simulator $\sdv$ there is an environment $\zdv$ which distinguishes the real execution from the ideal one.
+
+    We start by defining the adversary $\adv$, which corrupts the receiver, learns the secret $b_{1-\sigma}$ and then can compute $k_{1-\sigma} = A_{1-\sigma}^{b_{1-\sigma}}$ and finally decrypt $m'=\dec_{k_{1-\sigma}}(c_{1-\sigma})$; then $\adv$ sends back $m'$ to the environment.
+
+    We then define an environment $\zdv$ that checks if $m'=m_{1-\sigma}$ and outputs $1$ if they are equal, $0$ otherwise.
+
+    We claim that no simulator can make that environment output $1$, except with negligible probability, thus the distributions are very distinguishable.
+
+    Indeed the functionality statistically hides the other message $m_{1-\sigma}$ from the simulator, so the best thing the simulator can do is output a random message. \todo{Is it enough?}
+\end{proof}
+
+The only property that protocol 1 has is the privacy against external eavesdroppers, since it's basically the execution of an hybrid encryption scheme repeated for two times.
+
+
+\subsection{Semi-honest}
+We now change a little the protocol to make it at least semi-honest. We will prove its security against semi-honest adversaries, but will also show how malicious adversaries can break it.
+
+\begin{figure}
+    \myproc{Protocol 2}{
+        \textbf{Sender} \> \> \textbf{Receiver} \\
+        \text{Input: }(m_0, m_1) \> \> \text{Input: }\sigma \\
+        \> \> b_\sigma \sample \set{1,\dots, p-1} \\
+        \> \> B_\sigma = g^{b_\sigma} \\
+        \> \> B_{1-\sigma} \sample \set{1,\dots, p-1} \\
+        \> \sendmessageleft*{(B_0, B_1)} \> \\
+        a_0, a_1 \sample \set{1,\dots, p-1} \> \> \\
+        A_i = g^{a_i} \> \> \\
+        k_i = B_i^{a_i} \> \> \\
+        c_i = \enc_{k_i}(m_i) \> \> \\
+        \> \sendmessageright*{(A_0, A_1, c_0, c_1)} \> \\
+        \> \> k_\sigma= A_\sigma^{b_\sigma} \\
+        \> \> m_\sigma= \dec_{k_\sigma}(c_\sigma) \\
+    }
+    \caption{The example protocol number 2}
+    \label{prot_dummy_2}
+\end{figure}
+
+\begin{proposition}
+    Protocol 2 SUC-securely computes $\Fun_{OT}$ for semi-honest adversaries, if the encryption scheme is \indcpa.
+\end{proposition}
+\begin{proof}
+    Since the corruptions are static, we check the four different cases.
+
+    \textbf{Corrupted sender and honest receiver}: The simulator $\sdv_{S^\ast}$ is described in figure \ref{sim_dummy2_sender}.
+
+    \begin{figure}
+        \begin{center}
+            \fbox{\parbox{0.9\linewidth}{\centering
+                    \textbf{Simulator $\sdv_{S^\ast}$}
+                    \begin{itemize}
+                        \item Choose $B_0, B_1\sample \set{1,\dots, p-1}$ and notify the environment of the message $(B_0, B_1)$.
+                        \item Follow the protocol to compute $A_0,A_1,c_0,c_1$ and notify the environment of such sent message.
+                    \end{itemize}
+            }}
+        \end{center}
+        \caption{The simulator for the corrupted sender in protocol 2}
+        \label{sim_dummy2_sender}
+    \end{figure}
+
+    We show that the transcript provided by the simulator is indistinguishable from a real transcript.
+
+    Indeed the only difference is that in the protocol $B_\sigma = g^{b_\sigma}$; but since $b_\sigma$ is taken uniformly from $\set{1,\dots,p-1}$, also $g^{b_\sigma}$ is distributed uniformly in $\set{1,\dots,p-1}$.
+
+    More formally, if $X_0,X_1$ are two random variables uniformly distributed on $\set{1,\dots,p-1}$, then $(X_0,X_1)$ is identical to both $(X_0, g^{X_1})$ and $(g^{X_0}, X_1)$.
+
+    \textbf{Honest sender and corrupted receiver}: The simulator $\sdv_{R^\ast}$ is described in figure \ref{sim_dummy2_receiver}.
+
+        \begin{figure}
+        \begin{center}
+            \fbox{\parbox{0.9\linewidth}{\centering
+                    \textbf{Simulator $\sdv_{R^\ast}$}
+                    \begin{itemize}
+                        \item Follow the protocol to compute $B_\sigma$ and $B_{1-\sigma}$, and notify the environment of the sent message $(B_0, B_1)$.
+                        \item Query the functionality with input $\sigma$ as the receiver, and get the output $m_\sigma$.
+                        \item Follow the protocol to generate $A_0,A_1$, compute the key $k_\sigma$ and the ciphertext $c_\sigma=\enc_{k_\sigma}(m_\sigma)$.
+                        \item Generate a random key $k_{1-\sigma}\sample\mathcal{K}$ and compute $c_{1-\sigma}=\enc_{k_{1-\sigma}}(0)$.
+                        \item Notify the environment of the received message $(A_0, A_1, c_0, c_1)$.
+                    \end{itemize}
+            }}
+        \end{center}
+    \caption{The simulator for the corrupted receiver in protocol 2}
+    \label{sim_dummy2_receiver}
+    \end{figure}
+
+    We will now show that the environment cannot distinguish the simulator from a real transcript.
+
+    We use an intermediate simulator $\sdv'$ which differs from $\sdv_{R^\ast}$ only in that $c_{1-\sigma}=\enc_{k_{1-\sigma}}(m_{1-\sigma})$ (but the key is still random).
+
+    \begin{itemize}
+        \item \textit{Indistinguishability of $\sdv_{R^\ast}$ and $\sdv'$}.\\
+        If an environment $\zdv$ can distinguish the simulators, then we can use it to break $\indcpa$.\todo{Formalize this: to get an oracle we need to cheat with randomness}
+        \item \textit{Indistinguishability of $\sdv'$ and a real execution}.\\
+        Suppose we have an environment $\zdv$ that is able to distinguish; then we can use it to break the decisional Diffie-Hellman assumption.\\
+        We construct the following distinguisher $\ddv$, which takes as input any triple $(g^a,g^b,g^c)$. Internally, $\ddv$ makes the simulator $\sdv'$ generate $B_{1-\sigma}=g^b$ and $a_{1-\sigma}=a$; then sets $k_{1-\sigma}=g^c$.\\
+        Since $\zdv$ can distinguish the ``correct" key from a random one, it will also distinguish a random $c$ from the value $ab$.\todo{Write precise probabilities, check which properties of encryption scheme are used}
+    \end{itemize}
+
+    In conclusion, the environment cannot distinguish the simulator from a real execution.
+
+    \textbf{Corrupted sender and corrupted receiver}: The simulator can just execute the protocol with the input it knows.
+
+    \textbf{Honest sender and honest receiver}: Here the simulator runs the protocol with inputs $(m_0,m_1)=(0,0)$ and $\sigma=1$.
+
+    Using what is proved above, we can construct a series of intermediate simulators from the real execution to the one with fixed inputs.
+\end{proof}
+
+We have thus proved semi-honest security for protocol 2, which for some kind of tasks might be enough. However, we see that a malicious receiver can easily learn both messages.
+
+It is sufficient to sample a random $b\sample\set{1,\dots,p-1}$, then compute $B_{1-\sigma}=g^b$ and use this secret value of $b$ to decrypt $c_{1-\sigma}$ by computing the other key $k_{1-\sigma}=A_{1-\sigma}^b$.
+
+This is an example of why we are looking for UC-secure protocols with malicious adversaries.
+
+
+
+\section{Chou and Orlandi OT}
+
+We will analyze an important OT protocol of the recent years; it is one of the most efficient ones, but its security is based on classical DH (over elliptic curves) and cannot be proven to be fully UC-secure.
+
+The core of the protocol is described in figure \ref{prot_CO}. The function $H$ is modeled as a random oracle, and the protocol is implemented with Edwards curves.
+
+\begin{figure}
+    \myproc{Protocol $\Pi_{CO}$}{
+        \textbf{Sender} \> \> \textbf{Receiver} \\
+        \text{Input: }(m_0, m_1) \> \> \text{Input: }\sigma \\
+        a \sample \set{0,\dots, p-1} \> \>b \sample \set{0,\dots, p-1} \\
+        A = g^a \> \> \\
+        \> \sendmessageright*{A} \> \\
+        \> \> B = A^\sigma\cdot g^b \\
+        \> \sendmessageleft*{B} \> \\
+        k_i = H((B/ A^{i})^a) \> \> k_\sigma = H(A^b) \\
+        c_i = k_i \oplus m_i \> \> \\
+        \> \sendmessageright*{(c_0, c_1)} \> \\
+        \> \> m_\sigma= k_\sigma \oplus c_\sigma \\
+    }
+    \caption{The Simplest OT protocol by Chou and Orlandi}
+    \label{prot_CO}
+\end{figure}
+
+
+\section{Security in the algebraic group model}
+
+One possible solution to make the Chou and Orlandi protocol secure is to change the definition of what ``secure" means; in particular we can limit the adversary to behave \emph{algebraically} and then be able to complete the proofs.
+
+In the Algebraic Group Model (AGM in short) every machine that outputs a group element $g\in\mathbb G$ must be able to ``explain" it, i. e. output also a representation vector $(x_1,\dots,x_n)$ such that $g=\prod_{i=1}^n g_i^{x_i}$, where the $g_i$s are called a \emph{base} and are the group element already seen by that party.
+
+The approach of combining the AGM and the UC framework has been studied in \cite{AGM_UC}; we will follow their exposition, summarizing the most important points.
+
+\subsection{Defining AGM-UC}
+
+We will keep using the simplified UC framework, with a fixed number of parties for every protocol.
+
+The setting involves a group $\mathbb G$ of order $p$, with known generator $g$; we collect those parameters in $\mathcal G=(\mathbb G, g, p)$.
+
+\begin{definition}
+    Suppose a protocol $\pi$ uses the group $\mathcal G$. A pair of environment $\edv$ and adversary $\adv$ is said $(\mathcal G,\pi)$-algebraic if whenever $\adv$ sends a $(\texttt{backdoor}, m)$ message to a party and $m$ contains an element $h\in\mathbb G$, then it must provide (to a special ``algebraic tape") an algebraic representation $X$ of $h$, which is a list $X=[(g_1,x_1),\dots,(g_k,x_k)]$ such that $h=\prod_{i=1}^kg_i^{x_i}$ and $g_i$ are group elements already seen by $\adv$ or $\edv$ in the execution of $\pi$.
+\end{definition}
+
+Now we are able to define simulation:
+
+\begin{definition}
+    Suppose protocols $\pi$ and $\phi$ involve the same group $\mathcal G$. We say that $\pi$ \emph{$\mathcal G$-AGM emulates} $\phi$ if for any adversary $\adv$ there is a simulator $\sdv$ such that for any environment $\edv$ with $(\edv,\adv)$ that is $(\mathcal G, \pi)$-algebraic we have that also $(\edv,\sdv)$ is $(\mathcal G, \phi)$-algebraic and
+    $$EXEC_{\phi,\sdv,\edv} \cindist EXEC_{\pi,\adv,\edv}$$
+\end{definition}
+
+We can use dummy adversaries also in this algebraic setting; we need only to pay attention to the algebraic representations that the environment send to the adversary, because we don't want to forward them to the actual protocol.
+
+\begin{definition}
+    Suppose the protocol $\pi$ involves $\mathcal G$. An adversary $\ddv$ is \emph{$(\mathcal G, \pi)$-algebraically dummy} if it only forwards messages in this way:
+    \begin{itemize}
+        \item For any received message of the type $(\texttt{backdoor},m)$ from a party $ID$, sends $(\texttt{backdoor},(ID, m))$ to $\edv$.
+        \item For any $(\texttt{input},(ID, m))$ from $\edv$, it sends $(\texttt{input}, m')$ to ID, where $m'$ is equal to $m$, but without all algebraic representations $X$ of elements $h\in\mathbb G$ which are inside $m$.
+    \end{itemize}
+\end{definition}
+
+With this definition of dummy adversary we then have the theorem.
+
+\begin{theorem}
+    Suppose protocols $\pi$ and $\phi$ involve group $\mathcal G$. Then $\pi$ $\mathcal G$-AGM emulates $\phi$ if and only if $\pi$ $\mathcal G$-AGM emulates $\phi$ with respect to the dummy adversary.
+\end{theorem}
+
+Observe also that since the dummy adversary doesn't output any algebraic representation, they must all come from the environment.
+
+We then have the composition theorem, but need to pay attention to the different bases the adversary can use.\todo{maybe write this}
+
+\subsection{Proof of AGM-UC security of Chou and Orlandi}
+
+The algebraic model is a key tool for proving UC security for the \emph{simplest OT} protocol. The authors use the algebraic behaviour of the adversary both for explaining the parties' state after adaptive corruptions and for extracting the input bit of a corrupt receiver.
+
+We will only give a sketch of the proof in the case of static corruptions.
+
+We use the protocol in figure \ref{prot_CO}, with the functionality presented in figure \ref{func_ot_agm}.
+
+\begin{figure}
+    \begin{center}
+        \fbox{\parbox{0.9\linewidth}{\centering
+                \textbf{The functionality $\mathcal F_{OT}$}
+                \begin{itemize}
+                    \item On input $(\texttt{receive}, sid, \sigma)$ from R or $\sdv$, if no message with the same sid has been stored, store $(\texttt{receive}, sid, \sigma)$ and notify $\sdv$.
+                    \item On input $(\texttt{send}, sid, (m_0, m_1))$ from S or $\sdv$, if no message with the same sid has been stored, store $(\texttt{send}, sid, (m_0, m_1))$ and notify $\sdv$.
+                    \item On input $(\texttt{deliver}, sid, R)$ from the simulator, if there have been stored both messages $(\texttt{receive}, sid, \sigma)$ and $(\texttt{send}, sid, (m_0, m_1))$, send $(\texttt{output}, sid, m_\sigma)$ to R; otherwise output $\bot$ to $\sdv$.
+                    \item On input $(\texttt{deliver}, sid, S)$ from the simulator, if it was previously output $(\texttt{output}, sid, m_\sigma)$, then send $(\texttt{output}, sid)$ to S; otherwise output $\bot$ to $\sdv$.
+                \end{itemize}
+
+        }}
+    \end{center}
+    \caption{The functionality for Oblivious Transfer in the AGM-UC framework}
+    \label{func_ot_agm}
+\end{figure}
+
+\begin{theorem}
+    The protocol $\Pi_{CO}$ AGM-realizes the functionality $\Fun_{OT}$ in the $\Fun_{RO}$-hybrid model under static corruptions.
+\end{theorem}
+\begin{proof}
+    We construct a simulator $\sdv$ for the dummy algebraic adversary in each of the four corruption cases. By definition, this means that all group elements output by $\edv$ to $\sdv$ must have a representation.
+
+    \textbf{Corrupted sender and corrupted receiver}: Here there is nothing to simulate.
+
+    \textbf{Honest sender and honest receiver}:
+
+    \textbf{Corrupted sender and honest receiver}: When $\sdv$ receives $A$ from the environment, it also learns the value $a$ such that $A=g^a$.
+    The simulator then chooses a random $b$, computes $B=g^b$, and sends it back to $\edv$.
+
+    Then it computes the key $k=H(A^b)$. When the environment sends any $(c_0,c_1)$, the simulator sends $(c_0\oplus k, c_1\oplus k)$ to the trusted party and makes it deliver to the honest receiver.
+
+    This simulates correctly since the output of the receiver is identical in both the ideal and the real execution; moreover the distributions $g^{a\sigma+b}$ and $g^b$ are identical, so the environment cannot distinguish between the case $\sigma=0$ and $\sigma=1$.
+
+    \textbf{Honest sender and corrupted receiver}: The simulator samples $a$, computes $A=g^a$ and sends it to the environment, which responds with an arbitrary element $B$; since $\edv$ is algebraic, it must also output a representation $B=A^x g^y$.
+
+    If $x\in\{0,1\}$, the simulator queries the functionality with this bit, retrieves $m_x$, chooses a random $m_{1-x}$ and finally computes $k_i,c_i$ as specified in the protocol. If $x\not\in\{0,1\}$, the simulator chooses both $m_0$ and $m_1$ as random.
+
+    The simulator also runs the random oracle, and counts the queries the enviroment makes to it. Moreover, if $x\in\{0,1\}$ and $\edv$ queries for both $B^a$ and $B^a\cdot g^{-a^2}$, of if $x\not\in\{0,1\}$ and $\edv$ queries at least one of $B^a$ or $B^a\cdot g^{-a^2}$, then $\sdv$ aborts.
+
+    \textit{Claim}: $\sdv$ aborts with negligible probability if the discrete logarithm is hard.\todo{Make quantitative with number of queries}
+
+    Suppose we want to solve the discrete logarithm problem $A=g^z$, using $\edv$ as an oracle. We feed $\edv$ the element $A$ as coming from the simulator.
+    \begin{itemize}
+        \item Case $x\not\in\{0,1\}$. Suppose $\edv$ queries $B^z$; being algebraic, it must know a representation $B^z=A^sg^t$. But this means that $g^{z^2x+zy}=(A^xg^y)^z=B^z=g^{sz+t}$, i.e. $$z^2x+z(y-s)-t\equiv 0\pmod p$$ from which we can compute $z$. In the other case we have that $B^zg^{-z^2}=A^sg^t$, for which the equation is $z^2(x-1)+zy\equiv sz+t\pmod p$, which also has a solution.
+        \item Case $x=0$. The environment has queried $B^zg^{-z^2}$, for which it knows a representation $A^sg^t$. Then it gets the equation $zy-z^2\equiv sz+t\pmod p$, which has a solution.
+        \item Case $x=1$. The environment has queried $B^z$, and represents it as $A^sg^t$. Then the equation is $z^2+zy\equiv sz+t\pmod p$, which also has a solution.
+    \end{itemize}
+
+    This concludes the proof since if the simulator doesn't abort, the simulation is perfect, given that the keys queried from the random oracle statistically hide the messages. Finally we observe that all the simulators we have constructed are algebraic themselves.
+\end{proof}
