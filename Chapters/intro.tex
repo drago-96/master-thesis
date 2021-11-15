@@ -1,10 +1,42 @@
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
 
-The main goal of this thesis is to study isogeny-based cryptography, and in particular some proposed Oblivious Transfer protocols.
+The main goal of this thesis is to study isogeny-based cryptography, and in particular some proposed Oblivious Transfer protocols, with particular attention to security properties and proofs.
 
-OT protocols are a fundamental building block for Multi-Party Computation, thus having an efficient and post-quantum secure protocol is of great importance.
+Oblivious Transfer is one of the most basic functionalities between two parties, and it can be used as a fundamental building block for secure Multi-Party Computation.
 
-We will introduce the basic concepts of isogeny-based cryptography, of Universal Composability security and classical OT protocols. Then we will describe some proposed OT protocols which are based on isogeny crypto, analyzing efficiency and security for each one of them.
+MPC is the subfield of cryptography that studies methods for multiple parties to be able to compute some public function, while keeping the inputs private. For example, the function might be ``the sum of all inputs" or ``who won the election?".
 
-(maybe?) a new protocol!
+In the case of Oblivious Transfer the function is $f((m_0,m_1),\sigma)=(\lambda,m_\sigma)$. Since we can compose many OT to get an arbitrary secure function evaluation, it is of great importance studying the most efficient and secure ways to realize OT.
+
+There are many OT protocols which are based on the classical cryptography problems like RSA, Diffie-Hellman or ECDH. However, since all these problems become ``easy" with access to a quantum computer, in the recent years there has been a great effort in producing new cryptographic primitives that are quantum resistant.
+
+The National Institute of Standards and Technology (NIST) has started in 2016 a competition to find a new post-quantum secure standard algorithm for KEMs and digital signatures. We are currently at round 3, with 4 KEM and 3 signature algorithms left, and some more ``alternate" algorithms.
+
+The main areas from which the finalists and the alternate algorithms have been drawn are the following:
+\begin{itemize}
+    \item Coding theory
+    \item Lattice theory
+    \item Multivariate equations
+    \item Hash functions
+    \item Supersingular isogenies
+\end{itemize}
+
+Beyond the NIST competition, also the MPC world is trying to adopt some post-quantum constructions for its protocols. The most promising one, both for the NIST competition and the MPC protocols, is probably lattice-based cryptography. However we will focus on isogeny-based cryptography, which is a pretty new subfield.
+
+The main idea of isogeny crypto is to use graphs of elliptic curves, where the nodes are supersingular $j$-invariants and the edges are isogenies between them. The reason why this is useful for cryptography is that it's easy to compute a random isogeny from a given curve (i.e. a walk in the graph), but it's hard to find an isogeny given two different curves.
+
+Isogeny-based cryptography has two main constructions, which are SIDH and CSIDH. Both are key exchange algorithms, but are quite different: SIDH works on a graph defined over $\F_{p^2}$, while CSIDH is over $\F_p$ and uses the action of the class group on elliptic curves.
+
+After introducing isogeny crypto with its assumptions and constructions, we will analyze how to build OT protocols based on it. Our focus will be provable security of those protocols, i.e. against what attacks they are secure and if they can be composed to make MPC protocols.
+
+In general defining the security of a MPC protocol is much more challenging than defining security for an encryption scheme; for the latter we have the usual game-based definitions, while for complex protocols we need something more. In particular, we will need simulation-based security notions.
+
+The most used framework in which to prove security is called Universal Composability: its aim is to model any generic computation, with any security guarantee. At the heart of the framework is the following idea: we distinguish the \emph{real world} in which the protocol is actually executed, and the \emph{ideal world} in which the parties interact with a trusted third party. We program the trusted party with the computation we want to do and say that the protocol securely implements the computation if any attacker in the real world can be simulated in the ideal world.
+
+This means that any attacker cannot really gain more information apart from what we let it know in the ideal functionality. In the case of a distributed function evaluation, the trusted party will collect all the inputs and then deliver all the outputs to the specified parties; so UC is a formalization of the security statement ``an attacker cannot learn anything apart from the output of the function".
+
+We will then study the UC properties of different OT protocols; indeed we can model any adversary we want (\emph{semi-honest} or \emph{malicious}) with different corruption strategies (\emph{static} or \emph{adaptive}) and we can decide to work in the \emph{plain model} or admitting \emph{random oracles} or imposing some behaviour on the parties or the adversary.
+
+In the end, inspired by the \emph{Algebraic Group Model}, we will introduce a new model of computation specifically for isogeny-based crypto. With this model we will prove an increased level of security for some known OT protocols, or make them more efficient with an easier security proof.
+
