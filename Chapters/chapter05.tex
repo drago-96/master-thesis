@@ -69,33 +69,74 @@ In this setting, the EI assumption translates in the adversary being able to out
 {\color{red} This might not directly translate to the EI assumption, but imposing a smooth degree on the isogeny might work. Another problem is the field of definition of the isogeny; maybe we really need different assumptions for SIDH and CSIDH?}
 
 \subsection{Proving security in the EI model}
+We will need a non-committing encryption scheme, such as one-time pad.
+\begin{definition}
+    An encryption scheme is said to be \emph{non-committing} if there exists PPT algorithms $\rdv_1,\rdv_2$ such that for any $m\in\mathcal M$ the ensembles $(c',k')$ and $(c,k)$ are computationally indistinguishable, where $c'\xleftarrow{}\rdv_1()$, $k'\xleftarrow{}\rdv_2(c', m)$, $k\sample\mathcal K$ and $c\xleftarrow{}\enc_k(m)$.
+\end{definition}
+
 This is the big claim:
 
 \begin{theorem}
     The protocol $\Pi_{tw}$ EI-realizes the functionality $\Fun_{OT}$.
 \end{theorem}
 \begin{proof}
-    We try to prove \textbf{honest sender and corrupted receiver}, as the other cases \emph{should} be almost equal to original proof.
+    \textbf{Honest sender and corrupted receiver}: The simulator is defined by the following instructions:
+    \begin{enumerate}
+        \item Backdoors the trusted setup and sets the curve $E=t\star E_0$, with a randomly sampled $t\in Cl(\Oc)$.
+        \item Sets its public key as the honest sender $A=s\star E$.
+        \item When receiving the curve $C$ from the adversary, there is also an explanation $C=x\star E_R$, with $E_R=E_0,E$ or $E^t$. If $E_R=E$ it sets $\sigma=0$, if $E_R=E^t$ it sets $\sigma=1$, otherwise it sets $\sigma=-1$. If $\sigma\neq -1$, the simulator queries the functionality and gets the message $m_\sigma$.
+        \item The simulator samples two ciphertexts\todo{probably we can use \indcpa} $c_0,c_1\xleftarrow{}\rdv_1()$ and begins to monitor the random oracle queries from the adversary for the following values:
+        \begin{itemize}
+            \item Query is $s\star C$; if $\sigma\neq0$ aborts, otherwise sets $k_0\xleftarrow{}\rdv_2(c_0,m_0)$ and returns it.
+            \item Query is $s\star C^t$; if $\sigma\neq1$ aborts, otherwise sets $k_1\xleftarrow{}\rdv_2(c_1,m_1)$ and returns it.
+        \end{itemize}
+        \item Finally $\sdv$ sends $A,c_0,c_1$ to the adversary.
+    \end{enumerate}
+    
+    Let $A$ be the event that $\sdv$ aborts. Then we have
+    \begin{multline*}
+        \left|\prob{\zdv=1}-\prob{\zdv=0}\right| = \left|\condprob{\zdv=1}{A}\cdot\prob{A} + \condprob{\zdv=1}{\neg A}\cdot\prob{\neg A} -\right.\\\left.- \condprob{\zdv=0}{A}\cdot\prob{A} - \condprob{\zdv=0}{\neg A}\cdot\prob{\neg A}\right|\le\\
+        \le \left| \condprob{\zdv=1}{A} - \condprob{\zdv=0}{A}\right|\cdot\prob{A}  +\\
+        + \left| \condprob{\zdv=1}{\neg A} - \condprob{\zdv=0}{\neg A}\right|\cdot\prob{\neg A} \le \\
+        \le \prob{A} + \left| \condprob{\zdv=1}{\neg A} - \condprob{\zdv=0}{\neg A}\right|
+    \end{multline*}
 
-    The simulator backdoors the trusted setup functionality and sets the common curve $E=t\star E_0$ with a known $t$.
-
-    When it gets the curve $C$ from the receiver, there is also an explanation $C=x\star E_R$, with $E_R=E_0,E$ or $E^t$.
-
-    If $E_R=E_0$, the simulator uses random messages. If $E_R=E$, the simulator queries the functionality with $\sigma=0$ and gets the correct $m_0$; when $E_R=E^t$, the simulator gets $m_1$ by providing $\sigma=1$ to the functionality. Then it encrypts everything according to protocol, and uses the public key $A=s\star E$.
-
-    (Here there is the hybrid simulator with the correct message and using \indcpa)
-
-    Suppose that $C$ is explained as $x\star E$; then to be able to distinguish $m_1$ from random the environment has to query the RO for $s\star C^t$, which can be explained only as $y\star E_0, y\star E, y\star A$ or their twists.
-
-    We recall that $s\star C^t=s(x\star E)^t=s(xt)^{-1}E_0$. Then for each case we can equate this quantity with the new explanation.
+    The theorem will then follow from the fact that both quantities are negligible. Indeed if $\sdv$ aborts, then we can solve a CSIDH problem, while if $\zdv$ can distinguish we can break the non-committing property of the encryption scheme.\todo{or \indcpa}
+    
+    Suppose now that we have a CSIDH problem $E_1=a\star E_0$ we want to solve. We create two possible solvers for this problem:
     \begin{itemize}
-        \item $s\star C^t = y\star E_0$ implies $s(xt)^{-1}=y$, from which $s$ can be computed, thus the simulator could have solved a computational CSIDH problem.
-        \item $s\star C^t = y\star E$ implies $s(xt)^{-1}=yt$, from which $\sdv$ can compute $s$.
-        \item $s\star C^t = y\star E^t$ implies $s(xt)^{-1}=yt^{-1}$, from which $\sdv$ can compute $s$.
-        \item $s\star C^t = y\star A$ implies $s(xt)^{-1}=yst$, from which the environment can compute $t$ and solve the CSIDH problem of the trusted setup.
-        \item $s\star C^t = y\star A^t$ implies $s(xt)^{-1}=y(st)^{-1}$, from which $\sdv$ can compute $s$.
+        \item Algorithm $\ddv_1$ will run $\sdv$ with $E_1$ as the trusted setup; then it will check if it can compute $a$ from the queries and explanations that $\zdv$ makes to the random oracle.
+        \item Algorithm $\ddv_2$ will run $\sdv$ with $b\star E_0$ as a trusted setup and $b\star E_1$ as the public key of the sender; then it will check queries to compute a value $a'$ such that $a'\star(b\star E_0)=b\star E_1$, which means $a'=a$.
     \end{itemize}
-    In any case, someone is able to solve a CSIDH problem.\todo{Is it a problem who can solve what??}
-
-    The environment then cannot query on the other key, so isn't able to distinguish $m_{1-\sigma}$ from random.\todo{Write probabilities with queries and distinguisher reductions!}
+    
+    In table \ref{tab_dlogs} we show how $\ddv_1$ and $\ddv_2$ can compute the solutions from the query. The rows are indexed by the explanation of the curve $C$ and the query, while the columns are the explanation of the query.
+    
+    \begin{table}[]
+        \centering
+        \begin{tabular}{c|ccccc}
+            & $y\star E_0$ & $y\star E$ & $y\star E^t$ & $y\star A$ & $y\star A^t$ \\
+            \hline
+            $C=x\star E_0$, $s\star C$ & $s=yx^{-1}$ & $s=ytx^{-1}$ & $s=yt^{-1}x^{-1}$ & $t=xy^{-1}$ & $s^2=x^{-1}t^{-1}$ \\ 
+            $C=x\star E_0$, $s\star C^t$ & $s=yx$ & $s=ytx$ & $s=yt^{-1}x$ & $t=x^{-1}y^{-1}$ & $s^2=xt^{-1}$ \\
+            $C=x\star E$, $s\star C^t$ & $s=xyt$ & $s=xyt^2$ & $s=xy$ & $t=x^{-1}y^{-1}$ & $s^2=xy$ \\
+            $C=x\star E^t$, $s\star C$ & $s=x^{-1}yt$ & $s=x^{-1}yt^2$ & $s=x^{-1}y$ & $t=xy^{-1}$ & $s^2=x^{-1}y$ \\
+        \end{tabular}
+        \caption{The computable solutions to the CSIDH problem}
+        \label{tab_dlogs}
+    \end{table}
+    
+    We now compute $\prob{\sdv\text{ aborts}}$ and estimate it with the advantages of $\ddv_1,\ddv_2$ for the CSIDH problem.
+    
+    Indeed we have
+    \begin{multline*}
+        \prob{\sdv\text{ aborts}} = \prob{C=x\star E_0 \et \text{ queried } s\star C \text{ or } s\star C^t} \\
+        +\prob{C=x\star E \et \text{ queried } s\star C^t} \\
+        + \prob{C=x\star E^t \et \text{ queried } s\star C} \\
+        = \left(\prob{(C=x\star E_0) \et (s\star C \text{ or } s\star C^t) \et (y\star A)}\right. \\
+        + \left.\prob{C=x\star E \et s\star C^t \et y\star A} + \prob{C=x\star E^t \et s\star C \et y\star A}\right)\\
+        + \left(\prob{(C=x\star E_0) \et (s\star C \text{ or } s\star C^t) \et \neg(y\star A)}\right.\\
+        + \left.\prob{C=x\star E \et s\star C^t \et \neg(y\star A)} + \prob{C=x\star E^t \et s\star C \et \neg(y\star A)}\right)\\
+        \le \advantage{CSIDH}{\ddv_1}[] + \advantage{CSIDH}{\ddv_2}[]
+    \end{multline*}\todo{is this computation right? I highly doubt so...}
+    
 \end{proof}
