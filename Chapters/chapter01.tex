@@ -17,27 +17,219 @@ Since we will work over finite fields of large characteristic, we will assume in
 \begin{proposition}[Weierstrass model]
     Let $E$ be an elliptic curve over $K$, with $\car K\neq 2,3$. Then $E$ is isomorphic to the curve $$ZY^2=X^3+aXZ^2+bZ^2$$ with $a,b\in K$ and $4a^3+27b^2\neq0$.
     
-    The point $\Oc=(0:1:0)$ is called the \emph{point at infinity} of $E$, and it's the only point on $Z=0$.
+    The point $O=(0:1:0)$ is called the \emph{point at infinity} of $E$, and it's the only point on $Z=0$.
 \end{proposition}
 
 Usually we then identify the curve with its affine patch at $Z\neq0$, i.e. with the equation $$y^2=x^3+ax+b,$$
-plus the point at infinity $\Oc$.
+plus the point at infinity $O$.
 
-Is is well known that any elliptic curve has a structure of abelian group, with $\Oc$ as the neutral element.
+Any elliptic curve can (almost) be identified by a single number, the \emph{$j$-invariant}:
+\begin{theorem}
+    Let $E:y^2=x^3+ax+b$ an elliptic curve over $K$, and let its $j$-invariant be $$j(E)=1728\frac{4a^3}{4a^3+27b^2}.$$
+    
+    Then any other curve $E'$ is isomoprhic to $E$, over $\bar K$, if and only if $j(E)=j(E')$.
+\end{theorem}
+
+We will make precise sense of what ``almost" and ``isomorphic" means in the next sections when we will introduce isogenies and twists.
+
+Elliptic curves are also well known for naturally having a structure of abelian group, with the point at infinity $O$ as the neutral element.
+
+\begin{theorem}
+    Let $E$ an elliptic curve over $K$, given by a Weierstrass equation $y^2=x^3+ax+b$. Then there exists an abelian group law $\oplus$ on the set of $L$-rational points $E(L)$ for any field extension $K\subset L$.
+    
+    Given affine points $P_1=(x_1,y_1)$ and $P_2=(x_2,y_2)$ the addition law is defined by:
+    \begin{itemize}
+        \item If $x_1=x_2$ and $y_1=-y_2$, then $P_1\oplus P_2=O$.
+        \item Otherwise $P_1\oplus P_2=(x_3,y_3)$ with \begin{align*}
+            x_3 &=  \lambda^2-x_1-x_2\\
+            y_3 &= -\lambda x_3-y_1+\lambda x_1
+        \end{align*}
+        where $\lambda=\frac{3x_1^2+a}{2y_1}$ if $P_1=P_2$, and $\lambda=\frac{y_2-y_1}{x_2-x_1}$ otherwise.
+    \end{itemize}
+\end{theorem}\todo{maybe usual picture?}
+
+The structure of this group has been much studied, and there are still open questions; luckily we will work in finite fields, where most of it is understood.
+
+\begin{theorem}
+    Let $E$ be an elliptic curve over an algebraically closed field $K$ of characteristic $p$, and let $m$ be an integer. Then the $m$-torsion group of $E(K)$, denoted by $E[m]$, is given by:
+    \begin{itemize}
+        \item $E[m]\cong \Zn{m}\times\Zn{m}$, if $p$ does not divide $m$.
+        \item If $p>0$, then either $E[p^r]\cong\Zn{p^r}$ for all $r\ge0$ or $E[p^r]=\{O\}$.
+    \end{itemize}
+\end{theorem}
+
+The curves where the last case happens are called \emph{supersingular}, and they are the main topic of this thesis.
+
+\begin{theorem}
+    Let $E$ be an elliptic curve over a field $K$. Then
+    \begin{itemize}
+        \item If $K$ is a number field, then $E(K)$ is a finitely generated abelian group.
+        \item If $K=\F_q$, then $E(\F_q)\cong\Zn{n}\times\Zn{m}$, with $n\mid\gcd(m, q-1)$.
+    \end{itemize}
+\end{theorem}
+
+The determination of the rank of $E(K)$ in the number field case is the focal point of the Birch and Swinnerton-Dyer conjecture, which is one of the Millennium Problems. It is also unknown if such rank is bounded or unbounded.
 
 \section{Isogenies}
 
+Since elliptic curves are algebraic varieties, we briefly recall some notions of maps between varieties.
+
+\begin{definition}
+    Let $V_1,V_2$ projective varieties over an algebraically closed field $\bar K$, and $\bar K(V_1), \bar K(V_2)$ their function fields.
+    
+    A \emph{rational map} $\phi:V_1\to V_2$ is $\phi=[f_1,\dots,f_n]$, where $f_i\in\bar K(V_1)$ such that for any point $P$ at which all $f_i$ are defined we have $\phi(P)=[f_1(P),\dots,f_n(P)]\in V_2$.
+    
+    A \emph{morphism} is a rational map that is regular at any point, i.e. for any $P\in V_1$ there exists a function $g\in\bar K(V_1)$ such that all $gf_i$ are defined at $P$, and at least one $gf_i(P)\neq0$.
+\end{definition}
+\todo{examples}
+
+An equivalent definition of morphism, which we state as a property, is the following:
 \begin{proposition}
-    Group map iff algebraic map that sends infinity to infinity.
+    Let $\phi: V_1\to V_2$ a morphism of projective varieties defined over $K$, with $\phi=[f_1,\dots,f_n]$. Then the map $\phi^\ast:K(V_2)\to K(V_1)$ given by $\phi^\ast(g)(x)=g(f_1(x),\dots,f_n(x))$ is a homomorphism of $K$-algebras.
 \end{proposition}
 
-Automorphisms.
+We now turn our attention to curves, which are varieties of dimension $1$, for example all polynomials $f(x,y)=0$ in two variables.
 
-Separable and inseparable. Splitting lemma.
+Since we will work over finite fields, it's important to clearly state the definition of separable and inseparable morphisms.
 
-Multiplication by $m$ and structure of $E[m]$.
+\begin{definition}
+    Let $\phi:C_1\to C_2$ be a nonconstant morphism of curves defined over $K$. Then we define its \emph{degree} to be $$\deg\phi = [K(C_1):\phi^\ast K(C_2)].$$
+    Moreover we say that $\phi$ is \emph{separable}, \emph{inseparable} or \emph{purely inseparable} exactly when the extension of function field is. Finally, we define $\deg_s\phi$ and $\deg_i\phi$ as the separable and inseparable degree of the field extension.
+\end{definition}
 
-Dual isogeny.
+A geometric interpretation of (separable) degree is the following, and in some sense it shows why it is the ``right" definition:
+
+\begin{proposition}
+    Let $\phi: C_1\to C_2$ be a morphism between smooth curves defined over $\bar K$. Then $\#\phi^{-1}(Q)=\deg_s\phi$ for all but finitely many $Q\in C_2$.
+\end{proposition}
+
+Turning back to elliptic curves, we are ready to define \emph{isogenies}.
+\begin{definition}
+    Let $E_1$ and $E_2$ be elliptic curves, with points at infinity $O_1,O_2$. An \emph{isogeny} is a morphism of curves $\phi:E_1\to E_2$ such that $\phi(O_1)=O_2$.
+    
+    We denote the set of isogenies from $E_1$ to $E_2$ by $\Hom(E_1, E_2)$.
+\end{definition}
+
+\begin{example}
+    We set $E_1:y^2=x^3+x$ and $E_2:y^2=x^3-4x$. Then the map $\phi:E_1\to E_2$ defined by $$\phi(x,y)=\left(\frac{x^2+1}{x}, y\frac{x^2-1}{x^2}\right), \;\phi(0,0)=O$$ is a separable isogeny of curves over $\Q$. Its kernel has size $2$ and is generated by $(0,0)$.
+    
+    It is indeed a morphism, since in projective coordinates it can be written as
+    \begin{align*}
+    \phi(X:Y:Z) &= (X(X^2+Z^2):Y(X^2-Z^2):X^2Z)\\
+    &= (Y(X^2+Z^2):XY^2-X^2Z-Z^3:XYZ)
+    \end{align*}
+    and is defined even at $(0:0:1)$.
+\end{example}
+
+Notice that $\Hom(E_1, E_2)$ is a group, with neutral element the constant isogeny that sends everything to $O_2$.
+
+Moreover, the choice of the $\Hom$ notation is not random: it turns out that isogenies are the right morphisms for the category of elliptic curves, since we have the following:
+\begin{proposition}
+    Let $\phi:E_1 \to E_2$ be a nonconstant isogeny. Then $\phi$ induces a surjective group homomorphism $E_1(\bar K)\to E_2(\bar K)$ with finite kernel.
+    
+    In particular, $\#\ker \phi = \deg_s\phi = \#\phi^{-1}(Q)$ for \emph{any} $Q\in E_2(\bar K)$.
+\end{proposition}
+
+It turns out that the kernel of a separable isogeny completely determines it, and we have simple formulas to evaluate the resulting isogeny, due to Vélu.
+\begin{proposition}
+    Let $E$ be an elliptic curve over an algebraically closed field $\bar K$, and $G$ a subgroup of $E(\bar K)$. Then there is a curve $E'$ and a separable isogeny $\phi:E\to E'$ with $\ker\phi=G$; the curve and the isogeny are unique up to isomorphisms $E'\cong E''$.
+    
+    If $E$ is defined by the equation $y^2=x^3+ax+b$, then $E'$ has equation $y^2=x^3+a'x+b'$, where
+    \begin{align*}
+    a' &= a-5\sum_{Q\in G\setminus\{O\}}(3x(Q)^2+a)\\
+    b' &= b-7\sum_{Q\in G\setminus\{O\}}(5x(Q)^2+3ax(Q)+2b)
+    \end{align*}
+    and for any $P\in E(\bar K)$ we have
+    $$\phi(P) = \left(x(P) + \sum_{Q\in G\setminus\{O\}} x(P+Q)-x(Q), y(P)+ \sum_{Q\in G\setminus\{O\}} y(P+Q)-y(Q)\right)$$
+\end{proposition}
+
+Notice that, given these formulas, both the resulting curve and a point evaluation can be computed in $O(\# G)$ time.
+
+One of the most important example of isogenies is multiplication-by-$m$:
+\begin{example}
+    For any $m\in\Z$ we have a natural isogeny $[m]:E\to E$, which we can define by induction with $[0](P)=O$, $[m+1]P=[m]P\oplus P$ and $[-m](P)=[m](-P)$. Since addition and negation are morphisms of curves, this actually defines an isogeny.
+    
+    We can show that $[m]$ is nonconstant, and its kernel is $E[m]$, for which we have stated its structure; most importantly, we observe that $\deg[m]=m^2$, which is a fundamental result in the theory of dual isogenies.
+\end{example}
+
+Indeed, we now define dual isogenies and state their properties
+
+\begin{theorem}
+    Let $\phi:E_1\to E_2$ an isogeny of degree $d$. Then there exists a unique isogeny $\hat\phi:E_2\to E_1$ such that $\hat\phi \phi=[d]$.
+    
+    $\hat\phi$ is called the \emph{dual isogeny} of $\phi$ and has the following properties:
+    \begin{enumerate}
+        \item Also $\phi\hat\phi=[d]$, the multiplication-by-$d$ on $E_2$.
+        \item $\hat\phi$ has also degree $d$.
+        \item $\hat\phi$ is defined over $K$ if and only if $\phi$ is.
+        \item $\widehat{\psi\circ\phi}=\hat\psi\circ\hat\phi$ for any isogeny $\psi:E_2\to E_3$.
+        \item $\widehat{\psi + \phi}=\hat\psi + \hat\phi$ for any isogeny $\psi:E_1\to E_2$.
+        \item $\hat{\hat\phi}=\phi$.
+    \end{enumerate}
+\end{theorem}
+
+Notice that this implies $\widehat{[m]}=[m]$, and thus that $\deg[m]=m^2$ as we already said.
+
+(Splitting lemma?)
+
+\section{Endomorphisms and automorphisms}
+
+In the previous section we observed that $\Hom(E_1, E_2)$ is a group because isogenies can be added. Notice that if $E_1=E_2=E$ we can also compose isogenies; thus we get the ring $\End(E)$. We clearly have $\Z\subset\End(E)$, identifying $\Z$ with the multiplication-by-$m$ isogenies; however the endomorphism ring can be bigger, and it will play a central role in isogeny-based cryptography.
+
+First we focus on \emph{invertible} isogenies, i.e. isomorphisms, since they are very easy to describe. In particular
+\begin{proposition}
+    Let $E:y^2=x^3+ax+b$ and $E':{y'}^2={x'}^3+a'x'+b'$ be two elliptic curves in Weierstrass form; the only isomorphisms between them are of the form $(x',y')=(u^2x, u^3y)$, which implies $a'=au^4$ and $b'=bu^6$.
+\end{proposition}
+
+This means that the group $\Aut(E)$ of invertible endomorphisms is easily computable and helps to understand the failure of the $j$ invariant to classify the isomorphism classes.
+
+\begin{theorem}
+    Let $E/\bar K$ an elliptic curve and $\car K\neq 2,3$. Then $\Aut(E)\cong\mu_n$, where $\mu_n$ is the group of the $n$ roots of unity in $\bar K$ and 
+    $$n=\begin{cases}2\text{ if } j\neq0,1728\\ 4 \text{ if } j=1728\\ 6 \text{ if } j=0\end{cases}$$
+    and the automorphism corresponding to $\zeta\in\mu_n$ is $(x,y)\mapsto(\zeta^2x,\zeta^3y)$.
+\end{theorem}
+
+Observe that except the two particular curves with $j=0$ or $1728$, the only non-trivial automorphism is $[-1]$.
+
+Moreover this computation of the automorphism group can be used to obtain a classification of \emph{twists}.
+
+\begin{definition}
+    Let $E$ be an elliptic curve over $K$. A \emph{twist} of $E$ is an elliptic curve $E'/K$ with $j(E)=j(E')$, but which is not isomorphic to $E$ over $K$.
+\end{definition}\todo{example?}
+
+The classification of all twists of a curve in Weierstrass form is then the following:
+\begin{proposition}
+    Let $E:y^2+ax+b$ be an elliptic curve over $K$. Then the set of twists of $E$, modulo $K$-isomorphism, is canonically isomorphic to $K^\ast/{K^\ast}^n$, with $n$ as before.
+    
+    In particular, given $d\in K^\ast$, the twist $E_d$ corresponding to $d$ is:
+    \begin{itemize}
+        \item $E_d: y^2=x^3+d^2ax+d^3b$ for $j(E)\neq0,1728$.
+        \item $E_d: y^2=x^3+dax$ for $j(E)=1728$.
+        \item $E_d: y^2=x^3+db$ for $j(E)=0$.
+    \end{itemize}
+\end{proposition}
+
+We now go back to endomorphisms. One fundamental result is one that bounds the size of $\Hom(E_1,E_2)$:
+\begin{proposition}
+    Let $E_1,E_2$ be elliptic curves. Then the $\Z$-module $\Hom(E_1,E_2)$ is torsion-free and has rank at most $4$.
+\end{proposition}
+
+In particular, we have very few possibilities for the endomorphism ring:
+\begin{theorem}
+    Let $E$ be an elliptic curve defined over $K$. Then its full endomorphism ring is one of the following:
+    \begin{itemize}
+        \item $\End(E)\cong\Z$.
+        \item $\End(E)$ is an order in an imaginary quadratic number field.
+        \item $\End(E)$ is a maximal order in a quaternion algebra.
+    \end{itemize}
+\end{theorem}
+
+When $\car K=0$, usually we have only the scalars, but sometimes $\End(E)$ has rank 2, in which case we say it has \emph{complex multiplication}.
+
+Over finite fields, every curve has at least the Frobenius endomorphism; in some very special cases it happens that $\End(E)$ has rank 4. These curves are again the \emph{supersingular} curves we have met above.
+
+Notice that in this case $\End(E)$ is non commutative; the difficulty of explicitly finding these extra endomorphisms is one of the hardness assumptions on which is founded isogeny crypto.
+
 
 \section{Elliptic curves over finite fields}
 
