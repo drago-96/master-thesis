@@ -172,6 +172,8 @@ Notice that this implies $\widehat{[m]}=[m]$, and thus that $\deg[m]=m^2$ as we 
 
 (Splitting lemma?)
 
+Standard form/division polynomials?
+
 \section{Endomorphisms and automorphisms}
 
 In the previous section we observed that $\Hom(E_1, E_2)$ is a group because isogenies can be added. Notice that if $E_1=E_2=E$ we can also compose isogenies; thus we get the ring $\End(E)$. We clearly have $\Z\subset\End(E)$, identifying $\Z$ with the multiplication-by-$m$ isogenies; however the endomorphism ring can be bigger, and it will play a central role in isogeny-based cryptography.
@@ -233,26 +235,124 @@ Notice that in this case $\End(E)$ is non commutative; the difficulty of explici
 
 \section{Elliptic curves over finite fields}
 
-Frobenius.
+In this section we shift the focus towards elliptic curves defined over some $\F_q$, which is the usual setting used in cryptography.
 
-Hasse bounds.
+Probably the most important object in studying elliptic curves over finite fields is the \emph{Frobenius endomorphism}, and in general Frobenius isogenies.
 
-(Weil conjectures)
+\begin{definition}
+    Let $E/K$ be an elliptic curve over a field of characteristic $p$, given by a Weierstrass equation $y^2=x^3+ax+b$. For any $q=p^r$ define $E^{(q)}$ to be the elliptic curve $y^2=x^3+a^qx+b^q$ and $\pi_q:E\to E^{(q)}$ to be the isogeny $$\pi_q(X:Y:Z)=(X^q:Y^q:Z^q).$$
+    
+    In particular, if $E$ is defined over $\F_q$, then $E^{(q)}=E$ and $\pi_q$ is an endomorphism of $E$, called the Frobenius endomorphism and usually denoted simply by $\pi$.
+\end{definition}
 
-Twists
+A generic Frobenius isogeny is completely characterized by the following properties:
+\begin{proposition}
+    Let $\pi_q:E\to E^{(q)}$ the Frobenius isogeny. Then $\pi_q$ is purely inseparable, has degree $q$ and $\ker\pi_q = \{O\}$.
+\end{proposition}
+
+Much like filed theory, where any extension can be split into a separable part and a purely inseparable part, the Frobenius isogeny helps us decompose arbitrary isogenies.
+\begin{proposition}
+    Let $\phi: E\to E'$ an isogeny of elliptic curves defined over a field of characteristic $p$. Then $\phi$ can be written as the composition of a Frobenius isogeny $\pi_q:E\to E^{(q)}$ and a separable isogeny $\phi_s:E^{(q)}\to E'$.
+    
+    \[\begin{tikzcd}
+        E\rar["\pi_q"] \ar[rr, bend right, "\phi"] & E^{(q)} \rar["\phi_s"] & E'
+    \end{tikzcd}\]
+\end{proposition}
+
+
+Turning back to the special Frobenius endomorphism, one of the first clues of its fundamental influence on the curve is the following
+\begin{proposition}
+    Let $E/\F_q$ an elliptic curve and $\pi$ its Frobenius endomorphism. Then $\ker(\pi-1) = E(\F_q)$, i.e. the points fixed by the Frobenius are precisely the $\F_q$-rational points.
+\end{proposition}
+
+
+
+However the most important feature of the Frobenius endomorphism is its \emph{trace}, which is tightly correlated with the point-counting function of the elliptic curve.
+
+\begin{theorem}
+    Let $E/\F_q$ an elliptic curve and $\pi$ its Frobenius endomorphism. Then there exists $t\in\Z$ such that $$\pi^2-t\pi+q=0.$$
+    
+    Moreover, if $\alpha,\beta$ are the roots of $X^2-tX+q=0$ we have that $|\alpha|=|\beta|=\sqrt q$ and $$\# E(F_{q^n}) = q^n+1-\alpha^n-\beta^n$$
+    
+    In particular, $\# E(\F_q) = q+1-t$ with $|t|\le2\sqrt q$.
+\end{theorem}
+
+This powerful theorem is actually the simplest case of the famous Weil's conjectures, which are a major cornerstone of arithmetic geometry.
+
+It turns out that the number of points is also invariant by isogenies, which is a theorem due to Tate:
+\begin{theorem}
+    Let $E_1,E_2$ be elliptic curves defined over $\F_q$. Then there exists an isogeny $\phi: E_1\to E_2$ defined over $\F_q$ if and only if $\# E_1(\F_q)=\# E_2(\F_q)$.
+\end{theorem}
+
+Notice that counting the number of points is an easy problem, due to the Schoof-Elkies-Atkin algorithm, which has an heuristical running time of $O(\log^4 q)$.
+
+The problem of deciding whether $E_1$ and $E_2$ are isogenous \emph{with a degree $\ell$ isogeny} is also somewhat feasible, with very similar techiniques to the SEA algorithm, namely the use of \emph{modular polynomials}.
+
+\begin{theorem}
+    For any prime $\ell$ there exists a symmetric polynomial $\Psi_\ell\in\Z[x,y]$ such that two elliptic curves $E_1,E_2$ are $\ell$-isogenous if and only if $\Psi_\ell(j(E_1),j(E_2))=0$.
+\end{theorem}
+
+These polynomials are independent from the base field (in particular they work both in positive and zero characteristic) and thus can be precomputed. They have $O(\ell^2)$ coefficients, so this decision problem is only solvable for ``small" values of $\ell$.
+
+Moreover, the modular polynomials can be used to compute all $\ell$-isogenous curves from a given $E$ by simply finding the roots of the univariate polynomial $\Psi_\ell(j(E),y)=0$.\todo{examples of degree 2 or 3 polynomials}
+
+Finally, we make a remark on twists over finite fields: since the multiplicative group $\F_q^\ast$ is cyclic, there is exactly one quadratic twist of an elliptic curve.
+\begin{proposition}
+    Let $E/\F_q$ be an elliptic curve with $j(E)\neq0,1728$ given by the equation $y^2=x^3+ax+b$; let $d$ be a non square element of $\F_q^\ast$. Then any quadratic twist of $E$ is $\F_q$-isomorphic to $y^2=x^3+d^2ax+d^3b$.
+\end{proposition}
+In particular, if $q$ is a prime $p\equiv3\pmod4$, then we can take $d=-1$ and the quadratic twist is simply $y^2=x^3+ax-b$.
 
 \section{Supersingularity}
 
-Equivalent conditions.
+At the heart of isogeny based cryptography lies the use of supersingular elliptic curves and their peculiar properties (which gained them the name ``supersingular").
 
-(Bounds V.4.7)
+Most of the following results are due to Deuring, in \cite{Deuring1941}. Let's start with some equivalent definitions.
+\begin{theorem}
+    Let $E/\F_q$ be an elliptic curve, with $q=p^k$; for any $r\ge1$ let $\phi_r:E\to E^{(p^r)}$ the Frobenius isogeny. The following are equivalent\todo{prove this?}
+    \begin{enumerate}
+        \item $E[p^r]=\{O\}$ for some (all) $r\ge1$.
+        \item The dual isogeny $\hat\phi_r$ is inseparable for some (all) $r\ge1$.
+        \item The map $[p]:E\to E$ is purely inseparable and $j(E)\in\F_{p^2}$.
+        \item $\End(E)$ is a maximal order in a quaternion algebra.
+    \end{enumerate}
+    If any of these properties hold, we say that $E$ is \emph{supersingular}.
+\end{theorem}
 
-Special supersingular j-invariants.
+This means that there are only finitely many isomorphism classes of supersingular elliptic curves, since their $j$ invariant is an element of $\F_{p^2}$. We call those \emph{supersingular $j$-invariants} and notice that for each of them there is a model of the supersingular curve defined over $\F_{p^2}$.
 
-How to compute ss ec.
+Moreover, we have a precise count of how many supersingular $j$-invariants there are in characteristic $p$:
+\begin{theorem}
+    Let $p\ge5$ be a prime. Then the number of supersingular $j$-invariants (i.e. supersingular elliptic curves up to $\bar\F_p$-isomorphism) is
+    $$\left\lfloor \frac{p}{12} \right\rfloor + \begin{cases}
+    0 & p\equiv1\pmod{12}\\
+    1 & p\equiv5\pmod{12}\\
+    1 & p\equiv7\pmod{12}\\
+    2 & p\equiv11\pmod{12}
+    \end{cases}$$
+\end{theorem}
 
-\section{Quaternion algebras}
+One of the first things to notice is that these supersingular curves are actually quite rare: by picking a uniformly random element of $\F_{p^2}$, the probability that it's a supersingular $j$-invariant is $O(p^{-1})$, which for cryptogaphically-sized primes is negligible.
 
-\section{Deuring correspondence}
+This means that the trivial sampling algorithm of ``pick a random $j$ and check its supersingularity" has exponential expected running time. Indeed, the checking part is easy, given the following proposition:
+\begin{proposition}
+    Let $E/\F_q$ be an elliptic curve defined by $y^2=f(x)$ over $\F_q$; let $p=\car\F_q$. Then both of the following are equivalent to $E$ being supersingular:
+    \begin{enumerate}
+        \item $p\mid q+1-\# E(\F_q)$, i.e. the characteristic divides the trace of Frobenius.
+        \item The coefficient of $x^{p-1}$ in $f(x)^{(p-1)/2}$ is zero.
+    \end{enumerate}
+\end{proposition}
 
+The first criterion is the one actually used for computational purposes (or some slight variants), while the second is useful in determining classes of supersingular elliptic curves.
+
+\begin{example}
+    Let $E:y^2=x^3+1$ the curve with $j=0$; we want to check for which primes $p$ its reduction is supersingular. By the criterion we just need to compute the coefficient of $x^{p-1}$, which in this case is given by the binomial theorem. Indeed $(x^3+1)^{(p-1)/2}=\sum_{i=0}^{(p-1)/2}\binom{(p-1)/2}{i}x^{3i}$; thus the coefficient is zero if and only if $3\nmid p-1$. This means that $E$ is supersingular if and only if $p\equiv2\pmod 3$.
+\end{example}
+
+\begin{example}
+    It's also easy to check when the other special curve $E: y^2=x^3+x$ (with $j=1728$) is supersingular. Using the binomial theorem as above we get that $E$ is supersingular if and only if $p\equiv3\pmod4$.
+\end{example}
+
+\subsection{Quaternion algebras}
+
+\section{Isogeny graphs}
 
