@@ -58,7 +58,7 @@ The structure of this group has been much studied, and there are still open ques
     \end{itemize}
 \end{theorem}
 
-The curves where the last case happens are called \emph{supersingular}, and they are the main topic of this thesis.
+The curves where the last case happens are called \emph{supersingular}, and they are one of the main topics of this thesis.
 
 \begin{theorem}
     Let $E$ be an elliptic curve over a field $K$. Then
@@ -143,7 +143,7 @@ It turns out that the kernel of a separable isogeny completely determines it, an
     $$\phi(P) = \left(x(P) + \sum_{Q\in G\setminus\{O\}} x(P+Q)-x(Q), y(P)+ \sum_{Q\in G\setminus\{O\}} y(P+Q)-y(Q)\right)$$
 \end{proposition}
 
-Notice that, given these formulas, both the resulting curve and a point evaluation can be computed in $O(\# G)$ time.
+Notice that, given these formulas, both the resulting curve and a point evaluation can be computed in $O(\# G)$ time.\todo{maybe explicit example}
 
 One of the most important example of isogenies is multiplication-by-$m$:
 \begin{example}
@@ -172,7 +172,7 @@ Notice that this implies $\widehat{[m]}=[m]$, and thus that $\deg[m]=m^2$ as we 
 
 (Splitting lemma?)
 
-Standard form/division polynomials?
+Standard form/division polynomials?\todo{write this}
 
 \section{Endomorphisms and automorphisms}
 
@@ -284,7 +284,7 @@ It turns out that the number of points is also invariant by isogenies, which is 
     Let $E_1,E_2$ be elliptic curves defined over $\F_q$. Then there exists an isogeny $\phi: E_1\to E_2$ defined over $\F_q$ if and only if $\# E_1(\F_q)=\# E_2(\F_q)$.
 \end{theorem}
 
-Notice that counting the number of points is an easy problem, due to the Schoof-Elkies-Atkin algorithm, which has an heuristical running time of $O(\log^4 q)$.
+Notice that counting the number of points is an easy problem, due to the Schoof-Elkies-Atkin algorithm, which has an heuristic running time of $O(\log^4 q)$.
 
 The problem of deciding whether $E_1$ and $E_2$ are isogenous \emph{with a degree $\ell$ isogeny} is also somewhat feasible, with very similar techiniques to the SEA algorithm, namely the use of \emph{modular polynomials}.
 
@@ -302,6 +302,11 @@ Finally, we make a remark on twists over finite fields: since the multiplicative
 \end{proposition}
 In particular, if $q$ is a prime $p\equiv3\pmod4$, then we can take $d=-1$ and the quadratic twist is simply $y^2=x^3+ax-b$.
 
+Another interesting property of twisting is its relation with the trace of Frobenius, and in particular with point counting.
+\begin{proposition}
+    Let $E/\F_q$ be an elliptic curve and $E'$ its quadratic twist over $\F_q$. Then $$\# E'(\F_q) = 2q+2 - \# E(\F_q)$$
+\end{proposition}
+
 \section{Supersingularity}
 
 At the heart of isogeny based cryptography lies the use of supersingular elliptic curves and their peculiar properties (which gained them the name ``supersingular").
@@ -315,7 +320,7 @@ Most of the following results are due to Deuring, in \cite{Deuring1941}. Let's s
         \item The map $[p]:E\to E$ is purely inseparable and $j(E)\in\F_{p^2}$.
         \item $\End(E)$ is a maximal order in a quaternion algebra.
     \end{enumerate}
-    If any of these properties hold, we say that $E$ is \emph{supersingular}.
+    If any of these properties hold, we say that $E$ is \emph{supersingular}; otherwise $E$ is said to be \emph{ordinary}.
 \end{theorem}
 
 This means that there are only finitely many isomorphism classes of supersingular elliptic curves, since their $j$ invariant is an element of $\F_{p^2}$. We call those \emph{supersingular $j$-invariants} and notice that for each of them there is a model of the supersingular curve defined over $\F_{p^2}$.
@@ -352,7 +357,24 @@ The first criterion is the one actually used for computational purposes (or some
     It's also easy to check when the other special curve $E: y^2=x^3+x$ (with $j=1728$) is supersingular. Using the binomial theorem as above we get that $E$ is supersingular if and only if $p\equiv3\pmod4$.
 \end{example}
 
+Notice moreover that combining the point counting criterion with Tate's theorem we get the following
+\begin{remark}
+    Elliptic curves in the same isogeny class are either all supersingular or all ordinary.
+\end{remark}
+
 \subsection{Quaternion algebras}
 
+\begin{example}
+    Let $p\equiv3\pmod4$ be a prime and $E:y^2=x^3+x$ over $\F_p$. We then know that $E$ is supersingular and $\# E(\F_p)=p+1$; moreover, let $i^2=-1$ be an element of $\F_{p^2}$.
+    
+    The full endomorphism ring $\End(E)$ contains the Frobenius $\pi$ and the map $\psi(x,y)=(-x,iy)$ (this is the $\F_{p^2}$-isomorphism between $E$ and its quadratic twist, which in this case is $E$ itself).
+    
+    Notice that $(\pi\circ\psi)(x,y)=\pi(-x,iy)=(-x^p,i^py^p)=(-x^p,-iy^p)$, while $(\psi\circ\pi)(x,y)=(-x^y,iy^p)$. This means that $\pi\psi=-\psi\pi$, and in particular that the two endomorphisms do not commute.
+    
+    Indeed $\End(E)$ is an order in the quaternion algebra $(-1,-p/\Q)$, where we use $\psi^2=[-1]$ and $\pi^2=[-p]$ to identify the endomorphisms with the generators of the quaternion algebra.
+\end{example}
+
 \section{Isogeny graphs}
+
+\section{Montgomery models}
 
