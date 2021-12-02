@@ -118,10 +118,35 @@ We will do that recursively, and start by setting $E_0=E$, $R_0=R$ and $T_0=T$. 
 
 With this algorithm, we can compute efficiently all the quotients, in time $O(e^2\ell)$. However, we can still do better with the implementation of the so called ``isogeny strategies", which are one of the main improvements of the 2014 version of the paper \cite{SIDH14}.
 
-\subsection{How to break SIDH}
-Active attack against static key: \cite{SIKE_Galbraith}.
+One final implementation detail is that the curves are in Montgomery form, so that we can efficiently compute additions and isogenies with $x$ only arithmetic.
 
-Breaking small instances: \cite{SIKE_challenge}.
+Indeed in the last 10 years there have been many optimizations to SIKE, from mathematical ones like Montgomery curves to optimizing the assembly instructions for each architecture.
+
+For example, using the implementations on the official submission page \url{https://sike.org/},
+we tested that the reference implementation uses around 900 million CPU cycles for the \texttt{KeyGen} algorithm of \texttt{SIKEp434}, while the optimized AMD64 implementation uses only 5 million cycles for the same operation. This means being able to run the three operations \texttt{KeyGen, Encaps, Decaps} in just around 10ms and thus might be a valid option for the TLS key exchange part.
+
+Some more detailed benchmarks of the use of SIKE inside TLS can be found on \href{https://blog.cloudflare.com/the-tls-post-quantum-experiment/}{Cloudflare's} or \href{https://aws.amazon.com/it/blogs/security/round-2-hybrid-post-quantum-tls-benchmarks/}{Amazon's} blog posts.
+
+
+\subsection{How to break SIDH}
+One of the most simple ways to attack SIDH, and in general the isogeny problem, is the \emph{claw finding} algorithm: given the two curves $E$ and $E_A$, build the two trees on the $\ell_A$-isogeny graph starting from $E$ and $E_A$ with depth $e_A/2$; then search if there is a common leaf and join the two half-paths to compute the secret isogeny $\phi_A$.
+
+This attack has a cost of about $O(\ell_A^{e_A/2})$ time and space; since we don't want imbalances in the security for Alice or Bob, the parameters are selected such that $\ell_A^{e_A}\simeq \ell_B^{e_B}\simeq \sqrt{p}$. Indeed, the parameters for the standardized protocol \texttt{SIKEp434} are $p=2^{216}3^{137}-1$.
+
+In terms of quantum security, the claw finding algorithm can be optimized to run in $O(\sqrt[6]{p})$ instead of the classical $O(\sqrt[4]{p})$, as described in \cite{Tani_claw}.
+
+Indeed this algorithm is the best known attack to the ``isogeny with fixed degree" problem, and in general to SIKE. For example, Microsoft has recently published two \href{https://www.microsoft.com/en-us/msrc/sike-cryptographic-challenge}{challenges} with reduced-size instances of SIKE, with bounties of \$5,000 and \$50,000. The smallest of the two has been broken by Udovenko and Vitto \cite{SIKE_challenge} this autumn with some clever optimizations of the claw finding (or meet-in-the-middle) algorithm.
+
+
+However, SIDH gives to the attacker also the action of the secret isogeny $\phi_A$ on the torsion subgroup $E[\ell_B^{e_B}]$. This is conjectured not to pose a serious threat, but there is an attack by Galbraith et al. \cite{SIKE_Galbraith} in the case that Alice runs many instances of SIDH with the same pair of keys.
+
+We can describe two attack models, in terms of what is the output of Alice; in both cases the attack by Galbraith will recover the secret key $a\in\Zn{\ell_A^{e_A}}$ of Alice:
+\begin{itemize}
+    \item $O(E,R,S)=E/\langle R+[a]S\rangle$, i.e. Alice will complete her part of the key exchange and then will output the shared secret.
+    \item $O(E,R,S,E')$ which outputs whether $j(E')=j(E/\langle R+[a]S\rangle)$; this model is more realistic, if for example Alice uses an authenticated encryption scheme with a key derived from the shared $j$-invariant, and returns an error when the authentication tag mismatches.
+\end{itemize}
+
+This attacks means that SIDH can only be used as an interactive and ephemeral key exchange. Indeed the SIKE protocol is the transformation of SID into a KEM protocol by means of the Hofheinz transform \cite{Hofheinz}. Details on the SIKE protocol and this transformation can be found in the official specification at \url{https://sike.org/files/SIDH-spec.pdf}.
 
 \section{Equivalence of SIDH hardness assumptions}
 $\ell$-IsogenyPath vs. EndRing.
