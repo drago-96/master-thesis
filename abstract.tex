@@ -1,0 +1,26 @@
+\documentclass[]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+
+%opening
+\title{Isogeny-based Oblivious Transfer Protocols}
+\author{Riccardo Zanotto}
+
+\begin{document}
+
+\maketitle
+
+Cryptography plays a central role in our modern digital world: most of the interactions between a user and the internet are secured using HTTPS, which makes use of both public key and symmetric cryptography. However, quantum computers pose a serious threat to existing cryptography, thus NIST started a competition in 2016 to select new key exchange and signature primitives that are post-quantum secure.
+
+One of the candidates is SIKE, which is based on isogeny graphs of supersingular elliptic curves. Recently there has been a great increase in isogeny-based protocols, starting from the more famous key exchanges SIDH and CSIDH, and then many other cryptographic primitives (signatures, hashes, VDFs).
+
+We are interested in building secure Multi-Party Computation protocols from post-quantum primitives, and in particular from isogeny-based cryptography. One of the most basic MPC protocols is Oblivious Transfer, which can be described as the secure evaluation of the function $f((m_0,m_1),\sigma)=(\lambda, m_\sigma)$ by two parties. It turns out that OT can be used to build any MPC protocol, so in the recent years there is a great quest for efficient and post-quantum secure OT protocols.
+
+In this thesis we will analyze some proposed OT protocols based on isogeny constructions. Most of the protocols we will encounter are slightly inefficient or without optimal security. In particular, we will focus on security defined in the Universal Composability framework, which is the standard for MPC protocols and in general can model any cryptographic task.
+
+Security proofs in the UC framework, especially for malicious adversaries, require great care and usually need to add more technicalities in the protocols, making them less efficient. We will try to overcome this obstacle by taking inspiration from the Algebraic Group Model and define a new \emph{Explicit Isogeny} model of computation, from which security proofs of isogeny-based protocols will be easier, but without losing too much generality given the heuristic hardness of sampling a random supersingular curve.
+
+\end{document}
