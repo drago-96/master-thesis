@@ -83,7 +83,7 @@ Since elliptic curves are algebraic varieties, we briefly recall some notions of
 \end{definition}
 \todo{examples}
 
-An equivalent definition of morphism, which we state as a property, is the following:
+A very important property of morphisms is the following:
 \begin{proposition}
     Let $\phi: V_1\to V_2$ a morphism of projective varieties defined over $K$, with $\phi=[f_1,\dots,f_n]$. Then the map $\phi^\ast:K(V_2)\to K(V_1)$ given by $\phi^\ast(g)(x)=g(f_1(x),\dots,f_n(x))$ is a homomorphism of $K$-algebras.
 \end{proposition}
@@ -162,7 +162,7 @@ Indeed, we now define dual isogenies and state their properties
         \item Also $\phi\hat\phi=[d]$, the multiplication-by-$d$ on $E_2$.
         \item $\hat\phi$ has also degree $d$.
         \item $\hat\phi$ is defined over $K$ if and only if $\phi$ is.
-        \item $\widehat{\psi\circ\phi}=\hat\psi\circ\hat\phi$ for any isogeny $\psi:E_2\to E_3$.
+        \item $\widehat{\psi\circ\phi}=\hat\phi\circ\hat\psi$ for any isogeny $\psi:E_2\to E_3$.
         \item $\widehat{\psi + \phi}=\hat\psi + \hat\phi$ for any isogeny $\psi:E_1\to E_2$.
         \item $\hat{\hat\phi}=\phi$.
     \end{enumerate}
@@ -230,7 +230,7 @@ When $\car K=0$, usually we have only the scalars, but sometimes $\End(E)$ has r
 
 Over finite fields, every curve has at least the Frobenius endomorphism; in some very special cases it happens that $\End(E)$ has rank 4. These curves are again the \emph{supersingular} curves we have met above.
 
-Notice that in this case $\End(E)$ is non commutative; the difficulty of explicitly finding these extra endomorphisms is one of the hardness assumptions on which is founded isogeny crypto.
+Notice that in this case $\End(E)$ is non commutative; the difficulty of explicitly finding these extra endomorphisms is one of the hardness assumptions on which isogeny crypto is founded.
 
 
 \section{Elliptic curves over finite fields}
@@ -250,7 +250,7 @@ A generic Frobenius isogeny is completely characterized by the following propert
     Let $\pi_q:E\to E^{(q)}$ the Frobenius isogeny. Then $\pi_q$ is purely inseparable, has degree $q$ and $\ker\pi_q = \{O\}$.
 \end{proposition}
 
-Much like filed theory, where any extension can be split into a separable part and a purely inseparable part, the Frobenius isogeny helps us decompose arbitrary isogenies.
+Much like field theory, where any extension can be split into a separable part and a purely inseparable part, the Frobenius isogeny helps us decompose arbitrary isogenies.
 \begin{proposition}
     Let $\phi: E\to E'$ an isogeny of elliptic curves defined over a field of characteristic $p$. Then $\phi$ can be written as the composition of a Frobenius isogeny $\pi_q:E\to E^{(q)}$ and a separable isogeny $\phi_s:E^{(q)}\to E'$.
     
@@ -272,7 +272,7 @@ However the most important feature of the Frobenius endomorphism is its \emph{tr
 \begin{theorem}
     Let $E/\F_q$ an elliptic curve and $\pi$ its Frobenius endomorphism. Then there exists $t\in\Z$ such that $$\pi^2-t\pi+q=0.$$
     
-    Moreover, if $\alpha,\beta$ are the roots of $X^2-tX+q=0$ we have that $|\alpha|=|\beta|=\sqrt q$ and $$\# E(F_{q^n}) = q^n+1-\alpha^n-\beta^n$$
+    Moreover, if $\alpha,\beta$ are the roots of $X^2-tX+q=0$ we have that $|\alpha|=|\beta|=\sqrt q$ and $$\# E(\F_{q^n}) = q^n+1-\alpha^n-\beta^n$$
     
     In particular, $\# E(\F_q) = q+1-t$ with $|t|\le2\sqrt q$.
 \end{theorem}
@@ -289,7 +289,7 @@ Notice that counting the number of points is an easy problem, due to the Schoof-
 The problem of deciding whether $E_1$ and $E_2$ are isogenous \emph{with a degree $\ell$ isogeny} is also somewhat feasible, with very similar techiniques to the SEA algorithm, namely the use of \emph{modular polynomials}.
 
 \begin{theorem}
-    For any prime $\ell$ there exists a symmetric polynomial $\Psi_\ell\in\Z[x,y]$ such that two elliptic curves $E_1,E_2$ are $\ell$-isogenous if and only if $\Psi_\ell(j(E_1),j(E_2))=0$.
+    For any prime $\ell$ there exists a symmetric polynomial $\Psi_\ell\in\Z[x,y]$ such that two elliptic curves $E_1,E_2$ defined over an algebraically closed field are $\ell$-isogenous if and only if $\Psi_\ell(j(E_1),j(E_2))=0$.
 \end{theorem}
 
 These polynomials are independent from the base field (in particular they work both in positive and zero characteristic) and thus can be precomputed. They have $O(\ell^2)$ coefficients, so this decision problem is only solvable for ``small" values of $\ell$.
@@ -313,7 +313,7 @@ At the heart of isogeny based cryptography lies the use of supersingular ellipti
 
 Most of the following results are due to Deuring, in \cite{Deuring1941}. Let's start with some equivalent definitions.
 \begin{theorem}
-    Let $E/\F_q$ be an elliptic curve, with $q=p^k$; for any $r\ge1$ let $\phi_r:E\to E^{(p^r)}$ the Frobenius isogeny. The following are equivalent\todo{prove this?}
+    Let $E/K$ be an elliptic curve, with $\car K=p$; for any $r\ge1$ let $\phi_r:E\to E^{(p^r)}$ the Frobenius isogeny. The following are equivalent\todo{prove this?}
     \begin{enumerate}
         \item $E[p^r]=\{O\}$ for some (all) $r\ge1$.
         \item The dual isogeny $\hat\phi_r$ is inseparable for some (all) $r\ge1$.
@@ -323,7 +323,7 @@ Most of the following results are due to Deuring, in \cite{Deuring1941}. Let's s
     If any of these properties hold, we say that $E$ is \emph{supersingular}; otherwise $E$ is said to be \emph{ordinary}.
 \end{theorem}
 
-This means that there are only finitely many isomorphism classes of supersingular elliptic curves, since their $j$ invariant is an element of $\F_{p^2}$. We call those \emph{supersingular $j$-invariants} and notice that for each of them there is a model of the supersingular curve defined over $\F_{p^2}$.
+For any supersingular $E$, since $j(E)\in\F_{p^2}$, there is a model of $E$ (i.e. a $\bar K$-isomorphic curve) defined over $\F_{p^2}$. In this case we say thath $j(E)$ is a \emph{supersingular $j$-invariants}, and notice that there are finitely many of them; in particular, since over a finite field there is a finite number of twists for any curve, there are finitely many $\F_q$-isomorphism classes of supersingular elliptic curves.
 
 Moreover, we have a precise count of how many supersingular $j$-invariants there are in characteristic $p$:
 \begin{theorem}
@@ -364,6 +364,8 @@ Notice moreover that combining the point counting criterion with Tate's theorem 
 
 \subsection{Quaternion algebras}
 
+\cite{QuatAlg}
+
 \begin{example}
     Let $p\equiv3\pmod4$ be a prime and $E:y^2=x^3+x$ over $\F_p$. We then know that $E$ is supersingular and $\# E(\F_p)=p+1$; moreover, let $i^2=-1$ be an element of $\F_{p^2}$.
     
@@ -377,4 +379,5 @@ Notice moreover that combining the point counting criterion with Tate's theorem 
 \section{Isogeny graphs}
 
 \section{Montgomery models}
+\cite{Costello_Montgomery} from \cite{Montgomery_curve}.
 
