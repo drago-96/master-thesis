@@ -1,12 +1,120 @@
 \chapter{Universal Composability}
 
+In this chapter we will deal with formal definitions of security in cryptography; we start from game-based definitions, of which $\indcpa$ is the most famous example, then we move to simulation-based requirements and finally to universal composability, which is the standard framework for defining all MPC tasks.
+
 \section{Introduction}
+The word \emph{cryptography} comes from the greek language and it means ``hidden writing": even since before the Greeks, people started developing the art of transmitting secret messages in a form that would be inintelligible to anyone apart from the intended receiver.
+
+History of cryptography is full of very clever ciphers and attacks to those ciphers, starting from Caesar's cipher, we then broke it using frequency analysis and developed Vigenère cipher, which stood unbroken until the end of 19th century. More recently, we have the very interesting story of the ENIGMA machine, used by german soldiers in World War Two, which was broken by Alan Turing, one of the fathers of modern computation.
+
+Modern cryptography is however very different from classical cryptography: all the classical algorithms are \emph{encryption schemes}, while today we have also digital signatures, hash functions, key-exchanges, multi-party computation, pseudo-random number generators and many more.
+
+The most important difference though is the fact that now cryptography is a \emph{science} and not just an \emph{art} as it has been through human history. This means that cryptographers use definitions, proofs and reductions exactly like mathematicians and computer scientists.
+
+Since modern cryptography was in a big part motivated by the birth of computers, we borrow terminology from computer science, and in particular from complexity theory. We will deal with probabilistic Turing machines, and will be \emph{very} interested in the distinction of polynomial-time algorithms and exponential-time algorithms, which will be the distinction between ``easy" problems and ``hard" problems.
+
+Actually, since P vs NP is still an open question, the best that we cryptographers can do is use \emph{hardness assumptions}: we postulate that some problems are hard, and then reduce the security of cryptosystems to that assumption. Sometimes it's also possible to prove that some assumption is NP-hard (like with lattice assumptions), but usually there is only heuristic evidence for the hardness of our assumption, like with RSA and factoring.
+
+One of the very first definitions, and a very important one, is that of \emph{encryption scheme} and its \emph{perfect security}, which actually doesn't need any assumption since it deals with all-powerful adversaries.
+
+\begin{definition}
+    An \emph{encryption scheme} $\edv$ is a tuple of probabilistic polynomial-time (PPT) algorithms $(\kgen,\enc,\dec)$ which work over some spaces $(\mathcal K, \mathcal M, \mathcal C)$ as follows:
+    \begin{itemize}
+        \item $\kgen$ returns a \emph{key} from the key space $\mathcal K$, according to some distribution.
+        \item $\enc:\mathcal K\times\mathcal M\to \mathcal C$ is the \emph{encryption function} and tranforms a message into a ciphertext using some key.
+        \item $\dec: \mathcal K\times\mathcal C\to \mathcal M$ is the \emph{decryption function} and tranforms back a ciphertext into a message with the help of the key.
+    \end{itemize}
+    Usually we deal with \emph{correct} encryption schemes, which means that $\dec(k,\enc(k,m))=m$ for any $k\in\mathcal K,m\in\mathcal M$.
+\end{definition}
+
+One of the most famous encryption schemes is the \emph{one-time pad}, which works over binary strings of fixed length and uses the XOR operation on bits, which we will denote by $\oplus$.
+
+\begin{definition}
+    The one-time pad is an encryption scheme with $\mathcal K=\mathcal M=\mathcal C=\bin^L$ for some $L\in\N$. Encryption and decryption are defined by
+    $$ \enc(k,m)=k\oplus m\;\;\;\;\; \dec(k,c)=k\oplus c,$$
+    where $\oplus$ denotes the bitwise XOR of the bitstrings.
+\end{definition}
+
+This can be also dubbed as ``the most secure encryption scheme", since it is the simplest one that satisfies the following property:
+\begin{definition}
+    Let $\edv=(\kgen,\enc,\dec)$ be an encryption scheme defined over $(\mathcal K, \mathcal M, \mathcal C)$. We say that it is \emph{perfectly secure} if for any $m_0,m_1\in\mathcal M$ and all $c\in\mathcal C$ it holds that 
+    $$\prob{\enc(k,m_0)=c} = \prob{\enc(k,m_1)=c},$$
+    where the probability is taken over the random variable $k$, which is uniformly random distributed over $\mathcal K$.
+\end{definition}
+
+This definition means that given the result of an encryption with a random key, it is impossible to get the message that generated the ciphertext, since they are all equally likely.
+
+An alternative formulation of perfect security is the following:
+\begin{proposition}
+    Let $\edv=(\kgen,\enc,\dec)$ be a perfectly secure encryption scheme defined over $(\mathcal K, \mathcal M, \mathcal C)$. Let $K$ be a uniform random variable over $\mathcal K$ and $M$ a random variable over $\mathcal M$. Let $C:=\enc(K,M)$ a random variable over $\mathcal C$.
+    
+    Then $C$ and $M$ are independent, and in particular for any $m\in\mathcal M,c\in\mathcal C$ we have $$\condprob{M=m}{C=c} = \prob{M=m}$$
+\end{proposition}
+
+With this formulation it is evident what we mean by security of an encryption scheme: the value of the ciphertext shouldn't reveal anything more about the orignal message than what we already knew.
+
+The problem of using the perfectly secure one-time pad everywhere is that keys are as big as the plaintext, and they must be only used \emph{once}. Thus the channels used to secretly share the keys could also be used to share the actual messages; the only practical use of one-time pad might be phisically exchanging terabytes of randomness at some point, and the use that as a key for all the messages in the years to come, which is higly impractical for any use.
+
+However, perfect security is too much to ask for: what we really need is that an attacker cannot efficiently \emph{compute} any additional property of the original message. Indeed, with infinite time all current cryptography is broken, but since real life attackers have a finite amount of computing power we are still safe even without using perfectly secure encryption schemes.
 
 \section{Game-based security}
-Here we define \indcpa.
+As we have highlighted in the previous section, one of the most important properties of an encryption scheme is \emph{ciphertext indistinguishability}. We will now define what it means to be \emph{computationally} indistinguishable using a game-based approach: the attacker will play a game of trying to distinguish ciphertexts, and if in polynomial time it won't be able to correctly distinguish a noticeable amount of times, we can say that our encryption scheme is secure.
+
+All our analysis will be done using the theory of asymptotic complexity; this means that there will be a (more or less explicit) \emph{security parameter} $n\in\N$ and all algorithms' complexity will be evaluated as $O(f(n))$.
+
+Indeed, an algorithm is polynomial-time, denoted by $O(\text{poly}(n))$, if its complexity is $O(n^c)$ for some $c\in\Z$. We also say that a function $f:\Z\to\R$ is \emph{negligible} if for any $c>0$ we have $f\in O(1/n^c)$.
+
+The security definitions in this setting take then the general form:
+
+\begin{quote}
+    \textit{A scheme is \emph{secure} if any PPT attacker wins the game with negligible probability.}
+\end{quote}
+
+We now define the $\indcpa$ game in Figure \ref{game_indcpa}: we have an encryption scheme $\edv=(\kgen,\enc,\dec)$, with a security parameter $n$. The attacker $\adv$ is a PPT algorithm, and is given access to the encryption oracle $\enc_k$; it must first generate two plaintexts $m_0,m_1$ and then try to guess if $c$ is the encryption of $m_0$ or $m_1$.
+
+\begin{figure}
+    \myproc{Game $\indcpa^\adv_\edv(n)$}{
+        b\sample\bin \\
+        k\sample\kgen(\secparam) \\
+        (m_0,m_1)\sample\adv(\texttt{gen}, \secparam, \enc_k) \\
+        c\sample\enc(k, m_b) \\
+        b'\sample\adv(\texttt{guess}, c, \enc_k) \\
+        \pcreturn b==b'
+    }
+    \caption{The $\indcpa$ game for the encryption scheme $\edv$ with adversary $\adv$}
+    \label{game_indcpa}
+\end{figure}
+
+To quantify how much likely $\adv$ is to win the game, we introduce the \emph{advantage}, defined as
+$$\advantage{\indcpa}{\adv,\edv}:=\left| \prob{\indcpa^\adv_\edv(n)=1}-\frac12 \right|$$
+
+If the strategy of the adversary is to guess $b$ at random, it will win the game half of the times, and thus the advantage will be zero. This motivates the following:
+
+\begin{definition}
+    An encryption scheme $\edv=(\kgen,\enc,\dec)$ is said to have indistinguishable encryptions against a chosen-plaintext attack (or to be $\indcpa$-secure) if for any PPT adversaries $\adv$ the advantage $\advantage{\indcpa}{\adv,\edv}$ is negligible.
+\end{definition}
+
+This definition is one of the most important milestones of modern cryptography: it's easy to state, makes quantitative statements and precisely models the capabilities of the adversary.
+
+However, it is not very clear what it actually \emph{means}: it seems to say that no one can distinguish two given messages, but what we truly wanted in the perfectly security definition was that ``all ciphertexts looks alike", or better that the ciphertext doesn't give away any additional information.
+
+This last property is not at all evident from the $\indcpa$ definition, since it's hidden behind the artificial game construction.
+
+There is an alternative notion of security, called \emph{semantic security}, that is much more explicit in this sense:
+\begin{definition}
+    An encryption scheme $\edv=(\kgen,\enc,\dec)$ is said to be semantically secure if for any PPT algorithm $\adv$ there exists another PPT algorithm $\adv'$ such that for any computable function $h$ and $f$ the following quantity is negligible
+    $$\left| \prob{\adv(\secparam, \enc_k(m), h(m))=f(m)} - \prob{\adv'(\secparam, |m|, h(m))=f(m)}\right|$$
+    where $m$ is sampled from some distribution over $\mathcal M$ and $k\sample\kgen(\secparam)$.
+\end{definition}
+
+The sense of this definition is that whatever is computable given the encryption of $m$ and ``a priori" information about it, can also be computed with only the a priori information.
+
+It turns out that semantic security is equivalent to $\indcpa$, and this equivalence is very useful: semantic security explicitly translates our wanted security property of ``ciphertexts don't leak information about plaintexts", while the game-based definition is much simpler to use in proofs.
+
+In order to generalize security guarantees of other primitives besides encryption, we basically have two choices: keep using the easy-to-prove game definitions, but then we have to come up with all the right games for each property that we desire; or focus on semantic security-syle definitions, which immediatly tell what is our security goal, but are harder to prove.
 
 \section{Simulation-based security}
-Here we define computational indistinguishability of distributions.
+In this section we introduce the simulation approach to defining security, which has been chosen for multi-party computation protocols, since they can be very generic and thus creating security games for them might leave some details out.
 
 \section{The UC framework}
 Machines, tapes...
