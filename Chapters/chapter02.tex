@@ -211,13 +211,88 @@ We can describe two attack models, in terms of what is the output of Alice; in b
 This attacks means that SIDH can only be used as an interactive and ephemeral key exchange, and is the main reason behind the needed transformations in SIKE.
 
 \section{Commutative SIDH}
-Works on $\F_p$, with isogenies defined over $\F_p$.
+In this section we descrybe the key exchange protocol CSIDH proposed by Castryck, Lange, Martindale, Panny and Renes \cite{CSIDH}. It is based on the ideas of Couveignes, but uses supersingular components of the isogeny graph $G_\ell(\F_p)$ of curves defined over $\F_p$ for many different $\ell$. The use of supersingular curves is a speedup in walking the graph, since it makes the evaluation of the CM action much easier; actual implementations use key sizes of 64 bytes and the protocol is performed in about 80ms, which makes it actually usable in many applications.
 
-\subsection{Action of the class group}
-$Cl(\Oc)$ acts on $Ell(\Oc)$.
+The main point in favour of CSIDH is that it provides a \emph{non-interactive} key exchange protocol with static public keys, unlike SIDH which needs to be ephemeral. However, it suffers from a quantum subexponential attack; as the author themselves point out though, also RSA has a subexponential attack, but this didn't stop its widespread adoption.
+
+\subsection{Hard Homogeneous Spaces}
+The idea behind CSIDH was first proposed by Couveignes \cite{Couveignes} with his \emph{hard homogeneous spaces}, which are nothing but group actions where some problems are easy and some problems are hard.
+
+\begin{definition}
+    A hard homogeneous space consists of a finite abelian group $G$ acting freely and transitively on a set $X$.
+    
+    The following tasks are required to be easy (i.e. polynomial-time):
+    \begin{enumerate}
+        \item Computing group operations in $G$.
+        \item Sampling from $G$ with almost uniform distribution.
+        \item Deciding validity and equality of string representation of elements of $X$.
+        \item Computing the action of a group element $g\in G$ on some $x\in X$.
+    \end{enumerate}
+
+    The following tasks are instead required to be hard (i.e. not polynomial-time):
+    \begin{enumerate}
+        \setcounter{enumi}{4}
+        \item Vectorization: given $x,x'\in X$, find $g\in G$ such that $g\star x=x'$.
+        \item Parallelization: given $x,x',y\in G$ with $g\star x=x'$, compute $y'\in X$ such that $g\star y=y'$.
+    \end{enumerate}
+\end{definition}
+
+From any hard homogeneous space we can construct a natural Diffie-Hellman key exchange: Alice and Bob's private keys are random group elements $a,b\in G$, while their public keys are $a\star x_0$ and $b\star x_0$ for some fixed element $x_0\in X$; the shared secret is then $a\star(b\star x_0)=b\star(a\star x_0)$.
+
+Notice how traditional DH on a cyclic group $C$ is an instance of this, with $X$ the set of generators of $C$, and $G$ the multiplicative group $(\Zn{\# C})^\ast$ acting by exponentiation.
+
+In Couveignes' idea and in CSIDH the hard homogeneous space is given by the CM action on elliptic curves over $\F_p$.
+
+Recall that given an elliptic curve $E/\F_p$ its endomorphism ring (defined over $\F_p$) $\End_p(E)$ is an order $\Oc$ in a quadratic imaginary field $K$. Denoting by $Ell_p(\Oc)$ the set of curves having $\Oc$ has their $\F_p$-endomorphism ring, we know there is the free and transitive action of $Cl(\Oc)$:
+\begin{align*}
+    Cl(\Oc)\times Ell_p(\Oc) & \to  Ell_p(\Oc)\\
+    \mathfrak{a}\cdot E & \mapsto  E/\mathfrak{a}
+\end{align*}
+
+Notice that for cyptographically sized parameters we can't compute the structure of $Cl(\Oc)$, as $\# Cl(\Oc)\approx \sqrt{|\Delta|}$, where $\Delta$ is the discriminant of $\Oc$.
+
+However, we can consider the map $\varphi:\Z^n\to Cl(\Oc)$ given by
+$$(x_1,\dots,x_n)\mapsto \prod_{i=1}^n[\mathfrak{l}_i]^{x_i},$$
+where the $\mathfrak{l}_i$ are the ideals corresponding to Elkies primes.
+
+Since the action of the $\mathfrak{l}_i$ is more easily computable, this will be our representation of the class group. Indeed, in the CSIDH protocol private keys will be tuples of integers.
+
+This idea of Couveignes, as well as the approach by De Feo, Kieffer and Smith \cite{DeFeo_CSIDH}, are still inefficient, since usually there are very few small Elkies primes, while the computation of the isogeny corresponding to $\mathfrak{l}_i$ takes linear time in its norm.
 
 \subsection{The CSIDH protocol}
-How to compute action for small norm ideals
+The main idea of CSIDH is to pick a prime of the form $p=4\ell_1\dots\ell_n-1$, with $\ell_i$ small primes. Moreover they fix $E_0: y^2=x^3+x$, which is supersingular since $p\equiv3\pmod 4$; this curve has $\End_p(E_0)\cong\Z[\pi]$ which is an order inside $\Q(\sqrt{-p})$, of conductor $2$.
+
+The Elkies primes are those which split as $\ell\Oc=\mathfrak{l}\cdot\bar{\mathfrak{l}}$, i.e. those that satisfy $\left( \frac{-p}{\ell} \right)=1$; since $p\equiv-1\pmod{\ell_i}$, we have that all the selected primes $\ell_i$ are Elkies. Moreover, since the characteristic polynomial of the Frobenius is $\pi^2+p=0$, when reduced modulo $\ell_i$ it becomes $\pi^2-1\equiv0\pmod{\ell_i}$; this means that $\ell$ splits as the product of $\mathfrak{l}_i=(\ell_i, \pi-1)$ and $\bar{\mathfrak{l}_i}=(\ell_i, \pi+1)$.
+
+In this setting we adapt theorem \ref{CSIDH_cycle} to get that the connected component of $E_0$ in $G_{\ell_i}(\F_p)$ is a cycle, which can be traversed in both ways with $[\mathfrak{l}_i]$ and $[\bar{\mathfrak{l}_i}]=[\mathfrak{l}_i]^{-1}$.
+
+The very peculiar choice of the prime implies that the evaluation of the action $\mathfrak{l}_i\cdot E$ is very easy: the kernel of the corresponding isogeny $E[\mathfrak{l}_i]$ is the intersection of $\ker[\ell_i]$ and $\ker(\pi-1)$, which is the $\F_p$-rational $\ell_i$-torsion subgroup. By computing it and using Vélu's formulas we can compute the isogeny $\varphi_{\mathfrak{l}_i}$.
+
+For computing $\mathfrak{l}_i^{-1}\cdot E$ we can either compute the $\F_{p^2}$-rational $\ell_i$-torsion, or we can use the fact that $(\mathfrak{a}\cdot E)^t\cong\mathfrak{a}^{-1}\cdot E^t$, where $E^t$ is the quadratic twist of $E$. For more details on evaluating the class group action, we refer to \cite[section 8]{CSIDH}.
+
+Another key aspect of CSIDH is that it uses curves in Montgomery form, because of the following proposition.
+\begin{proposition}
+    Let $p\ge5$ be a prime with $p\equiv3\pmod8$, and let $E/\F_p$ be a supersingular elliptic curve. Then $\End_p(E)=\Z[\pi]$ if and only if there exists $A\in\F_p$ such that $E$ is $\F_p$-isomorphic to the curve $E_A:y^2=x^3+Ax^2+x$. Moreover, such $A$ is unique.
+\end{proposition}
+
+This means that it is sufficient to use the $A$ coefficient as the public key, instead of a $j$-invariant and then having to check that it has the correct endomorphism ring. The only check needed is that $A\not\in{\pm2}$ (otherwise $E_A$ isn't even smooth), and that $E_A$ is supersingular.
+
+Furthermore, it's very easy to see that in our setting (in particular given $p\equiv3\pmod 4$), the twist of $E_A$ is simply $E_A^t\cong E_{-A}$.
+
+Finally, the CSIDH protocol is described in Figure \ref{prot_CSIDH}, where all above observation apply. In particular, private keys are tuple of integer exponents $(e_1,\dots,e_n)$, which correspond to the ideal $\prod [\mathfrak{l}_i]^{e_i}$; every $e_i$ is uniformly sampled from $\{ -m,\dots,m \}$, where $m$ is a fixed protocol parameter and must balance efficiency and security. The authors argue that if $2m+1\ge\sqrt[n]{\# Cl(\Oc)}$ the ideal sampled in this way is sufficiently close to the uniform distribution.
+
+\begin{figure}
+    \begin{framed}
+        \textbf{Setup}: A prime $p=4\ell_1\cdots\ell_n-1$, where $\ell_i$ are small distinct odd primes; $E_0:y^2=x^3+x$ is the base supersingular elliptic curve with $\Oc:=\End_p(E_0)=\Z[\pi]$. Fix also a parameter $m$.
+        
+        \textbf{Key generation}: Sample a tuple of integers $(e_1,\dots,e_n)$ from $\{ -m,\dots,m \}^n$. This tuple corresponds to the ideal $[\mathfrak{a}] = \prod [\mathfrak{l}_i]^{e_i}$ of $Cl(\Oc)$, where $\mathfrak{l}_i=(\ell_i, \pi-1)$. The public key is the $A$ coefficient of the curve $[\mathfrak{a}]E_0:y^2=x^3+Ax^2+x$ in Montgomery form.
+        
+        \textbf{Key exchange}: Suppose Alice and Bob have keypairs $([\mathfrak{a}], A)$ and $([\mathfrak{b}], B)$. When receiving $B$ from Bob, Alice checks the validity of this public key and then computes the curve $[\mathfrak{a}]E_B$. Bob does the same and computes $[\mathfrak{b}]E_A$. The shared secret is the Montgomery coefficient $S$ of the curve $[\mathfrak{a}][\mathfrak{b}]E_0=[\mathfrak{b}][\mathfrak{a}]E_0$ written as $y^2=x^3+Sx^2+x$.
+    \end{framed}
+    \caption{The CSIDH protocol}
+    \label{prot_CSIDH}
+\end{figure}
+
 
 \section{CSIDH assumptions}
 Not fully post-quantum secure

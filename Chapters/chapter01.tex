@@ -361,6 +361,25 @@ Notice moreover that combining the point counting criterion with Tate's theorem 
     Elliptic curves in the same isogeny class are either all supersingular or all ordinary.
 \end{remark}
 
+There is also a very specific theorem about restricted endomorphism rings of supersingular elliptic curves (see \cite{Waterhouse}).
+\begin{theorem}
+    Let $p>3$, $q=p^n$ and $E$ be a supesingular elliptic curve over $\F_q$, with $\# E(\F_q)=q+1-t$. Then one of the following must hold:
+    \begin{enumerate}
+        \item $n$ is even and $t=\pm2\sqrt{q}$.
+        \item $n$ is even, $p\not\equiv1\pmod 3$ and $t=\pm\sqrt{q}$.
+        \item $n$ is even, $p\not\equiv1\pmod 4$ and $t=0$.
+        \item $n$ is odd and $t=0$.
+    \end{enumerate}
+
+    Moreover, in the first case $\End_{\F_q}(E)$ is an order in a quaternion algebra, while in all other cases $\End_{\F_q}(E)$ is an order inside the imaginary quadratic field $\Q(\pi)$, where $\pi$ is the Frobenius endomorphism of $E$.
+\end{theorem}
+
+Observe that if $E/\F_p$ is supersingular, then we are in case 4 and $\pi^2=-p$; thus $\End_{\F_p}(E)$ is an order inside $\Q(\sqrt{-p})$. This is actually a sufficient condition for being defined over $\F_p$:
+\begin{proposition}
+    Let $E$ be a supersingular elliptic curve. Then
+    $$E \text{ is defined over } \F_p\iff \Z[\sqrt{-p}]\subset\End(E)$$
+\end{proposition}
+
 \subsection{Quaternion algebras}
 
 \cite{QuatAlg}
@@ -376,6 +395,60 @@ Notice moreover that combining the point counting criterion with Tate's theorem 
 \end{example}
 
 \section{Isogeny graphs}
+In this section we will introduce one of the main objects of interest of this thesis, namely the isogeny graph of supersingular elliptic curves.
+
+\begin{definition}
+    For any field $K$ and a prime $\ell\nmid\car K$, the \emph{$\ell$-isogeny graph} $G_\ell(K)$ is defined as having $K$-isomorphism classes of elliptic curves as its vertices, and having an edge between $E_1$ and $E_2$ for any $K$-rational $\ell$-isogeny between them (up to isomorphism).
+\end{definition}
+
+Notice that we can explicitly state the structure of $G_\ell(\bar\F_p)$ using modular polynomials:
+\begin{proposition}
+    The nodes of $G_\ell(\bar \F_p)$ can be denoted by $j$-invariants, and the number of edges between $j_1$ and $j_2$ is the multiplicity of $j_2$ as a root of $\Phi_\ell(j_1,t)$.
+\end{proposition}
+
+Over a finite field $\F_q$, the graph $G_\ell(\F_q)$ is canonically split into ordinary components and supersingular components. The ordinary components have been studied by Kohel in its thesis \cite{Kohel_thesis}, and are called \emph{isogeny volcanoes} due to their very peculiar form.
+
+Since all supersingular $j$-invariants lie in $\F_{p^2}$, all roots of $\Phi_\ell(j(E),t)$ also lie in $\F_{p^2}$ if $E$ is supersingular. This means that all supersingular components of $G_\ell(\F_{p^2})$ are $\ell+1$-regular. Moreover, the following is an important result for our analysis:
+\begin{theorem}[\cite{Mestre}]
+    For any prime $\ell\neq p$ there is only one supersingular component in $G_\ell(\F_{p^2})$.
+\end{theorem}
+Actually, the theorem stated as above is false: by Tate's theorem there are at least $5$ supersingular components, one for each value of the trace of Frobenius $t\in\{0,\pm p,\pm 2p\}$. What we mean is that there is a single supersingular component in $G_\ell(\bar\F_p)$, and by carefully choosing $\F_{p^2}$-isogenies it is isomorphic to both components of $G_\ell(\F_{p^2})$ with trace $\pm 2p$.
+
+This supersingular component has very peculiar graph properties that make very interesting its use for cryptography, in the sense that is ``behaves like large random graphs".
+
+In general, an undirected graph on $n$ vertices has $n$ real eigenvalues (defined as the eigenvalues of the adjacency matrix, which is symmetric) and if the graph is $k$-regular then we have that $k=\lambda_1\ge\lambda_2\ge\dots \lambda_n\ge -k$.
+
+We now introduce the expander property:\todo{find references}
+\begin{definition}
+    Let $\eps>0$ and $k\ge1$. A $k$-regular graph is called \emph{$\eps$-expander} if
+    $$\lambda_2\le(1-\eps)k$$
+    and a \emph{two-sided $\eps$-expander} if it also satisfies 
+    $$\lambda_n\ge-(1-\eps)k$$
+\end{definition}
+
+This property implies a ``fast mixing" property of walks in the graph, in the sense that relatively short random walks end on any vertex with almost uniform probability:
+\begin{proposition}
+    Let $G=(V,E)$ a $k$-regular two-sided $\eps$-expander graph. Let $F\subset V$ any subset of vertices of $G$, and let $v$ be any vertex in $V$. Then a random walk of length at least $$\frac{\log(\sqrt{\# F}/(2\# V)))}{\log(1-\eps)}$$ starting from $v$ will alnd in $F$ with probability $\# F / (2\# V)$.
+\end{proposition}
+
+There is also a stronger notion of expander graph, which is the following:
+\begin{definition}
+    A $k$-regular graph is said to be a \emph{Ramanujan graph} if $|\lambda_j|\le2\sqrt{k-1}$ for any $j>1$.
+\end{definition}
+It can be shown that Ramanujan graphs are the ``optimal" expanders, in the sense that bigger expander graph get close to the $2\sqrt{k-1}$ limit.
+
+Finally, we can upgrade the theorem about the supersingular component:
+\begin{theorem}[\cite{Pizer}]
+    Let $\ell\neq p$ be two primes with $p\equiv1\pmod{12}$. Then the supersingular component of $G_\ell(\bar\F_p)$ is connected, $\ell+1$-regular and is a Ramanujan graph.
+\end{theorem}
+This means that taking random ``short" $\ell$-isogeny walks around supersingular curves is equivalent to picking a random supersingular curve. This is a good sign for doing cryptography, but this properties won't actually have an impact on the provable security of the protocols we will introduce.
+
+\subsection{The CM action}
+We now come back to ordinary components of the $\ell$-isogeny graph, known as volcanoes, and briefly describe their structure; then we will see that supersingular components of $G_\ell(\F_p)$ behave pretty much as ordinary volcanoes.
+
+\begin{theorem}[\cite{Delfs_Galbraith}]\label{CSIDH_cycle}
+    Let $p\ge 5$ be a prime with $p\equiv11\pmod{12}$ and let $V$ be a connected component of $G_\ell(\F_p)$ for some other prime $\ell$; let $t$ be the trace of the common Frobenius endomorphism and $K=\Q(\sqrt{t^2-4p})$. Then all curves in $V$ have the same $\F_p$-endomorphism ring $\Oc\subset K$ and if $t^2-4p$ is a non-zero square modulo $\ell$, then $V$ is a cycle whose length is equal to the order of $\mathfrak{l}$ in $Cl(\Oc)$, where $\mathfrak{l}$ is a prime dividing $\ell\Oc$.
+\end{theorem}
 
 \section{Montgomery models}
 \cite{Costello_Montgomery} from \cite{Montgomery_curve}.
