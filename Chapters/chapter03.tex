@@ -53,7 +53,7 @@ An alternative formulation of perfect security is the following:
 
 With this formulation it is evident what we mean by security of an encryption scheme: the value of the ciphertext shouldn't reveal anything more about the orignal message than what we already knew.
 
-The problem of using  perfectly secure one-time pad everywhere is that keys are as big as the plaintext, and they must be only used \emph{once}. Thus the channels used to secretly share the keys could also be used to share the actual messages; the only practical use of one-time pad might be phisically exchanging terabytes of randomness at some point, and the use that as a key for all the messages in the years to come, which is highly impractical for any use. \manuela{This sentence is weird because first you said ``the only practical use...'' and then ``which is highly impractical''}
+The problem of using  perfectly secure one-time pad everywhere is that keys are as big as the plaintext, and they must be only used \emph{once}; this means that the channels used to secretly share the keys could also have been used to share the actual messages. The only practical use of one-time pad might be physically exchanging terabytes of randomness at some point, and then use that as a key for all the messages in the years to come, which is unrealistic for any common communication model.
 
 However, perfect security is too much to ask for: what we really need is that an attacker cannot efficiently \emph{compute} any additional property of the original message. Indeed, with infinite time all current cryptography is broken, but since real life attackers have a finite amount of computing power we are still safe even without using perfectly secure encryption schemes.
 
@@ -67,9 +67,9 @@ Indeed, an algorithm is polynomial-time, denoted by $O(\text{poly}(n))$, if its 
 The security definitions in this setting take then the general form:
 
 \begin{quote}
-    \textit{A scheme is \emph{secure} if any PPT attacker wins the game with negligible probability.}
+    \textit{A scheme is \emph{secure} if any PPT attacker wins some well-defined security game with negligible probability.}
 \end{quote}
-\manuela{Maybe ``wins a well-defined security game ''}
+
 We now define the $\indcpa$ game in Figure \ref{game_indcpa}: we have an encryption scheme $\edv=(\kgen,\enc,\dec)$, with a security parameter $n$. The attacker $\adv$ is a PPT algorithm, and is given access to the encryption oracle $\enc_k$; it must first generate two plaintexts $m_0,m_1$ and then try to guess if $c$ is the encryption of $m_0$ or $m_1$.
 
 \begin{figure}
@@ -169,16 +169,15 @@ Notice that we are asking for indistinguishability of the joint distribution of 
 
 Observe that this definition implies \emph{privacy}, in the sense that other parties' inputs cannot be learned, but also \emph{correctness} of the protocol, since any non negligible difference from $\texttt{output}^\pi(x,y)$ and $f(x,y)$ can be used to distinguish the two distributions.
 
-Proving security with respect to this definitions means that for any protocol we need to write a simulator for each party, and then prove indistinguishability from the real execution. Usually this part is done by using intermediate simulators that make $\sdv_i$ and the real world closer step by step, and argue indistinguishability between each step using some hardness assumption. We will see an example of this technique in section 4.2 with an oblivious transfer protocol based on DH.  \manuela{do you mean the Diffie-Hellman assumption? Have you mentioned it before? Otherwise this DH is a bit obscure...}
+Proving security with respect to this definitions means that for any protocol we need to write a simulator for each party, and then prove indistinguishability from the real execution. Usually this part is done by using intermediate simulators that make $\sdv_i$ and the real world closer step by step, and argue indistinguishability between each step using some hardness assumption. We will see an example of this technique in section 4.2 with an oblivious transfer protocol based on the Diffie-Hellman assumption.
 
 \subsection{Malicious adversaries}
 
-\manuela{I think here you need to explain that in the malicious setting it is not always possible to have guaranteed output delivery or other properties like fairness or robustness (maybe don't mention them... otherwise you need to define them). For example in the case of dishonest majority (like in the 2-party case that you are actually considering) you can only achieve weaker form of security, like security with abort.   This is because the abort message that it will appear later comes out of the blue}
-
-
 For most protocols we actually want to have security from adversaries that may deviate arbitrarily from the specified protocol; we call them \emph{malicious} adversaries. Notice that in this case the existence of a simulator that uses $x$ and $f_1(x,y)$ is not enough, simply because a malicious adversary could use an arbitrary input $x'$, of which the simulator won't know anything about.
 
-The solution is then to actually run \emph{two} protocols and impose that the output distributions must be indistinguishable. Here we will explicitly have an ideal world, in which the actual computation is done by a trusted third party, over which the adversary has no power. Indeed the \emph{ideal execution} for a functionality $f$ against an ideal adversary $\adv$ is defined by:
+Moreover, those malicious adversaries can compromise the protocol at the point that honest parties might not even get any output, while the corrupted ones do. For a protocol when the majority of parties is malicious it is indeed impossible to guarantee \emph{fairness}, which means that either everyone or no one gets their output. For this reason, we will define \emph{security with abort}.
+
+The solution to those problems is then to actually run \emph{two} protocols and impose that the output distributions must be indistinguishable. Here we will explicitly have an ideal world, in which the actual computation is done by a trusted third party, over which the adversary has no power. Indeed the \emph{ideal execution} for a functionality $f$ against an ideal adversary $\adv$ is defined by:
 \begin{itemize}
     \item Let $x,y$ be the inputs of the first and second party; let $\adv$ control party $P_i$.
     \item The honest party $P_j$ sends its input to the trusted party; instead $\adv$ may send a different input to the third party, eventually depending on the actual input. Let $(x',y')$ be the input sent to the trusted party.
@@ -193,7 +192,7 @@ In the real model, protocol $\pi$ is run, but the adversary $\adv$ sends all mes
 
 We now have the following
 \begin{definition}
-    Let $f$ be a two-party functionality, and $\pi$ a protocol that correctly computes $f$. Then $\pi$ is said to \emph{securely compute $f$ in the presence of static malicious adversaries} if for every PPT adversary $\adv$ in the real model, there exists a PPT adversary $\sdv$ in the ideal model such that
+    Let $f$ be a two-party functionality, and $\pi$ a protocol that correctly computes $f$. Then $\pi$ is said to \emph{securely compute $f$ with abort in the presence of static malicious adversaries} if for every PPT adversary $\adv$ in the real model, there exists a PPT adversary $\sdv$ in the ideal model such that for any $i\in\{1,2\}$,
     $$ \{ \textsc{\scriptsize IDEAL}_{f,\sdv,i}(x,y) \}_{x,y} \cindist \{ \textsc{\scriptsize REAL}_{\pi,\adv,i}(x,y) \}_{x,y}$$
 \end{definition}
 
@@ -207,7 +206,7 @@ Given some functionality $g$ we can make any protocol $\pi$ evaluate the calls t
 
 The reason for hybrid models is that security can be composed: 
 \begin{theorem}
-    let $f$ be a functionality, and $\pi$ a protocol that computes it; suppose that $\pi$ uses another functionality $g$ as a building block, and that $\rho$ is a protocol that computes $g$. Then the protocol $\pi^\rho$ is defined by replacing all ideal calls to $g$ with executions of $\rho$.
+    Let $f$ be a functionality, and $\pi$ a protocol that computes it; suppose that $\pi$ uses another functionality $g$ as a building block, and that $\rho$ is a protocol that computes $g$. Then the protocol $\pi^\rho$ is defined by replacing all ideal calls to $g$ with executions of $\rho$.
     
     Suppose that $\rho$ securely computes $g$, and that $\pi$ securely computes $f$ in the $g$-hybrid model, i.e.
     $$ \{ \textsc{\scriptsize IDEAL}_{f,\sdv,i}(x,y) \}_{x,y} \cindist \{ \textsc{\scriptsize HYBRID}^g_{\pi,\adv,i}(x,y) \}_{x,y}. $$
@@ -216,7 +215,7 @@ The reason for hybrid models is that security can be composed:
 
 This theorem means that secure protocols can be \emph{sequentially composed} to obtain other secure protocols, and is a great feature of this type of definitions, since we can focus on the security of each single component and then easily get the security of the full protocol.
 
-Moreover, the hybrid model gives more power to the simulator: when the adversary $\adv$ wants to make a query to the ideal funtionality $g$ in the hybrid model, the simulator $\sdv$ will emulate it and learn all the queries to $g$ made by $\adv$. This will give $\sdv$ much more information than it usually has, and most of the times the simulator will be able to extract the inputs and come up with a correct simulation.\todo{maybe describe RO/CRS?}  \manuela{In theory, yes, but we are running out of time...}
+Moreover, the hybrid model gives more power to the simulator: when the adversary $\adv$ wants to make a query to the ideal funtionality $g$ in the hybrid model, the simulator $\sdv$ will emulate it and learn all the queries to $g$ made by $\adv$. This will give $\sdv$ much more information than it usually has, and most of the times the simulator will be able to extract the inputs and come up with a correct simulation.
 
 \section{The (simplified) UC framework}
 The universal composability framework is the most popular generalization of the stand-alone model, which is what we have described in the previous section. While we could compose protocols sequentially, the stand-alone model doesn't say anything about \emph{concurrent} compositions, which are actually found everywhere in the real world.
@@ -269,7 +268,7 @@ Formally, the router operates in the following way:
     \item When instructed by $\adv$, deliver the message to $P_j$.
 \end{itemize}
 
-Notice that in this model of communication we cannot guarantee \emph{fairness} by definition  \manuela{OK, you mention fairness here...}: all the messages, including the outputs from $\Fun$, may be blocked from the adversary. Moreover, we cannot model local computations (such as encryption) via an ideal functionality, since those calls will be notified to $\adv$ and it might decide to block the output, which is not realistic for a local computation.
+Notice that in this model of communication we cannot guarantee fairness by definition: all the messages, including the outputs from $\Fun$, may be blocked from the adversary. Moreover, we cannot model local computations (such as encryption) via an ideal functionality, since those calls will be notified to $\adv$ and it might decide to block the output, which is not realistic for a local computation.
 
 Finally, the environment $\zdv$ communicates only with the adversary, and not via the router. However it has access to the input/output tapes of all the parties.
 

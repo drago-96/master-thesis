@@ -50,10 +50,9 @@ The roots of isogeny based cryptography lie shortly after Shor's algorithm: Jean
 
 Independently, Rostovtsev and Stolbunov proposed in \cite{Rostovtsev} a similar protocol using walks on isogeny graphs, or more precisely walks on the Cayley graph of the class group of some endomorphism ring.
 
-Those papers introduced the main ideas of isogeny based cryptography, but were missing one fundamental detail: the use of \emph{supersingular} elliptic curves, both for faster isogeny evaluation and for improved security.\todo{SS curves are bad in ECC?}
-\manuela{I think Galbraith wrote something about it}
+Those papers introduced the main ideas of isogeny based cryptography, but were missing one fundamental detail: the use of \emph{supersingular} elliptic curves, both for faster isogeny evaluation and for improved security; those type of curves were indeed disregarded as ``bad" for cryptography, see \cite{Galbraith_sscurves} for example.
 
-Indeed the true birth of isogeny crypto can be placed with the introduction of a hash function by Charles, Goren and Lauter in \cite{CGL}. They used the graph of supersingular elliptic curves over $\F_{p^2}$ with $\ell$-isogenies, proving its ``fast-mixing" properties.
+The true birth of isogeny crypto can be placed with the introduction of a hash function by Charles, Goren and Lauter in \cite{CGL}. They used the graph of supersingular elliptic curves over $\F_{p^2}$ with $\ell$-isogenies, proving its ``fast-mixing" properties.
 
 In 2011 De Feo and Jao (and later Plut) introduced the \emph{Supersingular Isogeny Diffie-Hellman} protocol \cite{SIDH11}, which is probably the most famous isogeny protocol, since it's the only one that has been submitted to the NIST competition for post-quantum key exchanges algorithms, with the name of SIKE.
 
