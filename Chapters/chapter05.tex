@@ -1,11 +1,13 @@
 \chapter{Analysis of isogeny OT protocols}
 
-\section{The twist one}
+\section{A protocol based on CSIDH}
 One of the simplest OT protocols based on isogenies is the one proposed by Lai, Galbraith and de Saint Guilhem in \cite{Lai_twists}; it works in the CSIDH setting, and makes a clever use of the twisting operation.
 
 The protocol written in figure \ref{prot_twist} is two-round and uses a trusted setup curve $E$. It is only proven to be semi-honest in the UC framework, but there is a version with three rounds that is secure with static malicious corruptions.
 
 The third round in the malicious secure version is added as a ``proof of decryption", which makes possible to extract the input of a malicious receiver.
+
+That three-round maliciosly secure protocol adds many operations and is much less readable; most of the added operations deal with the difficulty of extracting in the UC proof, thus seem very artificial.
 
 \begin{figure}
     \myproc{Protocol $\Pi_{tw}$}{
@@ -22,15 +24,13 @@ The third round in the malicious secure version is added as a ``proof of decrypt
         \> \> k_\sigma = H(r\star A) \\
         \> \> m_\sigma= \dec_{k_\sigma}(c_\sigma) \\
     }
-    \caption{The twist OT protocol by Lai}
+    \caption{The twist OT protocol by Lai et al.}
     \label{prot_twist}
 \end{figure}
 
 
 \section{Defining the ``explicit isogeny model"}
-Warning: experimental stuff ahead.
-
-We would like to use the Algebraic Group Model in the isogeny setting, since it's very helpful with proofs. However we don't want to restrict too much the power of the adversary. We will thus define a new model, analogous to AGM; we also think that our model could be equivalent to the plain model.
+The main idea of this chapter is that we want to use the Algebraic Group Model in the isogeny setting, since it's very helpful with proofs. However we don't want to restrict too much the power of the adversary. We will thus define a new model, analogous to AGM; in section \ref{section_EIgeneral} we will show some evidence on the fact that our model could be equivalent to the plain model.
 
 \begin{definition}
     We say that a Turing machine $\adv$ \emph{uses explicit isogenies} if whenever it outputs a supersingular elliptic curve $E$, it also outputs a computable isogeny $\phi:E_1\to E$, where $E_1$ is a curve that it has already seen.
@@ -51,23 +51,18 @@ This motivates the following:
 We then define what we mean by emulation and realization in this setting, which simply breaks down to the adversary and environment using explicit isogenies.
 
 \begin{definition}
-        Given two protocols $\pi$ and $\phi$, we say that $\pi$ \emph{(CM)EI-emulates} $\phi$ if for any adversary $\adv$ there is a simulator $\sdv$ such that for any environment $\edv$ with $(\edv,\adv)$ that use (CM-)explicit isogenies we have that
-    $$EXEC_{\phi,\sdv,\edv} \cindist EXEC_{\pi,\adv,\edv}$$
+        Given a protocol $\pi$ and a functionality $\Fun$, we say that $\pi$ \emph{(CM)EI-realizes} $\Fun$ if for any adversary $\adv$ there is a simulator $\sdv$ such that for any environment $\edv$ with $(\edv,\adv)$ that use (CM-)explicit isogenies we have that
+    $$\{\textsc{\scriptsize IDEAL}_{\Fun,\sdv,\edv} \} \cindist \{\textsc{\scriptsize REAL}_{\pi,\adv,\edv} \}$$
 \end{definition}
-
-Finally, a protocol $\pi$ EI-realizes a functionality $\Fun$ if it EI-emulates the protocol $IDEAL_\Fun$.
-
-
-
 
 
 \section{Proving security in the EI model}
-We now prove the security of the two-round twist protocol, using an encryption scheme $(\kgen, \enc, \dec)$.
+We now prove the security of the two-round twist protocol, using an encryption scheme $\edv=(\kgen, \enc, \dec)$.
 
 The precise result is the following:
 
 \begin{theorem}
-    The protocol $\Pi_{tw}$ CMEI-realizes the functionality $\Fun_{OT}$, if the encryption scheme is \indcpa.
+    The protocol $\Pi_{tw}$ CMEI-realizes the functionality $\Fun_{OT}$, if the encryption scheme $\edv$ is \indcpa.
 \end{theorem}
 \begin{proof}
     \textbf{Honest sender and corrupted receiver}: The simulator is defined by the following instructions:
@@ -84,22 +79,29 @@ The precise result is the following:
         \item Finally $\sdv$ sends $A,c_0,c_1$ to the adversary.
     \end{enumerate}
     
-    Let $A$ be the event that $\sdv$ aborts. Then we have
+    Let $A$ be the event that $\sdv$ aborts, and let $\zdv_\sdv$ denote $\textsc{\scriptsize IDEAL}_{\Fun,\sdv,\zdv}$, while $\zdv_\pi$ denote $\textsc{\scriptsize REAL}_{\pi,\adv,\zdv}$. Then we have
     \begin{multline*}
-        \left|\prob{\zdv=1}-\prob{\zdv=0}\right| = \left|\condprob{\zdv=1}{A}\cdot\prob{A} + \condprob{\zdv=1}{\neg A}\cdot\prob{\neg A} -\right.\\\left.- \condprob{\zdv=0}{A}\cdot\prob{A} - \condprob{\zdv=0}{\neg A}\cdot\prob{\neg A}\right|\le\\
-        \le \left| \condprob{\zdv=1}{A} - \condprob{\zdv=0}{A}\right|\cdot\prob{A}  +\\
-        + \left| \condprob{\zdv=1}{\neg A} - \condprob{\zdv=0}{\neg A}\right|\cdot\prob{\neg A} \le \\
-        \le \prob{A} + \left| \condprob{\zdv=1}{\neg A} - \condprob{\zdv=0}{\neg A}\right|
+        \left|\prob{\zdv_\sdv=1}-\prob{\zdv_\pi=1}\right| = \left|\condprob{\zdv_\sdv=1}{A}\cdot\prob{A} + \condprob{\zdv_\sdv=1}{\neg A}\cdot\prob{\neg A} -\right.\\\left.- \condprob{\zdv_\pi=1}{A}\cdot\prob{A} - \condprob{\zdv_\pi=1}{\neg A}\cdot\prob{\neg A}\right|\le\\
+        \le \left| \condprob{\zdv_\sdv=1}{A} - \condprob{\zdv_\pi=1}{A}\right|\cdot\prob{A}  +\\
+        + \left| \condprob{\zdv_\sdv=1}{\neg A} - \condprob{\zdv_\pi=1}{\neg A}\right|\cdot\prob{\neg A} \le \\
+        \le \prob{A} + \left| \condprob{\zdv_\sdv=1}{\neg A} - \condprob{\zdv_\pi=1}{\neg A}\right|
     \end{multline*}
 
     The theorem will then follow from the fact that both quantities are negligible. Indeed if $\sdv$ aborts, then we can solve a CSIDH problem, while if $\zdv$ can distinguish we can break the $\indcpa$ property of the encryption scheme.
     
-    Indeed, suppose that $\sdv$ does not abort; then we can construct an adversary $\ddv$ for the $\indcpa$ game in the following way: $\ddv$ chooses a random message $m$, sends the pair $(0,m)$ to the $\indcpa$ oracle, getting $c$ as answer. Then it proceeds to run the environment with $\sigma$ and $m_\sigma=0, m_{1-\sigma}=m$ as input of the parties; moreover it modifies the simulator in order to answer $c_{1-\sigma}=c$. Finally $\ddv$ outputs whatever $\zdv$ outputs.
+    Indeed, suppose that $\sdv$ does not abort; then we can construct an adversary $\ddv$ for the $\indcpa$ game similarly to what we did in section \ref{section_dummy}: internally $\ddv$ runs $\zdv$ against $\sdv$, but stopping the execution before the simulator computes $c_{1-\sigma}$.
     
-    We have that $$\advantage{\indcpa}{\ddv}[] = \left| \condprob{\zdv=1}{\neg A} - \condprob{\zdv=0}{\neg A}\right|$$
+    Then $\ddv$ takes the input $(m_0,m_1)$ for the honest sender, and sends to the $\indcpa$ oracle the pair of messages $(0,m_{1-\sigma})$, which returns a ciphertext $c$; at this points $\ddv$ resumes the execution, but puts $c_{1-\sigma}=c$. Finally $\ddv$ outputs whatever $\zdv$ outputs.
     
-    since $\prob{\ddv=i}=\condprob{\zdv=i}{\neg A}$.\todo{is it true?}
+    Notice that when the bit $b$ of the $\indcpa$ oracle is $1$, $\ddv$ runs a perfect emulation of the real protocol, while if $b=0$, $\ddv$ is running $\sdv$.
     
+    This means that
+    
+    \begin{align*}
+    \advantage{\indcpa}{\ddv,\edv}[] &= \left| \condprob{\ddv=1}{b=0} -  \condprob{\ddv=1}{b=1}\right|\\
+    & = \left| \condprob{\zdv_\sdv=1}{\neg A} - \condprob{\zdv_\pi=1}{\neg A} \right|.
+    \end{align*}
+    In particular $\zdv$ cannot distinguish $\sdv$ and the real world if the encryption scheme $\edv$ is $\indcpa$, in the case that $\sdv$ doesn't abort.    
     
     Let's now estimate the probability of $\sdv$ aborting. Suppose then that we have a CSIDH problem $E_1=a\star E_0$ we want to solve. We create two possible solvers for this problem:
     \begin{itemize}
@@ -132,13 +134,13 @@ The precise result is the following:
     Moreover $\ddv_i$ wins with probability $1$ if event $T_i$ happens, so we have that $$\advantage{CSIDH}{\ddv_i}[]\ge 1\cdot \prob{T_i} + \frac{1}{\# Cl(\Oc)}\prob{\neg T_i}\ge\prob{T_i}$$
     
     In particular we get that $\prob{\sdv\text{ aborts}} \le \advantage{CSIDH}{\ddv_0}[] + \advantage{CSIDH}{\ddv_1}[]$, from which we finally get that
-    $$ \left|\prob{\zdv=1}-\prob{\zdv=0}\right| \le \advantage{\indcpa}{\ddv}[] + \advantage{CSIDH}{\ddv_0}[] + \advantage{CSIDH}{\ddv_1}[], $$
-    which proves indistinguishability, provided that the encryption scheme is $\indcpa$ and the CSIDH problem is hard.\todo{There must be some coefficients in this...}
+    $$ \left|\prob{\zdv_\sdv=1}-\prob{\zdv_\pi=1}\right| \le \advantage{\indcpa}{\ddv}[] + \advantage{CSIDH}{\ddv_0}[] + \advantage{CSIDH}{\ddv_1}[], $$
+    which proves indistinguishability, provided that the encryption scheme is $\indcpa$ and the CSIDH problem is hard.
     
 \end{proof}
 
 
-\section{The generality of EI model}
+\section{The generality of EI model}\label{section_EIgeneral}
 
 The EI model limits the capabilities of the adversary, so it may seem that it's less expressive than the plain model of UC security. However, there is strong evidence suggesting that any PPT adversary behaves like in the explicit isogeny model; in particular, it's ``hard" to sample random supersingular curves without taking a random isogeny walk from another known curve.
 
@@ -177,7 +179,7 @@ This assumption is still heavily debated and considered as a problem to be solve
 
 Notice that if the assumption doesn't hold, then the EI model is actually less expressive than the plain model, in the same way that the AGM denies the sampling of random group elements, which is a very easy operation both for finite fields and for elliptic curves.
 
-The conclusion of this chapter, and the main takeaway of this tesis, is that while it would be good to find an efficient sampling algorithm,\todo{actually, why? References?} if we instead get convinced that the problem is hard we could have gained a very useful tool for UC proofs, that in particular avoids unnecessary computations in many protocols.
+The conclusion of this chapter, and the main takeaway of this tesis, is that while it would be good to find an efficient sampling algorithm, if we instead get convinced that the problem is hard we could have gained a very useful tool for UC proofs, that in particular avoids unnecessary computations in many protocols.
 
 
 

@@ -217,7 +217,7 @@ This theorem means that secure protocols can be \emph{sequentially composed} to 
 
 Moreover, the hybrid model gives more power to the simulator: when the adversary $\adv$ wants to make a query to the ideal funtionality $g$ in the hybrid model, the simulator $\sdv$ will emulate it and learn all the queries to $g$ made by $\adv$. This will give $\sdv$ much more information than it usually has, and most of the times the simulator will be able to extract the inputs and come up with a correct simulation.
 
-\section{The (simplified) UC framework}
+\section{The (simplified) UC framework}\label{section_SUC}
 The universal composability framework is the most popular generalization of the stand-alone model, which is what we have described in the previous section. While we could compose protocols sequentially, the stand-alone model doesn't say anything about \emph{concurrent} compositions, which are actually found everywhere in the real world.
 
 This framework has been introduced by Canetti \cite{Canetti_UC}, and adds an external \emph{environment} machine which is essentially an interactive distinguisher. The main role of the environment is to provide inputs to the parties, collect their outputs and interact with the adversary during the protocol execution. This means that the simulator cannot rewind the adversary, a very popular technique in the stand-alone model.
