@@ -289,12 +289,27 @@ Notice that counting the number of points is an easy problem, due to the Schoof-
 The problem of deciding whether $E_1$ and $E_2$ are isogenous \emph{with a degree $\ell$ isogeny} is also somewhat feasible, with very similar techiniques to the SEA algorithm, namely the use of \emph{modular polynomials}.
 
 \begin{theorem}
-    For any prime $\ell$ there exists a symmetric polynomial $\Psi_\ell\in\Z[x,y]$ such that two elliptic curves $E_1,E_2$ defined over an algebraically closed field are $\ell$-isogenous if and only if $\Psi_\ell(j(E_1),j(E_2))=0$.
+    For any prime $\ell$ there exists a symmetric polynomial $\Phi_\ell\in\Z[x,y]$ such that two elliptic curves $E_1,E_2$ defined over an algebraically closed field are $\ell$-isogenous if and only if $\Phi_\ell(j(E_1),j(E_2))=0$.
 \end{theorem}
 
-These polynomials are independent from the base field (in particular they work both in positive and zero characteristic) and thus can be precomputed. They have $O(\ell^2)$ coefficients, so this decision problem is only solvable for ``small" values of $\ell$.
+These polynomials are independent from the base field (in particular they work both in positive and zero characteristic) and thus can be precomputed. They have $O(\ell^2)$ quite big coefficients, so this decision problem is only solvable for ``small" values of $\ell$.
 
-Moreover, the modular polynomials can be used to compute all $\ell$-isogenous curves from a given $E$ by simply finding the roots of the univariate polynomial $\Psi_\ell(j(E),y)=0$.\todo{examples of degree 2 or 3 polynomials}
+Moreover, the modular polynomials can be used to compute all $\ell$-isogenous curves from a given $E$ by simply finding the roots of the univariate polynomial $\Phi_\ell(j(E),y)=0$.
+
+\begin{example}
+    The modular polynomials for degrees $2$ and $3$ are as follows:
+    \begin{align*}
+    \Phi_2(X,Y) &= (X+Y)^3-X^2Y^2+1485XY(X+Y)-162000(X+Y)^2 \\
+    & + 41097375 XY + 8748000000(X+Y) - 157464000000000
+    \end{align*}
+    
+    \begin{align*}
+    \Phi_3(X,Y) &= (X+Y)^4 - X^3Y^3 + 2232X^2Y^2(X+Y) + 36864000(X+Y)^3\\
+    & - 1069960XY(X+Y)^2 + 2590058000X^2Y^2\\
+    & + 8900112384000XY(X+Y) + 452984832000000(X+Y)^2\\
+    & - 771751936000000000XY + 1855425871872000000000(X+Y)
+    \end{align*}
+\end{example}
 
 Finally, we make a remark on twists over finite fields: since the multiplicative group $\F_q^\ast$ is cyclic, there is exactly one quadratic twist of an elliptic curve.
 \begin{proposition}
@@ -362,7 +377,7 @@ Notice moreover that combining the point counting criterion with Tate's theorem 
 \end{remark}
 
 There is also a very specific theorem about restricted endomorphism rings of supersingular elliptic curves (see \cite{Waterhouse}).
-\begin{theorem}
+\begin{theorem}\label{thm_endfp}
     Let $p>3$, $q=p^n$ and $E$ be a supesingular elliptic curve over $\F_q$, with $\# E(\F_q)=q+1-t$. Then one of the following must hold:
     \begin{enumerate}
         \item $n$ is even and $t=\pm2\sqrt{q}$.
@@ -408,7 +423,7 @@ Notice that we can explicitly state the structure of $G_\ell(\bar\F_p)$ using mo
 
 Over a finite field $\F_q$, the graph $G_\ell(\F_q)$ is canonically split into ordinary components and supersingular components. The ordinary components have been studied by Kohel in its thesis \cite{Kohel_thesis}, and are called \emph{isogeny volcanoes} due to their very peculiar form.
 
-Since all supersingular $j$-invariants lie in $\F_{p^2}$, all roots of $\Phi_\ell(j(E),t)$ also lie in $\F_{p^2}$ if $E$ is supersingular. This means that all supersingular components of $G_\ell(\F_{p^2})$ are $\ell+1$-regular. Moreover, the following is an important result for our analysis:
+Since all supersingular $j$-invariants lie in $\F_{p^2}$, all roots of $\Phi_\ell(j(E),t)$ also lie in $\F_{p^2}$ if $E$ is supersingular. This means that all supersingular components of $G_\ell(\F_{p^2})$ are $\ell+1$-regular, i.e. every vertex has degree equal to $\ell+1$. Moreover, the following is an important result for our analysis:
 \begin{theorem}[\cite{Mestre}]
     For any prime $\ell\neq p$ there is only one supersingular component in $G_\ell(\F_{p^2})$.
 \end{theorem}
@@ -443,12 +458,107 @@ Finally, we can upgrade the theorem about the supersingular component:
 \end{theorem}
 This means that taking random ``short" $\ell$-isogeny walks around supersingular curves is equivalent to picking a random supersingular curve. This is a good sign for doing cryptography, but this properties won't actually have an impact on the provable security of the protocols we will introduce.
 
+\subsection{Isogeny volcanoes}
+We now come back to ordinary components of the $\ell$-isogeny graph; they known as volcanoes, and have been studied by Kohel \cite{Kohel_thesis} and Sutherland \cite{Sutherland_volcanoes}; we will briefly introduce them, and then we will see that supersingular components of $G_\ell(\F_p)$ behave pretty much as ordinary volcanoes.
+
+For now, we suppose our curves to be defined over $\F_q$ and ordinary, thus having as endomorphism ring $\Oc:=\End(E)\subset K=\Q(\pi)$ an order in an imaginary quadratic field. We know that $\Z[\pi]\subset \Oc\subset\Oc_K$ and that isogenous curves have the same endomorphism algebra $K$ (indeed $K=\Q(\sqrt{t^2-4q})$, where $t$ is the trace of Frobenius). The following proposition is a refinement of Tate's theorem.
+\begin{proposition}
+    Let $E,E'$ be ordinary elliptic curves defined over $\F_q$, and let $\Oc,\Oc'$ be their endomorphism rings. Suppose that there exists an $\F_q$-isogeny $\phi:E\to E'$ of prime degree $\ell$. Then $\Oc$ contains $\Oc'$ or viceversa, and the index of one in the other is $1$ or $\ell$. In particular we say that:
+    \begin{itemize}
+        \item If $\Oc=\Oc'$, the isogeny $\phi$ is \emph{horizontal}.
+        \item If $[\Oc:\Oc']=\ell$, $\phi$ is \emph{descending}.
+        \item If $[\Oc':\Oc]=\ell$, $\phi$ is \emph{ascending}.
+    \end{itemize}
+\end{proposition}
+We also say that $E$ is at the floor if $\End(E)=\Z[\pi]$ and is on the surface if $\End(E)=\Oc_K$.
+
+The following theorem gives a description of an isogeny volcano.
+\begin{theorem}
+    Let $E/\F_q$ be an ordinary elliptic curve, $\pi$ its Frobenius endomorphism and $\Delta_K=t^2-4q$ the discriminant of $\Q(\pi)$ (modulo squares). Then:
+    \begin{itemize}
+        \item If $E$ is not at the floor, there are $\ell+1$ isogenies of degree $\ell$ from $E$.
+        \item If $E$ is at the floor, there are no descending $\ell$-isogenies from $E$.
+        \item If $E$ is not at the surface, there are no horizontal $\ell$-isogenies from $E$, and one ascending $\ell$-isogeny.
+        \item If $E$ is at the surface, there are $\left( \frac{\Delta_K}{p} \right)+1$ horizontal $\ell$-isogenies and no ascending $\ell$-isogenies.
+    \end{itemize}
+\end{theorem}
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+    \def\crater{7}
+    \foreach \i in {1,...,\crater} {
+        \draw[fill] (360/\crater*\i:1cm) circle (5pt);
+        \draw (360/\crater*\i : 1cm) -- (360/\crater*\i+360/\crater : 1cm);
+        \foreach \j in {-1,1} {
+            \draw[fill] (360/\crater*\i : 1cm) -- (360/\crater*\i + \j*360/\crater/4 : 2cm) circle (3pt);
+            \foreach \k in {-1,0,1} {
+                \draw[fill] (360/\crater*\i + \j*360/\crater/4 : 2cm) --
+                (360/\crater*\i + + \j*360/\crater/4 + \k*360/\crater/6 : 2.5cm) circle (1pt);
+            }
+        }
+    }
+    \begin{scope}[xshift=4cm]
+    \node at (0,2) {$\End(E)$};
+    \draw[fill] (0,1) circle(5pt) node[xshift=0.7cm]{$\Oc_K$} -- 
+    (0,0) circle(3pt) --
+    (0,-1) circle(1pt) node[xshift=0.7cm]{$\Z[\pi]$};
+    \end{scope}
+    \end{tikzpicture}
+    \caption{An isogeny volcano with $\ell=3$; picture by De Feo}
+    \label{picture_volcano}
+\end{figure}
+
+The case when $\left( \frac{\Delta_K}{p} \right)=1$ is the most interesting one to us; we can see that in this case the curves at the surface form a cycle, which is called the \emph{crater} of the volcano. We also give the following definition.
+\begin{definition}
+    Let $E/\F_q$ be an elliptic curve, with trace of Frobenius $t$; let $\Delta_K=t^2-4q$ be the discriminant of $\Q(\pi)$. We say that a prime $\ell\neq p$ is of Elkies type if $\left( \frac{\Delta_K}{\ell} \right)=1$.
+\end{definition}
+
+An example of an isogeny volcano with a crater can be see in Figure \ref{picture_volcano}.
+
 \subsection{The CM action}
-We now come back to ordinary components of the $\ell$-isogeny graph, known as volcanoes, and briefly describe their structure; then we will see that supersingular components of $G_\ell(\F_p)$ behave pretty much as ordinary volcanoes.
+We now recall an important feature of endomorphism rings of elliptic curves.
+
+Let $\Oc$ be an order in a number field $K$, and denote by $Ell_q(\Oc)$ the set of $\F_q$-isomorphism classes of elliptic curves with \emph{complex multiplication} by $\Oc$, i.e. with $\End(E)=\Oc$.
+
+Given any curve $E\in Ell_q(\Oc)$ and an invertible ideal $\mathfrak{a}\subset\Oc$ with norm coprime to $q$, we can define the \emph{$\mathfrak{a}$-torsion} subgroup of $E$ as $$E[\mathfrak{a}]=\{ P\in E(\bar\F_q) \st \alpha(P)=0\;\forall\alpha\in\mathfrak{a} \}.$$
+
+From this subgroup we can define a separable isogeny $\phi_{\mathfrak{a}}: E\to E/E[\mathfrak{a}]$. It turns out that this isogeny has degree equal to the norm of $\mathfrak{a}$, and its codomain is also an element of $Ell_q(\Oc)$; by composing with some purely inseparable isogeny we can define $\phi_{\mathfrak{a}}$ for any ideal.
+
+Since the isogeny corresponding to the ideal $(f)$ is $f$ itself, we get an action of the class group $Cl(\Oc)$ (i.e. invertible ideals of $\Oc$ modulo principal ideals) on the set $Ell_q(\Oc)$, which we will denote by $\mathfrak{a}\star E$. We state the properties of this action in the following theorem.
+
+\begin{theorem}
+    Let $\F_q$ be a finite field and $\Oc\subset\Q(\sqrt{-D})$ an order in a quadratic imaginary field. Assume $Ell_q(\Oc)$ is non empty; then the action given by
+    \begin{align*}
+    Cl(\Oc)\times Ell_q(\Oc) & \to  Ell_q(\Oc)\\
+    (\mathfrak{a}, E) & \mapsto  E/E[\mathfrak{a}]
+    \end{align*}
+    is free and transitive.
+\end{theorem}
+
+Coming back to volcanoes, we notice that this action gives us some information about the crater.
+
+Assume that we have an elliptic curve $E/\F_q$ with Frobenius endomorphism $\pi$ and trace $t$, with $\End(E)=\Oc_K$. Consider an Elkies prime $\ell$; then the characteristic polynomial splits modulo $\ell$ as $\pi^2-t\pi+q\equiv(\pi-\lambda)(\pi-\mu)\pmod\ell$ for two distinct eigenvalues $\lambda,\mu$.
+
+If we associate to $\lambda,\mu$ the ideals $\mathfrak{a}=(\ell,\pi-\lambda)$ and $\bar{\mathfrak{a}}=(\ell,\pi-\mu)$ inside $\Oc_K$, we see that $E[\mathfrak{a}]$ is precisely the eigenspace relative to $\lambda$ for the action of Frobenius on $E[\ell]$, and $E[\bar{\mathfrak{a}}]$ is the eigenspace of $\mu$.
+
+Since $\mathfrak{a}\bar{\mathfrak{a}}=\ell\Oc_K$, the two ideals are inverses in $Cl(\Oc_K)$, meaning that the isogenies $\phi_{\mathfrak{a}}:E\to \mathfrak{a}\star E$ and $\phi_{\bar{\mathfrak{a}}}:\mathfrak{a}\star E\to E$ are dual; thus the two eigenvalues $\lambda,\mu$ define two opposite directions of walking around the crater of the isogeny volcano to which $E$ belongs.
+
+Coming back to supersingular curves, we will see some theorems that will help us translate the volcanoes setting to the supersingular case. First of all, recalling theorem \ref{thm_endfp}, we have that:
+
+\begin{proposition}
+    Let $E/\F_p$ be a supersingular elliptic curve and $\End_{\F_p}(E)$ denote the ring of $\F_p$-rational endomorphism of $E$. Then $$\Z[\pi]\subset \End_{\F_p}(E) \subset \Q(\sqrt{-p}).$$
+\end{proposition}
+
+We recall that in the case $p\equiv1\pmod 4$ the maximal order of $\Q(\sqrt{-p})$ is $\Z[\pi]$, while if $p\equiv 3\pmod 4$, the maximal order is $\Z[\frac{\pi+1}{2}]$.
+
+Finally, we have the following result that basically states that $Ell_p(\Oc)$ is a cycle:
 
 \begin{theorem}[\cite{Delfs_Galbraith}]\label{CSIDH_cycle}
-    Let $p\ge 5$ be a prime with $p\equiv11\pmod{12}$ and let $V$ be a connected component of $G_\ell(\F_p)$ for some other prime $\ell$; let $t$ be the trace of the common Frobenius endomorphism and $K=\Q(\sqrt{t^2-4p})$. Then all curves in $V$ have the same $\F_p$-endomorphism ring $\Oc\subset K$ and if $t^2-4p$ is a non-zero square modulo $\ell$, then $V$ is a cycle whose length is equal to the order of $\mathfrak{l}$ in $Cl(\Oc)$, where $\mathfrak{l}$ is a prime dividing $\ell\Oc$.
+    Let $p\ge 5$ be a prime with $p\equiv3\pmod{4}$, and let $2<\ell\neq p$ another prime. Then the supersingular component of $G_\ell(\F_p)$ has two levels, and if $\ell$ is an Elkies prime each vertex has two horizontal $\ell$-isogenies.
 \end{theorem}
+
+
 
 \section{Montgomery models}
 \cite{Costello_Montgomery} from \cite{Montgomery_curve}.

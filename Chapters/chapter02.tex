@@ -210,9 +210,11 @@ We can describe two attack models, in terms of what is the output of Alice; in b
 This attacks means that SIDH can only be used as an interactive and ephemeral key exchange, and is the main reason behind the needed transformations in SIKE.
 
 \section{Commutative SIDH}
-In this section we descrybe the key exchange protocol CSIDH proposed by Castryck, Lange, Martindale, Panny and Renes \cite{CSIDH}. It is based on the ideas of Couveignes, but uses supersingular components of the isogeny graph $G_\ell(\F_p)$ of curves defined over $\F_p$ for many different $\ell$. The use of supersingular curves is a speedup in walking the graph, since it makes the evaluation of the CM action much easier; actual implementations use key sizes of 64 bytes and the protocol is performed in about 80ms, which makes it actually usable in many applications.
+In this section we descrybe the key exchange protocol CSIDH proposed by Castryck, Lange, Martindale, Panny and Renes \cite{CSIDH}. It is based on the ideas of Couveignes, but uses the supersingular component of the isogeny graph $G_\ell(\F_p)$ of curves defined over $\F_p$ for many different $\ell$. The use of supersingular curves is a speedup in walking the graph, since it makes the evaluation of the CM action much easier; actual implementations use key sizes of 64 bytes and the protocol is performed in about 80ms, which makes it actually usable in many applications.
 
 The main point in favour of CSIDH is that it provides a \emph{non-interactive} key exchange protocol with static public keys, unlike SIDH which needs to be ephemeral. However, it suffers from a quantum subexponential attack; as the author themselves point out though, also RSA has a subexponential attack, but this didn't stop its widespread adoption.
+
+More information and some implementations can be found at \url{https://csidh.isogeny.org/}.
 
 \subsection{Hard Homogeneous Spaces}
 The idea behind CSIDH was first proposed by Couveignes \cite{Couveignes} with his \emph{hard homogeneous spaces}, which are nothing but group actions where some problems are easy and some problems are hard.
@@ -263,9 +265,44 @@ The main idea of CSIDH is to pick a prime of the form $p=4\ell_1\dots\ell_n-1$, 
 
 The Elkies primes are those which split as $\ell\Oc=\mathfrak{l}\cdot\bar{\mathfrak{l}}$, i.e. those that satisfy $\left( \frac{-p}{\ell} \right)=1$; since $p\equiv-1\pmod{\ell_i}$, we have that all the selected primes $\ell_i$ are Elkies. Moreover, since the characteristic polynomial of the Frobenius is $\pi^2+p=0$, when reduced modulo $\ell_i$ it becomes $\pi^2-1\equiv0\pmod{\ell_i}$; this means that $\ell$ splits as the product of $\mathfrak{l}_i=(\ell_i, \pi-1)$ and $\bar{\mathfrak{l}_i}=(\ell_i, \pi+1)$.
 
-In this setting we adapt theorem \ref{CSIDH_cycle} to get that the connected component of $E_0$ in $G_{\ell_i}(\F_p)$ is a cycle, which can be traversed in both ways with $[\mathfrak{l}_i]$ and $[\bar{\mathfrak{l}_i}]=[\mathfrak{l}_i]^{-1}$.
+In this setting we use theorem \ref{CSIDH_cycle} to get that the horizontal level of $E_0$ in $G_{\ell_i}(\F_p)$ is a cycle, which can be traversed in both ways with $[\mathfrak{l}_i]$ and $[\bar{\mathfrak{l}_i}]=[\mathfrak{l}_i]^{-1}$.
 
-The very peculiar choice of the prime implies that the evaluation of the action $\mathfrak{l}_i\cdot E$ is very easy: the kernel of the corresponding isogeny $E[\mathfrak{l}_i]$ is the intersection of $\ker[\ell_i]$ and $\ker(\pi-1)$, which is the $\F_p$-rational $\ell_i$-torsion subgroup. By computing it and using Vélu's formulas we can compute the isogeny $\varphi_{\mathfrak{l}_i}$.
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+    \begin{scope}
+    \def\crater{12}
+    \def\jumpa{-8}
+    \def\jumpb{9}
+    \def\diam{3cm}
+    
+    \foreach \i in {1,...,\crater} {
+        {\draw[blue] (360/\crater*\i : \diam) to[bend right] (360/\crater*\i+360/\crater : \diam);}
+        {\draw[red] (360/\crater*\i : \diam) to[bend right] (360/\crater*\i+\jumpa*360/\crater : \diam);}
+        {\draw[green] (360/\crater*\i : \diam) to[bend right=50] (360/\crater*\i+\jumpb*360/\crater : \diam);}
+    }
+    \foreach \i in {1,...,\crater} {
+        \draw[fill] (360/\crater*\i: \diam) circle (2pt) +(360/\crater*\i: 0.4) node{$E_{\i}$};
+    }
+    \end{scope}
+    \begin{scope}[xshift=4.2cm,yshift=1cm]
+    
+    {\draw[blue] (0,0) -- (0.5,0)
+        (0.5,0) node[anchor=west] {degree $2$};}
+    {\draw[red] (0,-1) -- (0.5,-1) (0.5,-1)
+        node[anchor=west] {degree $3$};}
+    {\draw[green]
+        (0,-2) -- (0.5,-2) (0.5,-2) node[anchor=west] {degree $5$};}
+    
+    \end{scope}
+    \end{tikzpicture}
+    \caption{An abstract example of a CSIDH graph; picture by De Feo}
+    \label{picture_CSIDH}
+\end{figure}
+
+Putting together the graphs for the different $\ell_i$, we get a picture similar to Figure \ref{picture_CSIDH}, which can be called a CM graph, or in this case a CSIDH graph.
+
+The very peculiar choice of the prime $p$ implies that the evaluation of the action $\mathfrak{l}_i\cdot E$ is very easy: the kernel of the corresponding isogeny $E[\mathfrak{l}_i]$ is the intersection of $\ker[\ell_i]$ and $\ker(\pi-1)$, which is the $\F_p$-rational $\ell_i$-torsion subgroup. By computing it and using Vélu's formulas we can compute the isogeny $\varphi_{\mathfrak{l}_i}$.
 
 For computing $\mathfrak{l}_i^{-1}\cdot E$ we can either compute the $\F_{p^2}$-rational $\ell_i$-torsion, or we can use the fact that $(\mathfrak{a}\cdot E)^t\cong\mathfrak{a}^{-1}\cdot E^t$, where $E^t$ is the quadratic twist of $E$. For more details on evaluating the class group action, we refer to \cite[section 8]{CSIDH}.
 
@@ -274,11 +311,13 @@ Another key aspect of CSIDH is that it uses curves in Montgomery form, because o
     Let $p\ge5$ be a prime with $p\equiv3\pmod8$, and let $E/\F_p$ be a supersingular elliptic curve. Then $\End_p(E)=\Z[\pi]$ if and only if there exists $A\in\F_p$ such that $E$ is $\F_p$-isomorphic to the curve $E_A:y^2=x^3+Ax^2+x$. Moreover, such $A$ is unique.
 \end{proposition}
 
-This means that it is sufficient to use the $A$ coefficient as the public key, instead of a $j$-invariant and then having to check that it has the correct endomorphism ring. The only check needed is that $A\not\in{\pm2}$ (otherwise $E_A$ isn't even smooth), and that $E_A$ is supersingular.
+This means that it is sufficient to use the $A$ coefficient as the public key, instead of a $j$-invariant and then having to check that it has the correct endomorphism ring. The only check needed is that $A\not\in\{\pm2\}$ (otherwise $E_A$ isn't even smooth), and that $E_A$ is supersingular.
 
 Furthermore, it's very easy to see that in our setting (in particular given $p\equiv3\pmod 4$), the twist of $E_A$ is simply $E_A^t\cong E_{-A}$.
 
 Finally, the CSIDH protocol is described in Figure \ref{prot_CSIDH}, where all above observation apply. In particular, private keys are tuple of integer exponents $(e_1,\dots,e_n)$, which correspond to the ideal $\prod [\mathfrak{l}_i]^{e_i}$; every $e_i$ is uniformly sampled from $\{ -m,\dots,m \}$, where $m$ is a fixed protocol parameter and must balance efficiency and security. The authors argue that if $2m+1\ge\sqrt[n]{\# Cl(\Oc)}$ the ideal sampled in this way is sufficiently close to the uniform distribution.
+
+One example set of parameters is given by the proposed \texttt{CSIDH-512}, where $p=4\cdot\ell_1\cdots\ell_{74}-1$, with $\ell_1,\dots,\ell_{73}$ the first $73$ odd prime numbers, while $\ell_{74}=587$ (the smallest prime to make also $p$ be a prime); moreover the private exponents are chosen in $\{ -5,\dots,5 \}$.
 
 \begin{figure}
     \begin{framed}
@@ -294,9 +333,27 @@ Finally, the CSIDH protocol is described in Figure \ref{prot_CSIDH}, where all a
 
 
 \section{CSIDH assumptions}
-Not fully post-quantum secure
+The main hardness assumptions for CSIDH security are the vectorization and the parallelization tasks of the hard homogeneous space of which CSIDH is an instance. In particular, we will analyze the following problem.
 
-\cite{breaking_DDH}
+\begin{problem}[CSIDH problem]\label{problem_csidh}
+    Given two supersingular curves $E,E'$ both defined over $\F_p$ and with the same $\F_p$-endomorphism ring $\Oc$, \emph{find} an ideal $\mathfrak{a}$ of $\Oc$ such that $[\mathfrak{a}]E=E'$. The ideal must be given in such a way that its action on the curve can be computed efficiently.
+\end{problem}
+
+We could also define the problems for parallelization and more, but we will do so when needed. Here we only notice that the analog of the DH decision problem has been ``broken" in \cite{breaking_DDH}, in a similar way in which the Legendre symbol ``breaks" DDH.
+
+The most basic security analysis of CSIDH can be made by reusing the meet-in-the-middle approaches against SIDH. This results in a $O(\sqrt[4]{p})$ classical attack and a $O(\sqrt[6]{p})$ quantum attack, exactly as in SIDH.
+
+However, the use of a commutative group reduces the quantum security of CSIDH, due to a family of subexponential quantum algorithms for solving the \emph{hidden shift problem} by Kuperberg \cite{Kuperberg2005} and Regev \cite{Regev_hshp}.
+\begin{definition}
+    Let $f_0,f_1:G\to X$ be two injective functions from a group $G$ to a set $X$. Suppose that there exists an element $s\in G$ such that $f_0(g)=f_1(gs)$ for any $g\in G$; this element $s$ is called a \emph{hidden shift} for $f_0,f_1$. The \emph{hidden shift problem} is to find $s$, given access to $f_0,f_1$.
+\end{definition}
+As noted in \cite{Childs_hshsp}, Kuperberg's algorithm can be used to solve the CM problem as follows: let $E_0,E_1$ be two curves with CM by $\Oc_K$ and define $f_0,f_1:Cl(\Oc_K)\to Ell_p(\Oc_K)$ by $f_i([\mathfrak{a}]) = [\mathfrak{a}]E_i$; this gives rise to an hidden shift that is precisely an horizontal isogeny between $E_0$ and $E_1$.
+
+Since running time of those quantum algorithm is about $O(2^{\sqrt{\# G}})$, this means that for $n$-bit quantum security we need $\log p$ to be about $O(n^2)$.
+    
+The precise quantum cost in time and space for breaking CSIDH is still being debated; see \cite{CSIDH_Peikert}, \cite{CSIDH_BS}, \cite{CSIDH_qiso} and the most recent version of the CSIDH paper.
+
+The authors argue that \texttt{CSIDH-512} might not fall too short of the $128$ classical bits of security, especially since evaluating isogenies adds much complexity to the quantum circuits.
 
 \section{Equivalence of isogeny problems}
 $\ell$-IsogenyPath vs. EndRing \cite{Weso_EndRing}.
