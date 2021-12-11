@@ -209,6 +209,8 @@ We can describe two attack models, in terms of what is the output of Alice; in b
 
 This attacks means that SIDH can only be used as an interactive and ephemeral key exchange, and is the main reason behind the needed transformations in SIKE.
 
+There are also other attacks exploiting the additional torsion point images in the public key \cite{SIDH_tp1, SIDH_tp2}; however, they target very particular parameter choices and some protocols derived from SIDH, but don't directly pose any threat to SIKE and its proposed standard parameters.
+
 \section{Commutative SIDH}
 In this section we descrybe the key exchange protocol CSIDH proposed by Castryck, Lange, Martindale, Panny and Renes \cite{CSIDH}. It is based on the ideas of Couveignes, but uses the supersingular component of the isogeny graph $G_\ell(\F_p)$ of curves defined over $\F_p$ for many different $\ell$. The use of supersingular curves is a speedup in walking the graph, since it makes the evaluation of the CM action much easier; actual implementations use key sizes of 64 bytes and the protocol is performed in about 80ms, which makes it actually usable in many applications.
 
@@ -265,7 +267,7 @@ The main idea of CSIDH is to pick a prime of the form $p=4\ell_1\dots\ell_n-1$, 
 
 The Elkies primes are those which split as $\ell\Oc=\mathfrak{l}\cdot\bar{\mathfrak{l}}$, i.e. those that satisfy $\left( \frac{-p}{\ell} \right)=1$; since $p\equiv-1\pmod{\ell_i}$, we have that all the selected primes $\ell_i$ are Elkies. Moreover, since the characteristic polynomial of the Frobenius is $\pi^2+p=0$, when reduced modulo $\ell_i$ it becomes $\pi^2-1\equiv0\pmod{\ell_i}$; this means that $\ell$ splits as the product of $\mathfrak{l}_i=(\ell_i, \pi-1)$ and $\bar{\mathfrak{l}_i}=(\ell_i, \pi+1)$.
 
-In this setting we use theorem \ref{CSIDH_cycle} to get that the horizontal level of $E_0$ in $G_{\ell_i}(\F_p)$ is a cycle, which can be traversed in both ways with $[\mathfrak{l}_i]$ and $[\bar{\mathfrak{l}_i}]=[\mathfrak{l}_i]^{-1}$.
+In this setting we use theorem \ref{CSIDH_cycle} to get that the horizontal level of $E_0$ in $G_{\ell_i}(\F_p)$ is a cycle, which can be traversed in both ways with $[\mathfrak{l}_i]$ and $[\bar{\mathfrak{l}_i}]=[\mathfrak{l}_i]^{-1}$. For CSIDH we are using the floor of this volcano, while there is a variant named \emph{CSURF} that uses the elliptic curves on the surface, which has been introduced by Castryck and Decru \cite{CSURF} and is slightly more efficient.
 
 \begin{figure}
     \centering
