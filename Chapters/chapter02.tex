@@ -14,7 +14,7 @@ The main prototype of key exchanges is the one proposed by Diffie and Hellman in
 
 The DH protocol is very minimal, also in its setup: we fix a prime number $p$ and a generator $g$ of $\F_p^\ast$. Then the two parties Alice and Bob choose random values $a$ and $b$ respectively, and send each other the public values $A=g^a$ and $B=g^b$. The shared secret is then $g^{ab}$, which can be computed by Alice and Bob as $B^a$ and $A^b$, respectively.
 
-This protocol is secure since solving the \emph{discrete logarithm problem} is hard, in the sense that there is no algorithm that solves it in $O(\text{poly}(\log p))$ operations; for example, the generic baby-step giant-step algorithm has a running time of $O(\sqrt p)$, while the most optimized General Number Field Sieve has complexity $L_p[1/3,\sqrt[3]{64/9}]$\footnote{Recall that $L_n[\alpha, c]=\exp\left( (c+o(1))\log^\alpha(n)\log\log^{1-\alpha}(n) \right)$}.
+This protocol is secure since solving the \emph{discrete logarithm problem} is hard, in the sense that there is no known algorithm that solves it in $O(\text{poly}(\log p))$ operations; for example, the generic baby-step giant-step algorithm has a running time of $O(\sqrt p)$, while the most optimized General Number Field Sieve has complexity $L_p[1/3,\sqrt[3]{64/9}]$\footnote{Recall that $L_n[\alpha, c]=\exp\left( (c+o(1))\log^\alpha(n)\log\log^{1-\alpha}(n) \right)$}.
 
 Actually, since P vs NP is still an open problem, the whole field of cryptography works with assumptions and reductions: there is a small set of problems that are considered ``hard", and the proofs of security are simply reductions to one of those problems; more explicitly, most proofs use a format similar to ``suppose an adversary $\adv$ can break protocol $\pi$; then with the following steps $\adv$ can be used to solve an instance of the hard problem X".
 
@@ -84,7 +84,7 @@ The trick to make the protocol work is to include in the public key some more in
 
 The protocol fixes a prime of the form $p=\ell_A^{e_A}\ell_B^{e_B}\cdot f\pm1$, where $\ell_A,\ell_B$ are small primes (usually $2$ and $3$) and $f$ is a small cofactor. Then it chooses a supersingular elliptic curve $E$ defined over $\F_q=\F_{p^2}$ with order $(\ell_A^{e_A}\ell_B^{e_B} f)^2$.
 
-In this way $E[\ell_A^{e_A}]$ is all defined over $\F_q$, and since it's isomorphic to $\Zn{\ell_A^{e_A}}\times\Zn{\ell_A^{e_A}}$ it has $\ell_A^{e_A-1}(\ell_A+1)$ distinct cyclic subgroups of order $\ell_A^{e_A}$, each of which defines a different $\F_q$-isogeny. Thus the secret in this case is the kernel subgroup.
+In this way $E[\ell_A^{e_A}]\subset E(\F_q)$, and since it's isomorphic to $\Zn{\ell_A^{e_A}}\times\Zn{\ell_A^{e_A}}$ it has $\ell_A^{e_A-1}(\ell_A+1)$ distinct cyclic subgroups of order $\ell_A^{e_A}$, each of which defines a different $\F_q$-isogeny. Thus the secret in this case is the kernel subgroup.
 
 The other important step is to fix a basis $\{ P_A,Q_A \}$ of $E[\ell_A^{e_A}]$, and a basis $\{ P_B, Q_B \}$ of $E[\ell_B^{e_B}]$.
 
@@ -121,7 +121,7 @@ With this algorithm, we can compute efficiently all the quotients, in time $O(e^
 One final implementation detail is that the curves are in Montgomery form, so that we can efficiently compute additions and isogenies with $x$ only arithmetic.
 
 \subsection{From SIDH to SIKE}
-The SIDH is a key exchange protocol, however we need some transformations to obtain provable cryptographic security. The algorithm submitted to NIST is a \emph{Key Encapsulation Method}, which has been named SIKE. All the details on the SIKE protocol can be found in the official specification at \url{https://sike.org/files/SIDH-spec.pdf}.
+The SIDH is a key exchange protocol, however we need some transformations to obtain provable cryptographic security. The algorithm submitted to NIST is a \emph{Key Encapsulation Method} (or KEM), which has been named SIKE. All the details on the SIKE protocol can be found in the official specification at \url{https://sike.org/files/SIDH-spec.pdf}.
 
 First of all, they derive a public-key encryption scheme $\texttt{PKE}=(\kgen,\enc,\dec)$ in which the encryption/decryption part is given by a one-time pad with a key obtained through a random oracle from the shared $j$-invariant. In particular, if $m$ is the message and $c$ the ciphertext, the relation is $c=m\oplus H(j)$, where $H$ is some hash function.
 
@@ -141,24 +141,24 @@ In this section we explore with more detail what are the problems and the concre
 
 As we already saw, public keys in SIDH have ``more" information than what one usually expects. We now state precisely the computational problems on which the security of SIDH is based.
 
-Let $p$ be a prime of the form $\ell_A^{e_A}\ell_B^{e_B}\cdot f\pm1$ and fix a supersingular curve $E_0/\F_{p^2}$ with basis $\{P_A,Q_A\}$ and $\{P_B,Q_B\}$ for $E_0[\ell_A^{e_A}]$ and $E_0[\ell_B^{e_B}]$ respectively, as in th SIDH protocol.
+Let $p$ be a prime of the form $\ell_A^{e_A}\ell_B^{e_B}\cdot f\pm1$ and fix a supersingular curve $E_0/\F_{p^2}$ with basis $\{P_A,Q_A\}$ and $\{P_B,Q_B\}$ for $E_0[\ell_A^{e_A}]$ and $E_0[\ell_B^{e_B}]$ respectively, as in the SIDH protocol.
 
 \begin{problem}[Decisional Supersingular Isogeny (DSSI) problem]
-    Let $E_A$ another supersingular curve over $\F_{p^2}$. Decide whether $E_A$ is $\ell_A^{e_A}$-isogenous to $E_0$ or not.
+    Let $E_A$ be another supersingular curve over $\F_{p^2}$. Decide whether $E_A$ is $\ell_A^{e_A}$-isogenous to $E_0$ or not.
 \end{problem}
 
-\begin{problem}[Computationsl Supersingular Isogeny (CSSI) problem]
-    Let $\phi_A:E_0\to E_A$ an isogeny with kernel $\langle P_A+[a]Q_A \rangle$, where $a$ is sampled uniformly at random from $\Zn{\ell_A^{e_A}}$. Given $E_A, \phi_A(P_B),\phi_A(Q_B)$, compute a generator $R_A$ for the kernel of the isogeny $\phi_A$.
+\begin{problem}[Computational Supersingular Isogeny (CSSI) problem]
+    Let $\phi_A:E_0\to E_A$ be an isogeny with kernel $\langle P_A+[a]Q_A \rangle$, where $a$ is sampled uniformly at random from $\Zn{\ell_A^{e_A}}$. Given $E_A, \phi_A(P_B),\phi_A(Q_B)$, compute a generator $R_A$ for the kernel of the isogeny $\phi_A$.
 \end{problem}
 
 The most specific isogeny problems for SIDH are then the following:
 
 \begin{problem}[Supersingular Computational Diffie-Hellman (SSCDH) problem]
-    Let $\phi_A:E_0\to E_A$ the secret isogeny with kernel $\langle P_A+[a]Q_A \rangle$ and similarly $\phi_B:E_0\to E_B$, with secret $b$. Given the curves $E_A,E_B$ and the points $\phi_A(P_B),\phi_A(Q_B),\phi_B(P_A),\phi_B(Q_A)$ compute the $j$-invariant of the curve $E_0/\langle P_A+[a]Q_A,P_B+[b]Q_B \rangle$.
+    Let $\phi_A:E_0\to E_A$ be the secret isogeny with kernel $\langle P_A+[a]Q_A \rangle$ and similarly $\phi_B:E_0\to E_B$, with secret $b$. Given the curves $E_A,E_B$ and the points $\phi_A(P_B),\phi_A(Q_B),\phi_B(P_A),\phi_B(Q_A)$ compute the $j$-invariant of the curve $E_0/\langle P_A+[a]Q_A,P_B+[b]Q_B \rangle$.
 \end{problem}
 
 \begin{problem}[Supersingular Decision Diffie-Hellman (SSDDH) problem]
-    Let $\phi_A:E_0\to E_A$ and $\phi_B:E_0\to E_B$ as in SSCDH. Distinguish the distributions
+    Let $\phi_A:E_0\to E_A$ and $\phi_B:E_0\to E_B$ be the isogenies of SSCDH. Distinguish the distributions
     \begin{itemize}
         \item $(E_A,E_B,\phi_A(P_B),\phi_A(Q_B),\phi_B(P_A),\phi_B(Q_A), E_{AB})$ with $$E_{AB}\cong E_0/\langle P_A+[a]Q_A,P_B+[b]Q_B \rangle$$
         \item $(E_A,E_B,\phi_A(P_B),\phi_A(Q_B),\phi_B(P_A),\phi_B(Q_A), E_C)$ with $$E_C\cong E_0/\langle P_A+[r]Q_A,P_B+[s]Q_B \rangle$$
@@ -175,20 +175,21 @@ Observe that the action of $\phi_A$ on $E_0[\ell_A^{e_A}]$ is all we need to sol
 It is thus assumed that SSCDH and CSSI might be equivalent, but it seems very hard to prove it, and it might actually be false. The theorems regarding the security of SIKE are thus formulated in the following way:
 
 \begin{theorem}
-    In the random oracle model, the scheme \texttt{PKE} is \indcpa if the problem SSCDH is hard.
+    In the random oracle model, the scheme \texttt{PKE} is $\indcpa$ if the problem SSCDH is hard.
 \end{theorem}
 
 \begin{theorem}
     If \texttt{PKE} is \indcpa, then the \texttt{KEM} scheme is \indcca.
 \end{theorem}
 
+The notions of encryption scheme, $\indcpa$ and random oracle model are the usual ones, and in this thesis are introduced and described in chapter \ref{chapter_UC}.
 
 \subsection{How to break SIDH}
 We now briefly discuss some attacks that greatly impacted the design choices and the bit security of SIKE.
 
 One of the first algorithm for the generic isogeny-finding problem is by Delfs and Galbraith \cite{Delfs_Galbraith}, and computes an $\F_{p^2}$-isogeny from $E$ to $E'$ in $O(\sqrt p)$, by first finding walks into the $\F_p$-isogeny graph, and then finding an $\F_p$-isogeny in $O(\sqrt[4]p)$.
 
-However, one of the features of SIDH is that we know the degrees of the isogenies; in this case we can use a more simple generic algorithm for collision finding, that is a meet-in-the-middle algorithm, or \emph{claw finding} algorithm: given the two curves $E$ and $E_A$, build the two trees on the $\ell_A$-isogeny graph starting from $E$ and $E_A$ with depth $e_A/2$; then search if there is a common leaf and join the two half-paths to compute the secret isogeny $\phi_A$.
+However, one of the features of SIDH is that we know the degrees of the isogenies; in this case we can use a simpler generic algorithm for collision finding, that is a meet-in-the-middle algorithm, or \emph{claw finding} algorithm: given the two curves $E$ and $E_A$, build the two trees on the $\ell_A$-isogeny graph starting from $E$ and $E_A$ with depth $e_A/2$; then search if there is a common leaf and join the two half-paths to compute the secret isogeny $\phi_A$.
 
 This attack has a cost of about $O(\ell_A^{e_A/2})$ time and space; since we don't want imbalances in the security for Alice or Bob, the parameters are selected such that $\ell_A^{e_A}\simeq \ell_B^{e_B}\simeq \sqrt{p}$. Indeed, the parameters for the standardized protocol \texttt{SIKEp434} are $p=2^{216}3^{137}-1$.
 
@@ -207,7 +208,7 @@ We can describe two attack models, in terms of what is the output of Alice; in b
     \item $O(E,R,S,E')$ which outputs whether $j(E')=j(E/\langle R+[a]S\rangle)$; this model is more realistic, if for example Alice uses an authenticated encryption scheme with a key derived from the shared $j$-invariant, and returns an error when the authentication tag mismatches.
 \end{itemize}
 
-This attacks means that SIDH can only be used as an interactive and ephemeral key exchange, and is the main reason behind the needed transformations in SIKE.
+These attacks mean that SIDH can only be used as an interactive and ephemeral key exchange, and is the main reason behind the needed transformations in SIKE.
 
 There are also other attacks exploiting the additional torsion point images in the public key \cite{SIDH_tp1, SIDH_tp2}; however, they target very particular parameter choices and some protocols derived from SIDH, but don't directly pose any threat to SIKE and its proposed standard parameters.
 
@@ -236,7 +237,7 @@ The idea behind CSIDH was first proposed by Couveignes \cite{Couveignes} with hi
     \begin{enumerate}
         \setcounter{enumi}{4}
         \item Vectorization: given $x,x'\in X$, find $g\in G$ such that $g\star x=x'$.
-        \item Parallelization: given $x,x',y\in G$ with $g\star x=x'$, compute $y'\in X$ such that $g\star y=y'$.
+        \item Parallelization: given $x,x',y\in X$ with $g\star x=x'$, compute $y'\in X$ such that $g\star y=y'$.
     \end{enumerate}
 \end{definition}
 
