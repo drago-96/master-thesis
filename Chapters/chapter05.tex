@@ -3,18 +3,18 @@
 \section{A protocol based on CSIDH}
 One of the simplest OT protocols based on isogenies is the one proposed by Lai, Galbraith and de Saint Guilhem in \cite{Lai_twists}; it works in the CSIDH setting, and makes a clever use of the twisting operation.
 
-The protocol written in figure \ref{prot_twist} is two-round and uses a trusted setup curve $E$. It is only proven to be semi-honest in the UC framework, but there is a version with three rounds that is secure with static malicious corruptions.
+The protocol written in Figure \ref{prot_twist} is two-round and uses a trusted setup curve $E$. It is only proven to be semi-honest secure  in the UC framework, but there is a version with three rounds that is secure with static malicious corruptions.
 
 The third round in the malicious secure version is added as a ``proof of decryption", which makes possible to extract the input of a malicious receiver.
 
-That three-round maliciosly secure protocol adds many operations and is much less readable; most of the added operations deal with the difficulty of extracting in the UC proof, thus seem very artificial.
+That three-round maliciously secure protocol adds many operations and is much less readable; most of the added operations deal with the difficulty of extracting corrupted inputs in the UC proof, thus it seems very artificial.
 
 \begin{figure}
     \myproc{Protocol $\Pi_{tw}$}{
         \textbf{Sender} \> \> \textbf{Receiver} \\
         \text{Input: }(m_0, m_1) \> \> \text{Input: }\sigma \\
         s \sample Cl \> \> r \sample Cl \\
-        A = s\star E \> \> C = r\star E \\
+        A = s\star E \> \>  C = r\star E \\
         \> \> \text{if } \sigma=1: C=C^t \\
         \> \sendmessageleft*{C} \> \\
         k_0 = H(s\star C) \> \>\\
@@ -30,10 +30,10 @@ That three-round maliciosly secure protocol adds many operations and is much les
 
 
 \section{Defining the ``explicit isogeny model"}
-The main idea of this chapter is that we want to use the Algebraic Group Model in the isogeny setting, since it's very helpful with proofs. However we don't want to restrict too much the power of the adversary. We will thus define a new model, analogous to AGM; in section \ref{section_EIgeneral} we will show some evidence on the fact that our model could be equivalent to the plain model.
+The main idea of this chapter is that we want to use the Algebraic Group Model (AGM) in the isogeny setting, since it's very helpful with proofs. However, we don't want to restrict too much the power of the adversary. We will thus define a new model, analogous to AGM; in Section \ref{section_EIgeneral} we will show some evidence on the fact that our model could be equivalent to the plain model.
 
 \begin{definition}
-    We say that a Turing machine $\adv$ \emph{uses explicit isogenies} if whenever it outputs a supersingular elliptic curve $E$, it also outputs a computable isogeny $\phi:E_1\to E$, where $E_1$ is a curve that it has already seen.
+    We say that a Turing machine $\adv$ \emph{uses Explicit Isogenies} (EI) if whenever it outputs a supersingular elliptic curve $E$, it also outputs a computable isogeny $\phi:E_1\to E$, where $E_1$ is a curve that it has already seen.
 \end{definition}
 
 Here by ``computable" we mean with smooth degree, and given as the composition of small degree isogenies.
@@ -42,7 +42,7 @@ We also need to account for the CSIDH framework, with curves over $\F_p$ and a f
 
 In this setting, the EI assumption should translate to the adversary being able to output a (smooth) class group element for every supersingular curve it outputs, i.e. always explain $E=x\star E_i$ (or $E_i^t$) for any $E_i$ that it has already seen.
 
-This motivates the following:
+This motivates the following definition.
 
 \begin{definition}
     We say that a Turing machine $\adv$ \emph{uses CM-explicit isogenies} if whenever it outputs a supersingular elliptic curve $E/\F_p$, it also outputs a smooth norm ideal $\mathfrak a\in Cl(\Oc)$ such that $E=\mathfrak a\star E_1$, where $E_1$ is a curve that it has already seen, or its twist.
@@ -57,15 +57,16 @@ We then define what we mean by emulation and realization in this setting, which 
 
 
 \section{Proving security in the EI model}
-We now prove the security of the two-round twist protocol, using an encryption scheme $\edv=(\kgen, \enc, \dec)$.
+We now prove the security of the two-round twist protocol described in Figure \ref{prot_twist}, using an encryption scheme $\edv=(\kgen, \enc, \dec)$.
 
-The precise result is the following:
+The precise result is the following.
 
 \begin{theorem}
-    The protocol $\Pi_{tw}$ CMEI-realizes the functionality $\Fun_{OT}$, if the encryption scheme $\edv$ is \indcpa.
+    The protocol $\Pi_{tw}$ CMEI-realizes the functionality $\Fun_{OT}$, if the encryption scheme $\edv$ is \indcpa secure.
 \end{theorem}
+\manuela{Is IND-CPA security defined somewhere? I doubt it... Does not matter now..but if you want to present this result on Friday keep in mind that your audience does not know anything about this stuff}
 \begin{proof}
-    \textbf{Honest sender and corrupted receiver}: The simulator is defined by the following instructions:
+    \textbf{Honest sender and corrupted receiver.} The simulator is defined by the following instructions:
     \begin{enumerate}
         \item Backdoors the trusted setup and sets the curve $E=t\star E_0$, with a randomly sampled $t\in Cl(\Oc)$.
         \item Sets its public key as the honest sender $A=s\star E$.
@@ -80,16 +81,18 @@ The precise result is the following:
     \end{enumerate}
     
     Let $A$ be the event that $\sdv$ aborts, and let $\zdv_\sdv$ denote $\textsc{\scriptsize IDEAL}_{\Fun,\sdv,\zdv}$, while $\zdv_\pi$ denote $\textsc{\scriptsize REAL}_{\pi,\adv,\zdv}$. Then we have
-    \begin{multline*}
-        \left|\prob{\zdv_\sdv=1}-\prob{\zdv_\pi=1}\right| = \left|\condprob{\zdv_\sdv=1}{A}\cdot\prob{A} + \condprob{\zdv_\sdv=1}{\neg A}\cdot\prob{\neg A} -\right.\\\left.- \condprob{\zdv_\pi=1}{A}\cdot\prob{A} - \condprob{\zdv_\pi=1}{\neg A}\cdot\prob{\neg A}\right|\le\\
-        \le \left| \condprob{\zdv_\sdv=1}{A} - \condprob{\zdv_\pi=1}{A}\right|\cdot\prob{A}  +\\
-        + \left| \condprob{\zdv_\sdv=1}{\neg A} - \condprob{\zdv_\pi=1}{\neg A}\right|\cdot\prob{\neg A} \le \\
-        \le \prob{A} + \left| \condprob{\zdv_\sdv=1}{\neg A} - \condprob{\zdv_\pi=1}{\neg A}\right|
-    \end{multline*}
+    \begin{align*}
+         & \left|\prob{\zdv_\sdv=1}-\prob{\zdv_\pi=1}\right| =\\
+        = & \left|\condprob{\zdv_\sdv=1}{A}\cdot\prob{A} + \condprob{\zdv_\sdv=1}{\neg A}\cdot\prob{\neg A} -\right.\\
+        & \left.- \condprob{\zdv_\pi=1}{A}\cdot\prob{A} - \condprob{\zdv_\pi=1}{\neg A}\cdot\prob{\neg A}\right| \\
+        \le & \left| \condprob{\zdv_\sdv=1}{A} - \condprob{\zdv_\pi=1}{A}\right|\cdot\prob{A}  +\\
+         &+ \left| \condprob{\zdv_\sdv=1}{\neg A} - \condprob{\zdv_\pi=1}{\neg A}\right|\cdot\prob{\neg A} \le \\
+        \le & \prob{A} + \left| \condprob{\zdv_\sdv=1}{\neg A} - \condprob{\zdv_\pi=1}{\neg A}\right|
+    \end{align*}
 
     The theorem will then follow from the fact that both quantities are negligible. Indeed if $\sdv$ aborts, then we can solve a CSIDH problem, while if $\zdv$ can distinguish we can break the $\indcpa$ property of the encryption scheme.
     
-    Indeed, suppose that $\sdv$ does not abort; then we can construct an adversary $\ddv$ for the $\indcpa$ game similarly to what we did in section \ref{section_dummy}: internally $\ddv$ runs $\zdv$ against $\sdv$, but stopping the execution before the simulator computes $c_{1-\sigma}$.
+    Indeed, suppose that $\sdv$ does not abort; then we can construct an adversary $\ddv$ for the $\indcpa$ game similarly to what we did in Section \ref{section_dummy}: internally $\ddv$ runs $\zdv$ against $\sdv$, but stopping the execution before the simulator computes $c_{1-\sigma}$.
     
     Then $\ddv$ takes the input $(m_0,m_1)$ for the honest sender, and sends to the $\indcpa$ oracle the pair of messages $(0,m_{1-\sigma})$, which returns a ciphertext $c$; at this points $\ddv$ resumes the execution, but puts $c_{1-\sigma}=c$. Finally $\ddv$ outputs whatever $\zdv$ outputs.
     
@@ -109,10 +112,11 @@ The precise result is the following:
         \item Algorithm $\ddv_2$ will run $\sdv$ with $b\star E_0$ as a trusted setup and $b\star E_1$ as the public key of the sender; then it will check queries to compute a value $a'$ such that $a'\star(b\star E_0)=b\star E_1$, which means $a'=a$.
     \end{itemize}
     
-    In table \ref{tab_dlogs} we show how $\ddv_1$ and $\ddv_2$ can compute the solutions from the query. The rows are indexed by the explanation of the curve $C$ and the query, while the columns are the explanation of the query.
+    In Table \ref{tab_dlogs} we show how $\ddv_1$ and $\ddv_2$ can compute the solutions from the query. The rows are indexed by the explanation of the curve $C$ and the query, while the columns are the explanation of the query.
     
     \begin{table}[]
         \centering
+        \resizebox{\columnwidth}{!}{%
         \begin{tabular}{c|ccccc}
             & $y\star E_0$ & $y\star E$ & $y\star E^t$ & $y\star A$ & $y\star A^t$ \\
             \hline
@@ -121,6 +125,7 @@ The precise result is the following:
             $C=x\star E$, $s\star C^t$ & $s=xyt$ & $s=xyt^2$ & $s=xy$ & $t=x^{-1}y^{-1}$ & $s^2=xy$ \\
             $C=x\star E^t$, $s\star C$ & $s=x^{-1}yt$ & $s=x^{-1}yt^2$ & $s=x^{-1}y$ & $t=xy^{-1}$ & $s^2=x^{-1}y$ \\
         \end{tabular}
+        }
         \caption{The computable solutions to the CSIDH problem}
         \label{tab_dlogs}
     \end{table}
@@ -142,10 +147,10 @@ The precise result is the following:
 
 \section{The generality of EI model}\label{section_EIgeneral}
 
-The EI model limits the capabilities of the adversary, so it may seem that it's less expressive than the plain model of UC security. However, there is strong evidence suggesting that any PPT adversary behaves like in the explicit isogeny model; in particular, it's ``hard" to sample random supersingular curves without taking a random isogeny walk from another known curve.
+The EI model limits the capabilities of the adversary, so it may seem that it's less expressive than the plain model of UC security. However, there is a strong evidence suggesting that any PPT adversary behaves like in the explicit isogeny model; in particular, it's ``hard" to sample random supersingular curves without taking a random isogeny walk from another known curve.
 
-Indeed one of the main open problems in isogeny crypto is that of ``hashing-to-curve", which can be stated more or less as
-\begin{problem}
+Indeed one of the main open problems in isogeny crypto is that of ``hashing-to-curve", which can be roughly stated as follows.
+\begin{problem}[Informal]
     Find an efficient sampling algorithm $E\sample SS_p$, from which computing $\End(E)$ is still hard.
 \end{problem}
 
@@ -161,7 +166,7 @@ We identify the main focal points for a complete analysis of the EI model in the
 
 The first claim concerns with the relationship between the generic isogeny finding problem and the CSIDH problem; the second deals with some variation of the problem of sampling.
 
-The article \cite{CSIDH_EndRing} is mostly about the first claim, but also makes important considerations about the second.
+The paper by Castryck et al. \cite{CSIDH_EndRing} is mostly about the first claim, but also makes important considerations about the second.
 
 Their main result is an algorithm that given two curves $E_1,E_2$ over $\F_p$ and their full endomorphism rings outputs a class group element $\mathfrak{a}$ such that $\mathfrak{a}\cdot E_1=E_2$. The problem is that this ideal usually doesn't have a smooth norm, so its action cannot be efficiently computed; in order to smoothen the norm we need to find relations in $Cl(\Oc)$ and then run lattice reduction algorithms, which greatly increase complexity.
 
@@ -169,17 +174,17 @@ The new article by Wesolowski \cite{Weso_CSIDH} seems to imply that the CSIDH pr
 
 However these works cannot be directly translated into a proof of the first claim, since the main problem there is translating an $\F_{p^2}$ isogeny $\phi: E_1\to E_2$ into a smooth ideal. If the full $\End(E_1)$ is known (for example if $E_1$ is $y^2=x^3+x$), we could use both results to get an element of $Cl(\Oc)$; but in general we cannot hope to know $\End(E_1)$, for example if $E_1$ is given to us from another party.
 
-This means that proving claim \ref{claim_CMEI} is as of now an open problem, and probably a hard one. It's also possible that we did not choose the optimal definition for our (CM)EI models.
+This means that proving Claim \ref{claim_CMEI} is as of now an open problem, and probably a hard one. It's also possible that we did not choose the optimal definition for our (CM)EI models.
 
-For claim \ref{claim_EIUC}, it's mostly about assumptions and definitions. Indeed, if we make the following assumption, the claim follows very easily:
+For Claim \ref{claim_EIUC}, it's mostly about assumptions and definitions. Indeed, if we make the following assumption, the claim follows very easily:
 \begin{assumption}
     Sampling a supersingular curve $E$ without learning a path from a known curve $E_0$ is hard.
 \end{assumption}
-This assumption is still heavily debated and considered as a problem to be solved instead of a hardness assumption. However there seems to be no way to solve this problem.
+This assumption is still heavily debated and considered more as a problem to be solved than a hardness assumption.
 
 Notice that if the assumption doesn't hold, then the EI model is actually less expressive than the plain model, in the same way that the AGM denies the sampling of random group elements, which is a very easy operation both for finite fields and for elliptic curves.
 
-The conclusion of this chapter, and the main takeaway of this tesis, is that while it would be good to find an efficient sampling algorithm, if we instead get convinced that the problem is hard we could have gained a very useful tool for UC proofs, that in particular avoids unnecessary computations in many protocols.
+The conclusion of this chapter, and the main takeaway of this thesis, is that while it would be good to find an efficient sampling algorithm, if we instead get convinced that the problem is hard we could have gained a very useful tool for UC proofs, that in particular avoids unnecessary computations in many protocols.
 
 
 
