@@ -1,13 +1,32 @@
 \chapter{Analysis of isogeny OT protocols}
 
-\section{A protocol based on CSIDH}
-One of the simplest OT protocols based on isogenies is the one proposed by Lai, Galbraith and de Saint Guilhem in \cite{Lai_twists}; it works in the CSIDH setting, and makes a clever use of the twisting operation.
+\section{An overview of proposed protocols}
+In this section we briefly discuss the security levels of some isogeny-based OT protocols that have been proposed in the last few years.
 
-The protocol written in Figure \ref{prot_twist} is two-round and uses a trusted setup curve $E$. It is only proven to be semi-honest secure  in the UC framework, but there is a version with three rounds that is secure with static malicious corruptions.
+\begin{itemize}
+    \item \cite{Barreto, Branco}: in the first paper by Barreto et al., they introduce a protocol based on SIDH; it constructs a SIDH public key and creates a second ``fake" public key by perturbing the public torsion points. Its security is thus based on the indistinguishability of $(\phi(P),\phi(Q))$ and $(\phi(P)+U,\phi(Q)+V)$, where $U,V$ are random $E[\ell^e]$ torsion points and $\{P,Q\}$ is the SIDH basis of $E_0[\ell^e]$.\\
+    Based on this indistinguishability assumption, Branco et al. build an implementation of their proposed OT protocol framework. The resulting OT protocol has four rounds and is proved to be UC-secure against malicious adversaries.\\
+    However, we notice that Barreto et al. say they have identified some problems in the security of their protocol (which is not even made in the UC framework), so also the derived protocol bt Branco et al. could have problems.
+    
+    \item \cite{Vitse}: the author constructs a SIDH-based protocol using an exponentiation-only construction; in Diffie-Hellman terms this means that the receiver gets the public keys $g^{a_0},g^{a_1}$, sends back $\left(g^{a_\sigma}\right)^b$ and receives $g^{a_\sigma\cdot b\cdot a_i^{-1}}$ as possible keys. In the SIDH context, the author uses dual isogenies and additional helper points to achieve this construction.\\
+    The resulting OT protocol has three rounds, and is proved to be secure against malicious adversaries but using a game-based definition of security for OT. Moreover, the author introduces additional hardness assumptions to conclude her proofs.
+    
+    \item \cite{dSG_Orsini}: the authors introduce the concept of \emph{masking}, which generalizes the one of hard homogeneous spaces; this allows them to create masks from both SIDH and CSIDH.\\
+    They then construct a couple of OT protocols, one with two rounds and the other with three rounds, and prove the UC-security of both of them against semi-honest adversaries.\\
+    Moreover, the authors prove that their two-round protocol can be extended to be secure against malicious adversaries using a transformation by D{\"o}ttling \cite{Dottling}.
+    
+    \item \cite{Alamati}: the authors introduce a new framework based on group actions, from which they derive new cryptographic primitives based on CSIDH. In particular, they construct a ``dual-mode encryption scheme"; this allows them to use the framework by Peikert et al. \cite{PVW} to produce an OT protocol that is UC-secure against malicious adversaries.\\
+    The resulting protocols has only two rounds, but the PVW framework transmits single bits, so for sending $n$-bit messages we need to send $O(n)$ public keys and compute $O(n)$ isogenies.
+\end{itemize}
 
-The third round in the malicious secure version is added as a ``proof of decryption", which makes possible to extract the input of a malicious receiver.
+In conclusion, there doesn't seem to exist a protocol that is both \emph{efficient} (i.e. two rounds with constant computations) and UC-secure against \emph{malicious} adversaries.
 
-That three-round maliciously secure protocol adds many operations and is much less readable; most of the added operations deal with the difficulty of extracting corrupted inputs in the UC proof, thus it seems very artificial.
+\subsection{A CSIDH based protocol}
+One more OT protocol based on isogenies is the one proposed by Lai, Galbraith and de Saint Guilhem in \cite{Lai_twists}; it works in the CSIDH setting, and makes a clever use of the twisting operation.
+
+The protocol written in Figure \ref{prot_twist} is two-round and uses a trusted setup curve $E$. It is only proved to be semi-honest secure in the UC framework, but there is a version with three rounds that is secure against static malicious corruptions.
+
+The third round in the malicious secure version is added as a ``proof of decryption", which makes possible to extract the input of a malicious receiver. This three-round maliciously secure protocol adds many operations and is much less readable; most of the added operations deal with the difficulty of extracting corrupted inputs in the UC proof, thus it seems very artificial.
 
 \begin{figure}
     \myproc{Protocol $\Pi_{tw}$}{
@@ -64,7 +83,6 @@ The precise result is the following.
 \begin{theorem}
     The protocol $\Pi_{tw}$ CMEI-realizes the functionality $\Fun_{OT}$, if the encryption scheme $\edv$ is \indcpa secure.
 \end{theorem}
-\manuela{Is IND-CPA security defined somewhere? I doubt it... Does not matter now..but if you want to present this result on Friday keep in mind that your audience does not know anything about this stuff}
 \begin{proof}
     \textbf{Honest sender and corrupted receiver.} The simulator is defined by the following instructions:
     \begin{enumerate}
@@ -150,7 +168,7 @@ The precise result is the following.
 The EI model limits the capabilities of the adversary, so it may seem that it's less expressive than the plain model of UC security. However, there is a strong evidence suggesting that any PPT adversary behaves like in the explicit isogeny model; in particular, it's ``hard" to sample random supersingular curves without taking a random isogeny walk from another known curve.
 
 Indeed one of the main open problems in isogeny crypto is that of ``hashing-to-curve", which can be roughly stated as follows.
-\begin{problem}[Informal]
+\begin{problem}[Informal]\label{problem_sampling}
     Find an efficient sampling algorithm $E\sample SS_p$, from which computing $\End(E)$ is still hard.
 \end{problem}
 
@@ -166,25 +184,35 @@ We identify the main focal points for a complete analysis of the EI model in the
 
 The first claim concerns with the relationship between the generic isogeny finding problem and the CSIDH problem; the second deals with some variation of the problem of sampling.
 
-The paper by Castryck et al. \cite{CSIDH_EndRing} is mostly about the first claim, but also makes important considerations about the second.
+The paper by Castryck et al. \cite{CSIDH_EndRing} is mostly about the first claim, but also makes important considerations about the second. Indeed, they study the paper by Br{\"o}ker \cite{Broker} which is the only known way to generate random supersingular curves besides walking in the isogeny graph; Br{\"o}ker uses the theory of complex multiplication, but the authors conclude that for those curves it's easy to find an isogeny to a base known curve.
 
-Their main result is an algorithm that given two curves $E_1,E_2$ over $\F_p$ and their full endomorphism rings outputs a class group element $\mathfrak{a}$ such that $\mathfrak{a}\cdot E_1=E_2$. The problem is that this ideal usually doesn't have a smooth norm, so its action cannot be efficiently computed; in order to smoothen the norm we need to find relations in $Cl(\Oc)$ and then run lattice reduction algorithms, which greatly increase complexity.
+Their other main result is an algorithm that given two curves $E_1,E_2$ over $\F_p$ and their full endomorphism rings outputs a class group element $\mathfrak{a}$ such that $\mathfrak{a}\cdot E_1=E_2$. The problem is that this ideal usually doesn't have a smooth norm, so its action cannot be efficiently computed; in order to smoothen the norm we need to find relations in $Cl(\Oc)$ and then run lattice reduction algorithms, which greatly increase complexity.
 
 The new article by Wesolowski \cite{Weso_CSIDH} seems to imply that the CSIDH problem is actually equivalent to \texttt{EndRing}, by giving a polynomial time reduction.
 
-However these works cannot be directly translated into a proof of the first claim, since the main problem there is translating an $\F_{p^2}$ isogeny $\phi: E_1\to E_2$ into a smooth ideal. If the full $\End(E_1)$ is known (for example if $E_1$ is $y^2=x^3+x$), we could use both results to get an element of $Cl(\Oc)$; but in general we cannot hope to know $\End(E_1)$, for example if $E_1$ is given to us from another party.
+However, these works cannot be directly translated into a proof of the first claim, since the main problem there is translating an $\F_{p^2}$ isogeny $\phi: E_1\to E_2$ into a smooth ideal. If the full $\End(E_1)$ is known (for example if $E_1$ is $y^2=x^3+x$), we could use both results to get an element of $Cl(\Oc)$; but in general we cannot hope to know $\End(E_1)$, for example if $E_1$ is given to us from another party.
 
 This means that proving Claim \ref{claim_CMEI} is as of now an open problem, and probably a hard one. It's also possible that we did not choose the optimal definition for our (CM)EI models.
 
-For Claim \ref{claim_EIUC}, it's mostly about assumptions and definitions. Indeed, if we make the following assumption, the claim follows very easily:
+Claim \ref{claim_EIUC} is instead related to Problem \ref{problem_sampling}, which is considered an open problem in the field of isogney-based cryptography, as stated also in \cite{CSIDH_EndRing}. It's slowly becoming a common belief among isogenists that this problem might be difficult to solve.
+
+We are thus very tempted to pose the following assumption.
+
 \begin{assumption}
     Sampling a supersingular curve $E$ without learning a path from a known curve $E_0$ is hard.
 \end{assumption}
-This assumption is still heavily debated and considered more as a problem to be solved than a hardness assumption.
 
-Notice that if the assumption doesn't hold, then the EI model is actually less expressive than the plain model, in the same way that the AGM denies the sampling of random group elements, which is a very easy operation both for finite fields and for elliptic curves.
+This is because if the assumption holds, then Claim \ref{claim_EIUC} seem to follow almost ``by definition", and thus we have gained ``for free" an effective tool for analysing security of isogeny-based MPC protocol.
 
-The conclusion of this chapter, and the main takeaway of this thesis, is that while it would be good to find an efficient sampling algorithm, if we instead get convinced that the problem is hard we could have gained a very useful tool for UC proofs, that in particular avoids unnecessary computations in many protocols.
+It is important to know that the posed assumption is not equivalent to Problem \ref{problem_sampling}: knowing an isogeny $\pi: E_0\to E$ is equivalent to knowing $\End(E)$ only if we can compute $\End(E_0)$ (for example if it is $y^2=x^3+x$), but in an interactive protocol a party can receive a supersingular curve from other parties, without being able to know its endomorphism ring.
+
+The assumption is thus trying to model exactly the multi-party computation setting, by forcing any party to generate new curves only by walking in the isogeny graph, starting from curves that have been sent to him.
+
+Notice that if instead the assumption doesn't hold and parties have other ways to generate supersingular curves, then the EI model is actually less expressive than the plain model, in the same way that the AGM denies the sampling of random group elements, which is a very easy operation both for finite fields and for elliptic curves.
+
+However, an efficient sampling algorithm will remove the need of trusted setups of curves, like in our analyzed protocol: instead of being generated by some trusted third party, the common parameter $E$ could be independently computed by both parties only using a common seed.
+
+The conclusion of this chapter is that depending on the hardness of Problem \ref{problem_sampling} we can either have a strong tool for proving security of more efficient protocols, or the removal of trusted setups.
 
 
 

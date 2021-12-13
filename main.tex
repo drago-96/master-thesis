@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt,twoside,openright]{memoir}
+\documentclass[a4paper,11pt,twoside,openright]{memoir}
 
 % pacchetti e definizioni
 \include{environment}
@@ -12,10 +12,32 @@
 
 \checkandfixthelayout
 
-%\setcounter{tocdepth}{2}
 \setlength{\parindent}{0pt}
 %\nonzeroparskip
-%\setlength{\parskip}{10pt}
+\setlength{\parskip}{4pt}
+\setulmarginsandblock{3.5cm}{*}{1.3}
+\setlrmarginsandblock{3cm}{*}{1.2}
+\checkandfixthelayout
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem*{theorem*}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{problem}{Problem}[section]
+\newtheorem{claim}[problem]{Claim}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{oss}{Observation}
+\newtheorem{assumption}[problem]{Assumption}
+
+
 
 \begin{document}
 \makeevenfoot{ruled}{}{\thepage}{}
@@ -41,7 +63,9 @@
 \include{./Chapters/chapter04}
 \include{./Chapters/chapter05}
 
+
 \backmatter
+\include{./Chapters/outro}
 %\include{./Chapters/grazie}
 
 %\nocite{*}

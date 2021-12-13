@@ -1,19 +1,17 @@
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
 
-The main goal of this thesis is to study isogeny-based cryptography, and in particular some proposed Oblivious Transfer protocols, with particular attention to security properties and proofs.
+The main goal of this thesis is to study isogeny-based cryptography, and some proposed oblivious transfer protocols based on it, with particular attention to security properties and proofs.
 
-Oblivious Transfer is one of the most basic functionalities between two parties, and it can be used as a fundamental building block for secure Multi-Party Computation.
+Oblivious transfer is one of the most basic functionalities between two parties, and has been introduced by Rabin \cite{Rabin_OT} as one of the earliest examples of multi-party computation; MPC is the subfield of cryptography that studies methods for multiple parties to be able to compute some public function, while keeping the inputs private. For example, the function might be ``the sum of all inputs" or ``who won the election?".
 
-MPC is the subfield of cryptography that studies methods for multiple parties to be able to compute some public function, while keeping the inputs private. For example, the function might be ``the sum of all inputs" or ``who won the election?".
-
-In the case of Oblivious Transfer the function is $f((m_0,m_1),\sigma)=(\lambda,m_\sigma)$. Since we can compose many OT to get an arbitrary secure function evaluation, it is of great importance studying the most efficient and secure ways to realize OT.
+In the case of oblivious transfer the function is $f((m_0,m_1),\sigma)=(\lambda,m_\sigma)$, where $\lambda$ is the empty string, meaning that the first party doesn't receive any output. The importance of OT is that it can be composed to get any arbitrary secure function evaluation \cite{GMW}; it is then of great importance to study the most efficient and secure ways to realize OT.
 
 There are many OT protocols which are based on the classical cryptography problems like RSA, Diffie-Hellman or ECDH. However, since all these problems become ``easy" with access to a quantum computer, in the recent years there has been a great effort in producing new cryptographic primitives that are quantum resistant.
 
 The National Institute of Standards and Technology (NIST) has started in 2016 a competition to find a new post-quantum secure standard algorithm for KEMs and digital signatures. We are currently at round 3, with 4 KEM and 3 signature algorithms left, and some more ``alternate" algorithms.
 
-The main areas from which the finalists and the alternate algorithms have been drawn are the following:
+The main areas from which the finalists and the alternate protocols have been drawn are the following:
 \begin{itemize}
     \item Coding theory
     \item Lattice theory
@@ -22,11 +20,11 @@ The main areas from which the finalists and the alternate algorithms have been d
     \item Supersingular isogenies
 \end{itemize}
 
-Beyond the NIST competition, also the MPC world is trying to adopt some post-quantum constructions for its protocols. The most promising one, both for the NIST competition and the MPC protocols, is probably lattice-based cryptography. However we will focus on isogeny-based cryptography, which is a pretty new subfield.
+Beyond the NIST competition, also the MPC world is trying to adopt some post-quantum constructions for its protocols. The most promising one, both for the NIST competition and the MPC protocols, is probably lattice-based cryptography, from which OT protocols have already been constructed \cite{PVW}. However, we will focus on isogeny-based cryptography, which is a pretty new subfield.
 
 The main idea of isogeny crypto is to use graphs of elliptic curves, where the nodes are supersingular $j$-invariants and the edges are isogenies between them. The reason why this is useful for cryptography is that it's easy to compute a random isogeny from a given curve (i.e. a walk in the graph), but it's hard to find an isogeny given two different curves.
 
-Isogeny-based cryptography has two main constructions, which are SIDH and CSIDH. Both are key exchange algorithms, but are quite different: SIDH works on a graph defined over $\F_{p^2}$, while CSIDH is over $\F_p$ and uses the action of the class group on elliptic curves.
+Isogeny-based cryptography has two main constructions, which are SIDH \cite{SIDH11} and CSIDH \cite{CSIDH}. Both are key exchange algorithms, but are quite different: SIDH works on a graph defined over $\F_{p^2}$, while CSIDH is over $\F_p$ and uses the action of the class group on elliptic curves.
 
 After introducing isogeny crypto with its assumptions and constructions, we will analyze how to build OT protocols based on it. Our focus will be provable security of those protocols, i.e. against what attacks they are secure and if they can be composed to make MPC protocols.
 
@@ -36,7 +34,23 @@ The most used framework in which to prove security is called Universal Composabi
 
 This means that any attacker cannot really gain more information apart from what we let it know in the ideal functionality. In the case of a distributed function evaluation, the trusted party will collect all the inputs and then deliver all the outputs to the specified parties; so UC is a formalization of the security statement ``an attacker cannot learn anything apart from the output of the function".
 
-We will then study the UC properties of different OT protocols; indeed we can model any adversary we want (\emph{semi-honest} or \emph{malicious}) with different corruption strategies (\emph{static} or \emph{adaptive}) and we can decide to work in the \emph{plain model} or admitting \emph{random oracles} or imposing some behaviour on the parties or the adversary.
+As with classical definitions of security, we can model different types of adversaries. In UC, the main distinction is between \emph{semi-honest} and \emph{malicious}; the first type actually follows the protocol and is only trying to get more information, and is useful for modeling \emph{colluding} parties that try to obtain knowledge of the other parties' inputs; a malicious adversary can instead send arbitrary messages and in some cases can disrupt the protocol denying the delivery of the output to the honest parties.
 
-In the end, inspired by the \emph{Algebraic Group Model}, we will introduce a new model of computation specifically for isogeny-based crypto. With this model we will prove an increased level of security for some known OT protocols, or make them more efficient with an easier security proof.
+Another feature of UC is the hybrid world, in which a protocol is executed in the real world, but has access to some other ideal functionality; in this way we can decide to work in the \emph{plain model} or to admit \emph{random oracles} and trusted setups. Moreover, by changing the model of computation, we can impose some behaviour on the parties and the adversary.
+
+We will then analyze OT protocols using the UC framework; in particular, we first study the ``simplest OT" by Chou and Orlandi \cite{Chou_Orlandi}, which is based on the usual elliptic curve Diffie-Hellman. This is an important protocol, not only because it is very efficient, but also because its UC-security proof contains some errors.
+
+The issues of the proof are not limited to that protocol, but the underlying motivations (in particular the input extraction of the choice bit from a corrupted receiver) impose strict contraints in the design of OT protocols; this means that usually they require additional computations and rounds just to be able to conclude the UC-security proof, for a very technical reason and not because they are actually insecure. This greatly reduces their efficiency, while for fast MPC we need very fast OT protocols.
+
+A possible remedy for the Chou and Orlandi protocol comes from the \emph{Algebraic Group Model}, which makes all the machines give a representation for every group element that they output. In \cite{AGM_UC} it is explained how the AGM allows for a complete proof of UC-security against malicious adversaries for the ``simplest OT", since they use the elements' representation to extract the choice bit.
+
+In the last chapter we will briefly overview some OT constructions based on isogenies, and then will focus on the protocol proposed in \cite{Lai_twists}. The core of the protocol has two rounds and is UC-secure against semi-honest adversaries; however, to achieve security against malicious adversaries the authors need to introduce a third round of communication that serves as a ``proof of decryption" and is used for the input extraction.
+
+Finally, inspired by the effectiveness of AGM for the Chou and Orlandi protocol, we introduce a new computational model, which we call \emph{Explicit Isogenies} (EI), meaning that instead of giving a representation for a group element, the adversary has to ``explain" each curve $E$ that it outputs by giving an isogeny $\phi:E_i\to E$ from a known curve $E_i$.
+
+Our EI model, in the CSIDH setting, will allow us to prove security for the two-round version of Lai et al. protocol. This is a very interesting result, since there is some evidence that the EI model might actually be equivalent to the plain model of UC.
+
+The problem to which the expressiveness of our EI model reduces to is the one of \emph{sampling} random supersingular curves. It is one of the open problems in isogeny-based cryptography, and one that is starting to be believed difficult.
+
+The main result of this thesis is the introduction of the EI model, which allows to prove UC-security for efficient OT protocols, without having to worry too much about input extraction. Moreover, if the sampling problem is hard, we claim that our EI model is equivalent to the full UC model.
 

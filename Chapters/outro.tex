@@ -1,0 +1,23 @@
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+
+In this thesis we have introduced a new model for UC-security proofs of isogeny-based protocols; we were inspired by the Algebraic Group Model, which allowed for a security proof of the Chou and Orlandi ``simplest OT" protocol, whose proof instead had important problems.
+
+Indeed, one of the things that we point out is that proofs of UC-security are \emph{hard}, and it's easy to miss some details that might make the proof invalid. In particular, it's very important to carefully design the ideal functionality in order to make it match precisely the security guarantees that we wanted.
+
+For oblivious transfer in particular we have some choices to make, and our protocols will need to account for them: do we let the sender know if the receiver has already submitted its choice bit? Do we let the sender know when the receiver gets his message?\\
+We say that $\Fun_{OT}$ should send an empty output message to the sender, but this implies being able to extract the input from the choice of the receiver's public key.
+
+We thus introduce the \emph{Explicit Isogeny} model, that mimics the AGM but for isogeny-based protocols. In particular, we study the OT protocol by Lai et al., proving its security in the EI model even without the additional third round that serves as ``proof of decryption": using the additional isogeny given by the EI model we are indeed able to extract the corrupted receiver's input directly from his public key.
+
+An interesting future work would be trying to prove security of other isogeny-based MPC procols in the EI model, starting from the already semi-honest OT protocol by de Saint Guilhem et al.; there are also other proposed OT protocols, based both on SIDH and CSIDH, that have not been analyzed at all in the UC framework.
+
+Another work that could be done on those other protocol, starting from the one that we studied in this thesis, is to benchmark the performances of the original protocol and the (possibly more efficient) version that is secure in the EI model. This requires both implementing said protocols and finding the correct more efficient variant, two highly non-trivial tasks.
+
+From a theoretical point of view, we think that future analysis could be made on our last two claims, which are also very correlated to important problems in isogeny-based cryptography: the unification of the SIDH and CSIDH world, and the ``hash-to-curve" problem.
+
+The truth of the first claim would mean the convenience of using either isogeny walks or elements of the class group based on the context, but resulting in the same security guarantees. The truth of the second claim would result in automatically proving full UC-security, while being able to use the power of the EI model for analyzing more compressed protocols.
+
+Even an efficient solution of the sampling problem would be a great result for isogeny-based cryptography, because even if it weakens the EI model, it would remove the requirement of many trusted setups. Thus we think that the sampling problem is really worth more study.
+
+We conclude by saying that our EI model could really be a key tool for having more efficient MPC protocols, while still achieving full UC-security.
