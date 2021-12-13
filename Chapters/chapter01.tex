@@ -27,7 +27,7 @@ Any elliptic curve can (almost) be identified by a single number, the \emph{$j$-
 \begin{theorem}
     Let $E:y^2=x^3+ax+b$ be an elliptic curve over $K$, and let its $j$-invariant be $$j(E)=1728\frac{4a^3}{4a^3+27b^2}.$$
     
-    Then any other elliptic curve $E'$ is isomoprhic to $E$, over $\bar K$, if and only if $j(E)=j(E')$.
+    Then any other elliptic curve $E'$ is isomorphic to $E$, over $\bar K$, if and only if $j(E)=j(E')$.
 \end{theorem}
 
 We will make precise sense of what ``almost" and ``isomorphic" means in the next sections when we will introduce isogenies and twists.
@@ -93,7 +93,7 @@ We now turn our attention to curves, which are varieties of dimension $1$, for e
 Since we will work over finite fields, it's important to clearly state the definition of separable and inseparable morphisms.
 
 \begin{definition}
-    Let $\phi:C_1\to C_2$ be a nonconstant morphism of curves defined over $K$. Then we define its \emph{degree} to be $$\deg\phi = [K(C_1):\phi^\ast K(C_2)].$$
+    Let $\phi:C_1\to C_2$ be a non constant morphism of curves defined over $K$. Then we define its \emph{degree} to be $$\deg\phi = [K(C_1):\phi^\ast K(C_2)].$$
     Moreover we say that $\phi$ is \emph{separable}, \emph{inseparable} or \emph{purely inseparable} exactly when the extension of function fields is. Finally, we define $\deg_s\phi$ and $\deg_i\phi$ as the separable and inseparable degree of the field extension.
 \end{definition}
 
@@ -125,7 +125,7 @@ Notice that $\Hom(E_1, E_2)$ is a group, with neutral element the constant isoge
 
 Moreover, the choice of the $\Hom$ notation is not random: it turns out that isogenies are the right morphisms for the category of elliptic curves, since we have the following:
 \begin{proposition}
-    Let $\phi:E_1 \to E_2$ be a nonconstant isogeny. Then $\phi$ induces a surjective group homomorphism $E_1(\bar K)\to E_2(\bar K)$ with finite kernel.
+    Let $\phi:E_1 \to E_2$ be a non-constant isogeny. Then $\phi$ induces a surjective group homomorphism $E_1(\bar K)\to E_2(\bar K)$ with finite kernel.
     
     In particular, $\#\ker \phi = \deg_s\phi = \#\phi^{-1}(Q)$ for \emph{any} $Q\in E_2(\bar K)$.
 \end{proposition}
@@ -149,7 +149,7 @@ One of the most important example of isogenies is multiplication-by-$m$:
 \begin{example}
     For any $m\in\Z$ we have a natural isogeny $[m]:E\to E$, which we can define by induction with $[0](P)=O$, $[m+1]P=[m]P\oplus P$ and $[-m](P)=[m](-P)$. Since addition and negation are morphisms of curves, this actually defines an isogeny.
     
-    We can show that $[m]$ is nonconstant, and its kernel is $E[m]$, for which we have stated its structure; most importantly, we observe that $\deg[m]=m^2$, which is a fundamental result in the theory of dual isogenies.
+    We can show that $[m]$ is non-constant, and its kernel is $E[m]$, for which we have stated its structure; most importantly, we observe that $\deg[m]=m^2$, which is a fundamental result in the theory of dual isogenies.
 \end{example}
 
 Indeed, we now define dual isogenies and state their properties
@@ -283,10 +283,10 @@ It turns out that the number of points is also invariant by isogenies, which is 
 
 Notice that counting the number of points is an easy problem, due to the Schoof-Elkies-Atkin algorithm, which has a heuristic running time of $O(\log^4 q)$.
 
-The problem of deciding whether $E_1$ and $E_2$ are isogenous \emph{with a degree $\ell$ isogeny} is also somewhat feasible, with very similar techiniques to the SEA algorithm, namely the use of \emph{modular polynomials}.
+The problem of deciding whether $E_1$ and $E_2$ are isogenous \emph{with a degree $\ell$ isogeny} is also somewhat feasible, with very similar techniques to the SEA algorithm, namely the use of \emph{modular polynomials}.
 
 \begin{theorem}
-    For any prime $\ell$ there exists a symmetric polynomial $\Phi_\ell\in\Z[x,y]$, of degree $\ell+1$ in each wariable, such that two elliptic curves $E_1,E_2$ defined over an algebraically closed field are $\ell$-isogenous if and only if $\Phi_\ell(j(E_1),j(E_2))=0$.
+    For any prime $\ell$ there exists a symmetric polynomial $\Phi_\ell\in\Z[x,y]$, of degree $\ell+1$ in each variable, such that two elliptic curves $E_1,E_2$ defined over an algebraically closed field are $\ell$-isogenous if and only if $\Phi_\ell(j(E_1),j(E_2))=0$.
 \end{theorem}
 
 These polynomials are independent from the base field (in particular they work both in positive and zero characteristic) and thus can be precomputed. They have $O(\ell^2)$ coefficients, and each of them grows very fast in size, so this decision problem is only solvable for ``small" values of $\ell$.
@@ -346,7 +346,7 @@ Moreover, we have a precise count of how many supersingular $j$-invariants there
     \end{cases}$$
 \end{theorem}
 
-One of the first things to notice is that these supersingular curves are actually quite rare: by picking a uniformly random element of $\F_{p^2}$, the probability that it's a supersingular $j$-invariant is $O(p^{-1})$, which for cryptogaphically-sized primes is negligible.
+One of the first things to notice is that these supersingular curves are actually quite rare: by picking a uniformly random element of $\F_{p^2}$, the probability that it's a supersingular $j$-invariant is $O(p^{-1})$, which for cryptographically-sized primes is negligible.
 
 This means that the trivial sampling algorithm of ``pick a random $j$ and check its supersingularity" has exponential expected running time. Indeed, the checking part is easy, given the following proposition:
 \begin{proposition}
@@ -459,7 +459,7 @@ We now come back to ordinary components of the $\ell$-isogeny graph; they are kn
 
 For now, we suppose our curves to be defined over $\F_q$ and ordinary, thus having as endomorphism ring $\Oc:=\End(E)\subset K=\Q(\pi)$ an order in an imaginary quadratic field. We know that $\Z[\pi]\subset \Oc\subset\Oc_K$ and that isogenous curves have the same endomorphism algebra $K$ (indeed $K=\Q(\sqrt{t^2-4q})$, where $t$ is the trace of Frobenius). The following proposition is a refinement of Tate's theorem.
 \begin{proposition}
-    Let $E,E'$ be ordinary elliptic curves defined over $\F_q$, and let $\Oc,\Oc'$ be their endomorphism rings. Suppose that there exists an $\F_q$-isogeny $\phi:E\to E'$ of prime degree $\ell$. Then $\Oc$ contains $\Oc'$ or viceversa, and the index of one in the other is $1$ or $\ell$. In particular we say that:
+    Let $E,E'$ be ordinary elliptic curves defined over $\F_q$, and let $\Oc,\Oc'$ be their endomorphism rings. Suppose that there exists an $\F_q$-isogeny $\phi:E\to E'$ of prime degree $\ell$. Then $\Oc$ contains $\Oc'$ or vice versa, and the index of one in the other is $1$ or $\ell$. In particular we say that:
     \begin{itemize}
         \item If $\Oc=\Oc'$, the isogeny $\phi$ is \emph{horizontal}.
         \item If $[\Oc:\Oc']=\ell$, $\phi$ is \emph{descending}.

@@ -58,7 +58,7 @@ In 2011 De Feo and Jao (and later Plut) introduced the \emph{Supersingular Isoge
 
 Another major breakthrough in isogeny crypto has been the implementation of the Couveignes protocol with supersingular curves, which led to the CSIDH protocol \cite{CSIDH}.
 
-In the recent years there has been an exponential growth of isogeny based constructions for many different cryptographic primitives: mainly signatures (SeaSign, CSI-FiSh, SQISign), but also VDFs and other MPC-friendly primitives like Oblivious Transfer, which will be our focus.\todo{cite all}
+In the recent years there has been an exponential growth of isogeny based constructions for many different cryptographic primitives: mainly signatures (SeaSign \cite{SeaSign}, CSI-FiSh \cite{CSI-FiSh}, SQISign \cite{SQISign}), but also Verifiable Delay Functions \cite{DeFeo_VDF} and other MPC-friendly primitives like oblivious transfer, which will be our focus.
 
 \section{Supersingular Isogeny Diffie-Hellman}
 In this section we finally describe the SIDH protocol, introduced by Jao and De Feo in \cite{SIDH11}. Besides the actual paper, \cite{Costello_SIKE} is a tutorial for SIKE with all the computations for a toy example.
@@ -110,11 +110,11 @@ We can easily see that the protocol is correct, since both compositions $\phi'_A
 
 One of the most important details of this protocol isn't described in our sketched representation, but is the reason why we can actually perform the protocol as the honest users: the isogeny computation.
 
-Indeed, blindly applying Velu's formula for computing $\phi_A$ results in $O(\ell_A^{e_A})$ operations, which is roughly as much operations as an attacker needs to do in order to break the protocol.
+Indeed, blindly applying Vélu's formula for computing $\phi_A$ results in $O(\ell_A^{e_A})$ operations, which is roughly as much operations as an attacker needs to do in order to break the protocol.
 
 Instead we use the fact that all our isogenies have \emph{smooth} degree, and thus can be computed as the composition of many small degree isogenies. In general, let $R$ be a point of order $\ell^e$ on the curve $E$; we will describe how to compute the isogeny $\phi:E\to E/\langle R\rangle$ and also how to compute the point $\phi(T)$ for any other $T$.
 
-We will do that recursively, and start by setting $E_0=E$, $R_0=R$ and $T_0=T$. Then, for any $0\le i<e$ we compute (this time with Velu's formula) $$E_{i+1}=E_i/\langle [\ell^{e-i-1}R_i] \rangle$$ with the associated isogeny $\phi_i:E_i\to E_{i+1}$, and in particular $R_{i+1}=\phi_i(R_i)$ and $T_{i+1}=\phi_i(T_i)$. In the end, $E/\langle R \rangle=E_e$, and $\phi=\phi_{e-1}\circ\dots\circ\phi_0$.
+We will do that recursively, and start by setting $E_0=E$, $R_0=R$ and $T_0=T$. Then, for any $0\le i<e$ we compute (this time with Vélu's formulas) $$E_{i+1}=E_i/\langle [\ell^{e-i-1}R_i] \rangle$$ with the associated isogeny $\phi_i:E_i\to E_{i+1}$, and in particular $R_{i+1}=\phi_i(R_i)$ and $T_{i+1}=\phi_i(T_i)$. In the end, $E/\langle R \rangle=E_e$, and $\phi=\phi_{e-1}\circ\dots\circ\phi_0$.
 
 With this algorithm, we can compute efficiently all the quotients, in time $O(e^2\ell)$. However, we can still do better with the implementation of the so called ``optimal isogeny strategies", which are one of the main improvements of the 2014 version of the paper \cite{SIDH14}.
 
@@ -129,7 +129,7 @@ Then this encryption scheme is turned into a $\texttt{KEM}=(\keygen, \encaps, \d
 
 There are three proposed sets of fixed parameters (the prime $p$ and the starting elliptic curve $E_0$), each of which targets a different level of expected security; they are named \texttt{SIKEp434}, \texttt{SIKEp610} and \texttt{SIKEp751}, from the bit-length of $p$, and have expected quantum security of $128, 192, 256$ bits.
 
-In terms of efficiency, the SIKE protocol has been heavily optimized in the last 10 years, in each level of abstraction: the use of Montgomery curves for efficient curve addition, improved Velu's formulas, optimized $\F_{p^2}$ arithmetic even at the level of writing custom assembly for specific architectures.
+In terms of efficiency, the SIKE protocol has been heavily optimized in the last 10 years, in each level of abstraction: the use of Montgomery curves for efficient curve addition, improved Vélu's formulas, optimized $\F_{p^2}$ arithmetic even at the level of writing custom assembly for specific architectures.
 
 For example, using the implementations on the official submission page \url{https://sike.org/},
 we tested that the reference implementation uses around 900 million CPU cycles for the $\keygen$ algorithm of \texttt{SIKEp434}, while the optimized AMD64 implementation uses only 5 million cycles for the same operation. This means being able to run the three operations $\keygen$, $\encaps$, $\decaps$ in just around 10ms and thus might be a valid option for the TLS key exchange part.
@@ -213,7 +213,7 @@ These attacks mean that SIDH can only be used as an interactive and ephemeral ke
 There are also other attacks exploiting the additional torsion point images in the public key \cite{SIDH_tp1, SIDH_tp2}; however, they target very particular parameter choices and some protocols derived from SIDH, but don't directly pose any threat to SIKE and its proposed standard parameters.
 
 \section{Commutative SIDH}
-In this section we descrybe the key exchange protocol CSIDH proposed by Castryck, Lange, Martindale, Panny and Renes \cite{CSIDH}. It is based on the ideas of Couveignes, but uses the supersingular component of the isogeny graph $G_\ell(\F_p)$ of curves defined over $\F_p$ for many different $\ell$. The use of supersingular curves is a speedup in walking the graph, since it makes the evaluation of the CM action much easier; actual implementations use key sizes of 64 bytes and the protocol is performed in about 80ms, which makes it actually usable in many applications.
+In this section we describe the key exchange protocol CSIDH proposed by Castryck, Lange, Martindale, Panny and Renes \cite{CSIDH}. It is based on the ideas of Couveignes, but uses the supersingular component of the isogeny graph $G_\ell(\F_p)$ of curves defined over $\F_p$ for many different $\ell$. The use of supersingular curves is a speedup in walking the graph, since it makes the evaluation of the CM action much easier; actual implementations use key sizes of 64 bytes and the protocol is performed in about 80ms, which makes it actually usable in many applications.
 
 The main point in favour of CSIDH is that it provides a \emph{non-interactive} key exchange protocol with static public keys, unlike SIDH which needs to be ephemeral. However, it suffers from a quantum subexponential attack; as the author themselves point out though, also RSA has a subexponential attack, but this didn't stop its widespread adoption.
 
@@ -253,11 +253,11 @@ Recall that given an elliptic curve $E/\F_p$ its endomorphism ring (defined over
     \mathfrak{a}\cdot E & \mapsto  E/\mathfrak{a}
 \end{align*}
 
-Notice that for cyptographically sized parameters we can't compute the structure of $Cl(\Oc)$, as $\# Cl(\Oc)\approx \sqrt{|\Delta|}$, where $\Delta$ is the discriminant of $\Oc$.
+Notice that for cryptographically sized parameters we can't compute the structure of $Cl(\Oc)$, as $\# Cl(\Oc)\approx \sqrt{|\Delta|}$, where $\Delta$ is the discriminant of $\Oc$.
 
 However, we can consider the map $\varphi:\Z^n\to Cl(\Oc)$ given by
 $$(x_1,\dots,x_n)\mapsto \prod_{i=1}^n[\mathfrak{l}_i]^{x_i},$$
-where the $\mathfrak{l}_i$ are the ideals corresponding to Elkies primes.
+where the $\mathfrak{l}_i$ are the ideals corresponding to a subset of the Elkies primes (usually the ones of size up to some bound $B$).
 
 Since the action of the $\mathfrak{l}_i$ is more easily computable, this will be our representation of the class group. Indeed, in the CSIDH protocol private keys will be tuples of integers.
 
@@ -328,7 +328,7 @@ One example set of parameters is given by the proposed \texttt{CSIDH-512}, where
         
         \textbf{Key generation}: Sample a tuple of integers $(e_1,\dots,e_n)$ from $\{ -m,\dots,m \}^n$. This tuple corresponds to the ideal $[\mathfrak{a}] = \prod [\mathfrak{l}_i]^{e_i}$ of $Cl(\Oc)$, where $\mathfrak{l}_i=(\ell_i, \pi-1)$. The public key is the $A$ coefficient of the curve $[\mathfrak{a}]E_0:y^2=x^3+Ax^2+x$ in Montgomery form.
         
-        \textbf{Key exchange}: Suppose Alice and Bob have keypairs $([\mathfrak{a}], A)$ and $([\mathfrak{b}], B)$. When receiving $B$ from Bob, Alice checks the validity of this public key and then computes the curve $[\mathfrak{a}]E_B$. Bob does the same and computes $[\mathfrak{b}]E_A$. The shared secret is the Montgomery coefficient $S$ of the curve $[\mathfrak{a}][\mathfrak{b}]E_0=[\mathfrak{b}][\mathfrak{a}]E_0$ written as $y^2=x^3+Sx^2+x$.
+        \textbf{Key exchange}: Suppose Alice and Bob have key pairs $([\mathfrak{a}], A)$ and $([\mathfrak{b}], B)$. When receiving $B$ from Bob, Alice checks the validity of this public key and then computes the curve $[\mathfrak{a}]E_B$. Bob does the same and computes $[\mathfrak{b}]E_A$. The shared secret is the Montgomery coefficient $S$ of the curve $[\mathfrak{a}][\mathfrak{b}]E_0=[\mathfrak{b}][\mathfrak{a}]E_0$ written as $y^2=x^3+Sx^2+x$.
     \end{framed}
     \caption{The CSIDH protocol}
     \label{prot_CSIDH}

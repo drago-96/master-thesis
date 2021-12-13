@@ -5,9 +5,9 @@ Oblivious Transfer is a functionality between two parties, one called \emph{send
 
 Formally, since any 2-party computation can be modeled by some function $f:\{0,1\}^\ast\times\{0,1\}^\ast\to\{0,1\}^\ast\times\{0,1\}^\ast$, oblivious transfer is described by $f_{OT}((m_0,m_1), \sigma)=(\lambda, m_\sigma)$, where $\lambda$ denotes the empty string.
 
-Actually, what we are describing is 1-out-of-2 oblivious transfer; in general a $k$-out-of-$n$ OT protocol makes the receiver learn any $k$ messages of the $n$ messages known by the sender. While keeping note that those protocols exists and are important, we will continue focusing on 1-out-of-2 OT.
+Actually, what we are describing is 1-out-of-2 oblivious transfer; in general a $k$-out-of-$n$ OT protocol makes the receiver learn any $k$ messages of the $n$ messages known by the sender. While keeping note that those protocols exist and are important, we will continue focusing on 1-out-of-2 OT.
 
-Indeed, this protocol is one of the simplest examples of secure multi-party computation, but most importantly any MPC function can be reduced to a composition of many 1-out-of-2 OT protocols. Thus the security and efficiency of proposed OT protocols is of great importance.
+Indeed, this protocol is one of the simplest examples of secure multi-party computation, but most importantly any MPC function can be reduced to a composition of many 1-out-of-2 OT protocols as described in \cite{GMW}. Thus the security and efficiency of proposed OT protocols is of great importance.
 
 Efficiency usually is measured in number of rounds, size of the exchanged messages and actual time of computation (or number of operations). Security, as with most MPC protocols, is defined in the UC framework.
 
@@ -82,7 +82,7 @@ A general overview of multi-party computation, with security definitions, techni
     \end{itemize}
 \end{theorem}
 
-Notice that for two-party protocols, and in particular for oblivious transfer, there isn't a strict majority of honest parties, thus we can't expect fairness from the protocols we will describe; then using SUC (which hash built-in unfairness) is not really a limitation.
+Notice that for two-party protocols, and in particular for oblivious transfer, there isn't a strict majority of honest parties, thus we can't expect fairness from the protocols we will describe; then using SUC (which has built-in unfairness) is not really a limitation.
 
 \section{Some insecure OT protocols}\label{section_dummy}
 In this section we will describe a couple of toy OT protocols based on Diffie-Hellman and prove their level of (in)security. We do so to show some proofs in the SUC framework.
@@ -232,8 +232,7 @@ Moreover, since we deal with \emph{static} corruptions, we only need to address 
         This means that
         
         \begin{align*}
-        \advantage{\indcpa}{\ddv,\edv}[] &= \left| \condprob{\ddv=1}{b=0} -  \condprob{\ddv=1}{b=0}\right|\\
-        & = \left| \condprob{\zdv_\ddv=1}{b=0} - \condprob{\zdv_\ddv=1}{b=1} \right|\\
+        \advantage{\indcpa}{\ddv,\edv}[] &= \left| \condprob{\ddv=1}{b=0} -  \condprob{\ddv=1}{b=1}\right|\\
         & = \left| \prob{\textsc{\scriptsize IDEAL}_{\Fun,\sdv_{R^\ast},\zdv}=1} - \prob{\textsc{\scriptsize IDEAL}_{\Fun,\sdv',\zdv}=1} \right|,
         \end{align*}
         i.e. that $\zdv$ cannot distinguish $\sdv_{R^\ast}$ and $\sdv'$ if the encryption scheme $\edv$ is $\indcpa$.
@@ -299,7 +298,7 @@ Indeed, in their version of the functionality, they never notified the sender of
 
 The main solution for this problem is to add some sort of ``proof of decryption": many protocols, like \cite{BDD}, add a last round where the receiver gives back to the sender the decryption of a random challenge. In this way, the simulator will then be able to extract and to complete the simulation of the correct functionality.
 
-Another solution, which is what we will investigate in the rest of the thesis, is to use different models of computations, in which the extraction of the input bit is made almost automatic by virtue of the model imposed behaviour on the adversary.
+Another solution, which is what we will investigate in the rest of the thesis, is to use different models of computations, in which the extraction of the input bit is made almost automatic by virtue of the behaviour imposed on the adversary by the model.
 
 \section{Security in the algebraic group model}
 One possible solution to make the Chou and Orlandi protocol secure is to change the definition of what ``secure" means; in particular we can limit the adversary to behave \emph{algebraically} and then be able to complete the proofs.
@@ -389,7 +388,7 @@ We use the protocol in figure \ref{prot_CO}, with the functionality presented in
 
     If $x\in\{0,1\}$, the simulator queries the functionality with this bit, retrieves $m_x$, chooses a random $m_{1-x}$ and finally computes $k_i,c_i$ as specified in the protocol. If $x\not\in\{0,1\}$, the simulator chooses both $m_0$ and $m_1$ as random.
 
-    The simulator also runs the random oracle, and counts the queries the enviroment makes to it. Moreover, if $x\in\{0,1\}$ and $\edv$ queries for both $B^a$ and $B^a\cdot g^{-a^2}$, of if $x\not\in\{0,1\}$ and $\edv$ queries at least one of $B^a$ or $B^a\cdot g^{-a^2}$, then $\sdv$ aborts.
+    The simulator also runs the random oracle, and counts the queries the environment makes to it. Moreover, if $x\in\{0,1\}$ and $\edv$ queries for both $B^a$ and $B^a\cdot g^{-a^2}$, of if $x\not\in\{0,1\}$ and $\edv$ queries at least one of $B^a$ or $B^a\cdot g^{-a^2}$, then $\sdv$ aborts.
 
     \textit{Claim}: $\sdv$ aborts with negligible probability if the discrete logarithm is hard.
 

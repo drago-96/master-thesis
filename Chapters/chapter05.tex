@@ -6,7 +6,7 @@ In this section we briefly discuss the security levels of some isogeny-based OT 
 \begin{itemize}
     \item \cite{Barreto, Branco}: in the first paper by Barreto et al., they introduce a protocol based on SIDH; it constructs a SIDH public key and creates a second ``fake" public key by perturbing the public torsion points. Its security is thus based on the indistinguishability of $(\phi(P),\phi(Q))$ and $(\phi(P)+U,\phi(Q)+V)$, where $U,V$ are random $E[\ell^e]$ torsion points and $\{P,Q\}$ is the SIDH basis of $E_0[\ell^e]$.\\
     Based on this indistinguishability assumption, Branco et al. build an implementation of their proposed OT protocol framework. The resulting OT protocol has four rounds and is proved to be UC-secure against malicious adversaries.\\
-    However, we notice that Barreto et al. say they have identified some problems in the security of their protocol (which is not even made in the UC framework), so also the derived protocol bt Branco et al. could have problems.
+    However, we notice that Barreto et al. say they have identified some problems in the security of their protocol (which is not even made in the UC framework), so also the derived protocol by Branco et al. could have problems.
     
     \item \cite{Vitse}: the author constructs a SIDH-based protocol using an exponentiation-only construction; in Diffie-Hellman terms this means that the receiver gets the public keys $g^{a_0},g^{a_1}$, sends back $\left(g^{a_\sigma}\right)^b$ and receives $g^{a_\sigma\cdot b\cdot a_i^{-1}}$ as possible keys. In the SIDH context, the author uses dual isogenies and additional helper points to achieve this construction.\\
     The resulting OT protocol has three rounds, and is proved to be secure against malicious adversaries but using a game-based definition of security for OT. Moreover, the author introduces additional hardness assumptions to conclude her proofs.
@@ -194,7 +194,7 @@ However, these works cannot be directly translated into a proof of the first cla
 
 This means that proving Claim \ref{claim_CMEI} is as of now an open problem, and probably a hard one. It's also possible that we did not choose the optimal definition for our (CM)EI models.
 
-Claim \ref{claim_EIUC} is instead related to Problem \ref{problem_sampling}, which is considered an open problem in the field of isogney-based cryptography, as stated also in \cite{CSIDH_EndRing}. It's slowly becoming a common belief among isogenists that this problem might be difficult to solve.
+Claim \ref{claim_EIUC} is instead related to Problem \ref{problem_sampling}, which is considered an open problem in the field of isogeny-based cryptography, as stated also in \cite{CSIDH_EndRing}. It's slowly becoming a common belief among isogenists that this problem might be difficult to solve.
 
 We are thus very tempted to pose the following assumption.
 

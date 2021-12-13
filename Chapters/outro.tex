@@ -10,7 +10,7 @@ We say that $\Fun_{OT}$ should send an empty output message to the sender, but t
 
 We thus introduce the \emph{Explicit Isogeny} model, that mimics the AGM but for isogeny-based protocols. In particular, we study the OT protocol by Lai et al., proving its security in the EI model even without the additional third round that serves as ``proof of decryption": using the additional isogeny given by the EI model we are indeed able to extract the corrupted receiver's input directly from his public key.
 
-An interesting future work would be trying to prove security of other isogeny-based MPC procols in the EI model, starting from the already semi-honest OT protocol by de Saint Guilhem et al.; there are also other proposed OT protocols, based both on SIDH and CSIDH, that have not been analyzed at all in the UC framework.
+An interesting future work would be trying to prove security of other isogeny-based MPC protocols in the EI model, starting from the already semi-honest OT protocol by de Saint Guilhem et al.; there are also other proposed OT protocols, based both on SIDH and CSIDH, that have not been analyzed at all in the UC framework.
 
 Another work that could be done on those other protocol, starting from the one that we studied in this thesis, is to benchmark the performances of the original protocol and the (possibly more efficient) version that is secure in the EI model. This requires both implementing said protocols and finding the correct more efficient variant, two highly non-trivial tasks.
 

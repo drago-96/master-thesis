@@ -3,7 +3,7 @@
 
 The main goal of this thesis is to study isogeny-based cryptography, and some proposed oblivious transfer protocols based on it, with particular attention to security properties and proofs.
 
-Oblivious transfer is one of the most basic functionalities between two parties, and has been introduced by Rabin \cite{Rabin_OT} as one of the earliest examples of multi-party computation; MPC is the subfield of cryptography that studies methods for multiple parties to be able to compute some public function, while keeping the inputs private. For example, the function might be ``the sum of all inputs" or ``who won the election?".
+Oblivious transfer is one of the most basic functionalities between two parties, and has been introduced by Rabin \cite{Rabin_OT} as one of the earliest examples of multi-party computation; MPC is the sub-field of cryptography that studies methods for multiple parties to be able to compute some public function, while keeping the inputs private. For example, the function might be ``the sum of all inputs" or ``who won the election?".
 
 In the case of oblivious transfer the function is $f((m_0,m_1),\sigma)=(\lambda,m_\sigma)$, where $\lambda$ is the empty string, meaning that the first party doesn't receive any output. The importance of OT is that it can be composed to get any arbitrary secure function evaluation \cite{GMW}; it is then of great importance to study the most efficient and secure ways to realize OT.
 
@@ -20,7 +20,7 @@ The main areas from which the finalists and the alternate protocols have been dr
     \item Supersingular isogenies
 \end{itemize}
 
-Beyond the NIST competition, also the MPC world is trying to adopt some post-quantum constructions for its protocols. The most promising one, both for the NIST competition and the MPC protocols, is probably lattice-based cryptography, from which OT protocols have already been constructed \cite{PVW}. However, we will focus on isogeny-based cryptography, which is a pretty new subfield.
+Beyond the NIST competition, also the MPC world is trying to adopt some post-quantum constructions for its protocols. The most promising one, both for the NIST competition and the MPC protocols, is probably lattice-based cryptography, from which OT protocols have already been constructed \cite{PVW}. However, we will focus on isogeny-based cryptography, which is a pretty new sub-field.
 
 The main idea of isogeny crypto is to use graphs of elliptic curves, where the nodes are supersingular $j$-invariants and the edges are isogenies between them. The reason why this is useful for cryptography is that it's easy to compute a random isogeny from a given curve (i.e. a walk in the graph), but it's hard to find an isogeny given two different curves.
 
@@ -40,7 +40,7 @@ Another feature of UC is the hybrid world, in which a protocol is executed in th
 
 We will then analyze OT protocols using the UC framework; in particular, we first study the ``simplest OT" by Chou and Orlandi \cite{Chou_Orlandi}, which is based on the usual elliptic curve Diffie-Hellman. This is an important protocol, not only because it is very efficient, but also because its UC-security proof contains some errors.
 
-The issues of the proof are not limited to that protocol, but the underlying motivations (in particular the input extraction of the choice bit from a corrupted receiver) impose strict contraints in the design of OT protocols; this means that usually they require additional computations and rounds just to be able to conclude the UC-security proof, for a very technical reason and not because they are actually insecure. This greatly reduces their efficiency, while for fast MPC we need very fast OT protocols.
+The issues of the proof are not limited to that protocol, but the underlying motivations (in particular the input extraction of the choice bit from a corrupted receiver) impose strict constraints in the design of OT protocols; this means that usually they require additional computations and rounds just to be able to conclude the UC-security proof, for a very technical reason and not because they are actually insecure. This greatly reduces their efficiency, while for fast MPC we need very fast OT protocols.
 
 A possible remedy for the Chou and Orlandi protocol comes from the \emph{Algebraic Group Model}, which makes all the machines give a representation for every group element that they output. In \cite{AGM_UC} it is explained how the AGM allows for a complete proof of UC-security against malicious adversaries for the ``simplest OT", since they use the elements' representation to extract the choice bit.
 

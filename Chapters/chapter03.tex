@@ -3,9 +3,9 @@
 In this chapter we will deal with formal definitions of security in cryptography; we start from game-based definitions, of which $\indcpa$ is the most famous example, then we move to simulation-based requirements and finally to universal composability, which is the standard framework for defining all MPC tasks.
 
 \section{Introduction}
-The word \emph{cryptography} comes from the greek language and it means ``hidden writing": even since before the Greeks, people started developing the art of transmitting secret messages in a form that would be inintelligible to anyone apart from the intended receiver.
+The word \emph{cryptography} comes from the Greek language and it means ``hidden writing": even since before the Greeks, people started developing the art of transmitting secret messages in a form that would be unintelligible to anyone apart from the intended receiver.
 
-History of cryptography is full of very clever ciphers and attacks to those ciphers, starting from Caesar's cipher, which was  broken  using frequency analysis and developed Vigenère cipher, which stood unbroken until the end of 19th century. More recently, we have the very interesting story of the ENIGMA machine, used by german soldiers in World War Two, which was broken by Alan Turing, one of the fathers of modern computation.
+History of cryptography is full of very clever ciphers and attacks to those ciphers, starting from Caesar's cipher, which was broken using frequency analysis and led to the development of Vigenère cipher, which stood unbroken until the end of 19th century. More recently, we have the very interesting story of the ENIGMA machine, used by German soldiers in World War Two, which was broken by Alan Turing, one of the fathers of modern computation.
 
 Modern cryptography is however very different from classical cryptography: all the classical algorithms are \emph{encryption schemes}, while today we have also digital signatures, hash functions, key-exchanges, multi-party computation, pseudo-random number generators and many more.
 
@@ -21,8 +21,8 @@ One of the very first definitions, and a very important one, is that of \emph{en
     An \emph{encryption scheme} $\edv$ is a tuple of probabilistic polynomial-time (PPT) algorithms $(\kgen,\enc,\dec)$ which work over some spaces $(\mathcal K, \mathcal M, \mathcal C)$ as follows:
     \begin{itemize}
         \item $\kgen$ returns a \emph{key} from the key space $\mathcal K$, according to some distribution.
-        \item $\enc:\mathcal K\times\mathcal M\to \mathcal C$ is the \emph{encryption function} and tranforms a message into a ciphertext using some key.
-        \item $\dec: \mathcal K\times\mathcal C\to \mathcal M$ is the \emph{decryption function} and tranforms back a ciphertext into a message with the help of the key.
+        \item $\enc:\mathcal K\times\mathcal M\to \mathcal C$ is the \emph{encryption function} and transforms a message into a ciphertext using some key.
+        \item $\dec: \mathcal K\times\mathcal C\to \mathcal M$ is the \emph{decryption function} and transforms back a ciphertext into a message with the help of the key.
     \end{itemize}
     Usually we deal with \emph{correct} encryption schemes, which means that $\dec(k,\enc(k,m))=m$ for any $k\in\mathcal K,m\in\mathcal M$.
 \end{definition}
@@ -32,7 +32,7 @@ One of the most famous encryption schemes is the \emph{one-time pad}, which work
 \begin{definition}
     The one-time pad is an encryption scheme with $\mathcal K=\mathcal M=\mathcal C=\bin^L$ for some $L\in\N$. Encryption and decryption are defined by
     $$ \enc(k,m)=k\oplus m\;\;\;\;\; \dec(k,c)=k\oplus c,$$
-    where $\oplus$ denotes the bitwise XOR of the bitstrings.
+    where $\oplus$ denotes the bit-wise XOR of the bitstrings.
 \end{definition}
 
 This can be also dubbed as ``the most secure encryption scheme", since it is the simplest one that satisfies the following property:
@@ -51,7 +51,7 @@ An alternative formulation of perfect security is the following:
     Then $C$ and $M$ are independent, and in particular for any $m\in\mathcal M,c\in\mathcal C$ we have $$\condprob{M=m}{C=c} = \prob{M=m}$$
 \end{proposition}
 
-With this formulation it is evident what we mean by security of an encryption scheme: the value of the ciphertext shouldn't reveal anything more about the orignal message than what we already knew.
+With this formulation it is evident what we mean by security of an encryption scheme: the value of the ciphertext shouldn't reveal anything more about the original message than what we already knew.
 
 The problem of using  perfectly secure one-time pad everywhere is that keys are as big as the plaintext, and they must be only used \emph{once}; this means that the channels used to secretly share the keys could also have been used to share the actual messages. The only practical use of one-time pad might be physically exchanging terabytes of randomness at some point, and then use that as a key for all the messages in the years to come, which is unrealistic for any common communication model.
 
@@ -70,7 +70,7 @@ The security definitions in this setting take then the general form:
     \textit{A scheme is \emph{secure} if any PPT attacker wins some well-defined security game with negligible probability.}
 \end{quote}
 
-We now define the $\indcpa$ game in Figure \ref{game_indcpa}: we have an encryption scheme $\edv=(\kgen,\enc,\dec)$, with a security parameter $n$. The attacker $\adv$ is a PPT algorithm, and is given access to the encryption oracle $\enc_k$; it must first generate two plaintexts $m_0,m_1$ and then try to guess if $c$ is the encryption of $m_0$ or $m_1$.
+We now define the $\indcpa$ game in Figure \ref{game_indcpa}: we have an encryption scheme $\edv=(\kgen,\enc,\dec)$, with a security parameter $n$; we make explicit the dependence on it by giving it as input to the keygen function, and we denote this by $\kgen(\secparam)$. The attacker $\adv$ is a PPT algorithm, and is given access to the encryption oracle $\enc_k$; it must first generate two plaintexts $m_0,m_1$ and then try to guess if $c$ is the encryption of $m_0$ or $m_1$.
 
 \begin{figure}
     \myproc{Game $\indcpa^\adv_\edv(n)$}{
@@ -91,12 +91,12 @@ $$\advantage{\indcpa}{\adv,\edv}:=\left| \prob{\indcpa^\adv_\edv(n)=1}-\frac12 \
 If the strategy of the adversary is to guess $b$ at random, it will win the game half of the times, and thus the advantage will be zero. This motivates the following definition.
 
 \begin{definition}
-    An encryption scheme $\edv=(\kgen,\enc,\dec)$ is said to have indistinguishable encryptions against a chosen-plaintext attack (or, equivalently, to be $\indcpa$-secure) if for any PPT adversaries $\adv$ the advantage $\advantage{\indcpa}{\adv,\edv}$ is negligible.
+    An encryption scheme $\edv=(\kgen,\enc,\dec)$ is said to have indistinguishable encryptions against a chosen-plaintext attack (or, equivalently, to be $\indcpa$-secure) if for any PPT adversary $\adv$ the advantage $\advantage{\indcpa}{\adv,\edv}$ is negligible.
 \end{definition}
 
 This definition is one of the most important milestones of modern cryptography: it's easy to state, makes quantitative statements and precisely models the capabilities of the adversary.
 
-However, it is not very clear what it actually \emph{means}: it seems to say that no one can distinguish two given messages, but what we truly wanted in the perfectly security definition was that ``all ciphertexts looks alike", or better that the ciphertext doesn't give away any additional information.
+However, it is not very clear what it actually \emph{means}: it seems to say that no one can distinguish two given messages, but what we truly wanted in the perfectly security definition was that ``all ciphertexts look alike", or better that the ciphertext doesn't give away any additional information.
 
 This last property is not at all evident from the $\indcpa$ definition, since it's hidden behind the artificial game construction.
 
@@ -111,7 +111,7 @@ The sense of this definition is that whatever is computable given the encryption
 
 It turns out that semantic security is equivalent to $\indcpa$, and this equivalence is very useful: semantic security explicitly translates our wanted security property of ``ciphertexts don't leak information about plaintexts", while the game-based definition is much simpler to use in proofs.
 
-In order to generalize security guarantees of other primitives besides encryption, we basically have two choices: keep using the easy-to-prove game definitions, but then we have to come up with all the right games for each property that we desire; or focus on semantic security-syle definitions, which immediatly tell what is our security goal, but are harder to prove.
+In order to generalize security guarantees of other primitives besides encryption, we basically have two choices: keep using the easy-to-prove game definitions, but then we have to come up with all the right games for each property that we desire; or focus on semantic security-style definitions, which immediately tell what is our security goal, but are harder to prove.
 
 \section{Simulation-based security}
 In this section we introduce the simulation approach to defining security, which has been chosen for multi-party computation protocols, since they can be very generic and thus creating security games for them might leave some details out.
@@ -124,7 +124,7 @@ By arguing that we can simulate the attacker in the real world also in the ideal
 
 The first notion that we will need and which we will use everywhere is \emph{computational indistinguishability} of distributions:
 \begin{definition}
-    Let $X=\{ X(a,n) \}_{a,n}$ and $Y=\{ Y(a,n) \}_{a,n}$ be two ensembles of infinitely many random variables indexed by $a\in\bin^\ast,n\in\N$. We say that $X$ and $Y$ are computationally inditinguishable, written as $X\cindist Y$ if for any PPT distinguisher $\ddv$ there esists a negligible function $\mu$ such that for every $a,n$ we have
+    Let $X=\{ X(a,n) \}_{a,n}$ and $Y=\{ Y(a,n) \}_{a,n}$ be two ensembles of infinitely many random variables indexed by $a\in\bin^\ast,n\in\N$. We say that $X$ and $Y$ are computationally indistinguishable, written as $X\cindist Y$ if for any PPT distinguisher $\ddv$ there exists a negligible function $\mu$ such that for every $a,n$ we have
     $$\left| \prob{\ddv(X(a,n))=1} - \prob{\ddv(Y(a,n))=1} \right|\le\mu(n)$$
 \end{definition}
 
@@ -169,7 +169,7 @@ Notice that we are asking for indistinguishability of the joint distribution of 
 
 Observe that this definition implies \emph{privacy}, in the sense that other parties' inputs cannot be learned, but also \emph{correctness} of the protocol, since any non negligible difference from $\texttt{output}^\pi(x,y)$ and $f(x,y)$ can be used to distinguish the two distributions.
 
-Proving security with respect to this definitions means that for any protocol we need to write a simulator for each party, and then prove indistinguishability from the real execution. Usually this part is done by using intermediate simulators that make $\sdv_i$ and the real world closer step by step, and argue indistinguishability between each step using some hardness assumption. We will see an example of this technique in section 4.2 with an oblivious transfer protocol based on the Diffie-Hellman assumption.
+Proving security with respect to this definition means that for any protocol we need to write a simulator for each party, and then prove indistinguishability from the real execution. Usually this part is done by using intermediate simulators that make $\sdv_i$ and the real world closer step by step, and argue indistinguishability between each step using some hardness assumption. We will see an example of this technique in section 4.2 with an oblivious transfer protocol based on the Diffie-Hellman assumption.
 
 \subsection{Malicious adversaries}
 
@@ -215,7 +215,7 @@ The reason for hybrid models is that security can be composed:
 
 This theorem means that secure protocols can be \emph{sequentially composed} to obtain other secure protocols, and is a great feature of this type of definitions, since we can focus on the security of each single component and then easily get the security of the full protocol.
 
-Moreover, the hybrid model gives more power to the simulator: when the adversary $\adv$ wants to make a query to the ideal funtionality $g$ in the hybrid model, the simulator $\sdv$ will emulate it and learn all the queries to $g$ made by $\adv$. This will give $\sdv$ much more information than it usually has, and most of the times the simulator will be able to extract the inputs and come up with a correct simulation.
+Moreover, the hybrid model gives more power to the simulator: when the adversary $\adv$ wants to make a query to the ideal functionality $g$ in the hybrid model, the simulator $\sdv$ will emulate it and learn all the queries to $g$ made by $\adv$. This will give $\sdv$ much more information than it usually has, and most of the times the simulator will be able to extract the inputs and come up with a correct simulation.
 
 \section{The (simplified) UC framework}\label{section_SUC}
 The universal composability framework is the most popular generalization of the stand-alone model, which is what we have described in the previous section. While we could compose protocols sequentially, the stand-alone model doesn't say anything about \emph{concurrent} compositions, which are actually found everywhere in the real world.
@@ -238,17 +238,18 @@ All the parties of a protocol are modelled as interactive Turing machines (ITM),
     \begin{itemize}
         \item A \emph{code tape} that contains the instructions for $M$, and also a unique identifier $i$; we will call this machine $M_i$.
         \item A read-only \emph{input tape} and a write-only \emph{output tape}, which admits only one writing operation.
+        \item A read-only \emph{security parameter tape}, containing the security parameter of the protocol.
         \item A read-only \emph{incoming communication tape}, which will contain messages coming from other machines; any received message will contain also the identifier of the sending machine. $M$ might have many such tapes.
         \item A write-only \emph{outgoing communication tape}, onto which $M$ will write messages for other machines.
         \item A \emph{random tape}, containing an infinite sequence of random bits.
     \end{itemize}
 \end{definition}
 
-All machines communicate between themselves by being connected to a common router, i.e. there is a special machine with its incoming tapes connected to the outgoing tapes of the other machines, and viceversa.
+All machines communicate between themselves by being connected to a common router, i.e. there is a special machine with its incoming tapes connected to the outgoing tapes of the other machines, and vice versa.
 
-In any execution, there will be the environment $\zdv$, the adversary $\zdv$, the parties $P_1,\dots,P_m$ and possibly an ideal functionality $\Fun$. The communication is then described in Figure \ref{SUC_router}.\todo{Fix original text}
+In any execution, there will be the environment $\zdv$, the adversary $\adv$, the parties $P_1,\dots,P_m$ and possibly an ideal functionality $\Fun$. The communication is then described in Figure \ref{SUC_router}.\todo{Fix original text}
 
-Notice that the number of parties and their identities is fixed and known to all.
+Notice that the number of parties and their identities are fixed and known to all.
 
 \begin{figure}
     %\includegraphics[clip, scale=0.9, trim=2cm 6.5cm 2cm 15.5cm]{router-full}
@@ -257,14 +258,14 @@ Notice that the number of parties and their identities is fixed and known to all
     \label{SUC_router}
 \end{figure}
 
-The adversary is able to control the router, and thus can delay or block any message. However, the communication is supposed to be authenticated, so the adversary cannot modify its content.
+The adversary is able to control the router, and thus can delay or block any message. However, the communication is supposed to be authenticated, so the adversary can read the messages between the parties, but it cannot modify them.
 
 Moreover, any communication between a party and the ideal functionality $\Fun$ is comprised of a \texttt{public header} and a \texttt{private content}; the router forwards to the adversary only the \texttt{public header} part of the message.
 
 Formally, the router operates in the following way:
 \begin{itemize}
-    \item Read any incoming message of the form $(P_i,P_j,x)$; check that $P_i$ is the actual sender, store it and forward the message to $\adv$.
-    \item Do the same for any message from/to the functionality, but only forward to $\adv$ the \texttt{public header}.
+    \item Read any incoming message of the form $(P_i,P_j,x)$ between party $P_i$ and $P_j$; check that $P_i$ is the actual sender, store it and forward the message to $\adv$.
+    \item Do the same for any message from/to the functionality, but only forward to $\adv$ the \texttt{public header} part of the content $x$.
     \item When instructed by $\adv$, deliver the message to $P_j$.
 \end{itemize}
 
@@ -299,11 +300,11 @@ In case of a malicious adversary, besides getting access to the internal tapes, 
 
 \subsection{Execution models and security properties}
 
-We are now ready to define real, ideal and hybrid models, from which security definitions and composition theorems will follow. These are special cases of the execution and commuication models described above.
+We are now ready to define real, ideal and hybrid models, from which security definitions and composition theorems will follow. These are special cases of the execution and communication models described above.
 
 \begin{itemize}
     \item The \emph{real model with protocol $\pi$}: there is no ideal functionality $\Fun$, and all the parties communicate with each other following protocol $\pi$. We denote the output bit of the environment $\zdv$ after an execution of $\pi$ with adversary $\adv$ by $\textsc{\scriptsize SUC-REAL}_{\pi,\adv,\zdv}(n,z)$, where $n$ is the security parameter and $z$ is the input of the environment.
-    \item The \emph{ideal model with $\Fun$}: all the parties follow a very simple trusted party protocol. In particular, each party sends to the functionality $\Fun$ precisely the value on their input tape, provided by the environment (unless they are corrupted, thus $\adv$ can make them send anything to $\Fun$). Moreover they write the message returned by $\Fun$ on their output tapes.
+    \item The \emph{ideal model with $\Fun$}: all the parties follow a very simple trusted party protocol. In particular, each party sends to the functionality $\Fun$ precisely the value on their input tape, provided by the environment (unless they are corrupted, thus the adversary $\sdv$ can make them send anything to $\Fun$). Moreover they write the message returned by $\Fun$ on their output tapes.
     
     We denote the output of $\zdv$ after this ideal execution with $\Fun$ and adversary $\sdv$ by $\textsc{\scriptsize SUC-IDEAL}_{\Fun,\sdv,\zdv}(n,z)$.
     
@@ -330,7 +331,7 @@ We finally can state the following proposition.
     $$ \{ \textsc{\scriptsize SUC-IDEAL}_{\Fun, \sdv, \zdv} \} \cindist \{ \textsc{\scriptsize SUC-REAL}_{\pi, \ddv, \zdv} \}$$
 \end{proposition}
 
-Exactly as in the stand-alone model and in the full UC framework, protocols can be composed while mantaining SUC-security.
+Exactly as in the stand-alone model and in the full UC framework, protocols can be composed while maintaining SUC-security.
 
 Indeed, if $\pi$ is a protocol for computing $\Fun$ in the $\mathcal G$-hybrid model, and $\rho$ is a protocol for computing $\mathcal G$ (eventually in a $\mathcal H$-hybrid model), we can define the protocol $\pi^\rho$ that computes functionality $\Fun$ in the $\mathcal H$-hybrid model. This is done by replacing the code to calls to $\mathcal G$ with the code for executing $\rho$; we only impose the restriction that different instances of $\rho$ call different instances of $\mathcal H$, if $\rho$ is itself hybrid.
 
