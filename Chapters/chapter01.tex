@@ -1,6 +1,6 @@
 \chapter{Mathematical background}
 
-The theory of elliptic curves is at the foundation of isogeny-based Cryptography, but in a very different style from classical Elliptic Curve Cryptography: the latter uses the group of points of a single curve, while the first uses graphs of elliptic curves.
+The theory of elliptic curves is at the foundation of isogeny-based cryptography, but in a very different style from classical elliptic curve cryptography: the latter uses the group of points of a single curve, while the first uses graphs of elliptic curves.
 
 Our introduction on these topics will follow \cite{Silverman} and \cite{DeFeo_intro}.
 
@@ -46,7 +46,7 @@ Elliptic curves are also well known for naturally having a structure of abelian 
         \end{align*}
         where $\lambda=\frac{3x_1^2+a}{2y_1}$ if $P_1=P_2$, and $\lambda=\frac{y_2-y_1}{x_2-x_1}$ otherwise.
     \end{itemize}
-\end{theorem}\todo{maybe usual picture?}
+\end{theorem}
 
 The structure of this group has been much studied, and there are still open questions; luckily we will work in finite fields, where most of it is understood.
 
@@ -81,14 +81,13 @@ Since elliptic curves are algebraic varieties, we briefly recall some notions of
     
     A \emph{morphism} is a rational map that is regular at any point, i.e. for any $P\in V_1$ there exists a function $g\in\bar K(V_1)$ such that all $gf_i$ are defined at $P$, and at least one $gf_i(P)\neq0$.
 \end{definition}
-\todo{examples}
 
 A very important property of morphisms is the following:
 \begin{proposition}
     Let $\phi: V_1\to V_2$ be a morphism of projective varieties defined over $K$, with $\phi=[f_1,\dots,f_n]$. Then the map $\phi^\ast:K(V_2)\to K(V_1)$ given by $\phi^\ast(g)(x)=g(f_1(x),\dots,f_n(x))$ is a homomorphism of $K$-algebras.
 \end{proposition}
 
-We now turn our attention to curves, which are varieties of dimension $1$, for example all polynomials $f(x,y)=0$ in two variables.
+We now turn our attention to curves, which are varieties of dimension $1$; in particular, affine curves are described by polynomials $f(x,y)=0$ in two variables.
 
 Since we will work over finite fields, it's important to clearly state the definition of separable and inseparable morphisms.
 
@@ -143,7 +142,7 @@ It turns out that the kernel of a separable isogeny completely determines it, an
     $$\phi(P) = \left(x(P) + \sum_{Q\in G\setminus\{O\}} x(P+Q)-x(Q), y(P)+ \sum_{Q\in G\setminus\{O\}} y(P+Q)-y(Q)\right)$$
 \end{proposition}
 
-Notice that, given these formulas, both the resulting curve and a point evaluation can be computed in $O(\# G)$ time.\todo{maybe explicit example}
+Notice that, given these formulas, both the resulting curve and a point evaluation can be computed in $O(\# G)$ time.
 
 One of the most important example of isogenies is multiplication-by-$m$:
 \begin{example}
@@ -170,10 +169,6 @@ Indeed, we now define dual isogenies and state their properties
 
 Notice that this implies $\widehat{[m]}=[m]$, and thus that $\deg[m]=m^2$ as we already said.
 
-(Splitting lemma?)
-
-Standard form/division polynomials?\todo{write this}
-
 \section{Endomorphisms and automorphisms}
 
 In the previous section we observed that $\Hom(E_1, E_2)$ is a group because isogenies can be added. Notice that if $E_1=E_2=E$ we can also compose isogenies; thus we get the ring $\End(E)$. We clearly have $\Z\subset\End(E)$, identifying $\Z$ with the multiplication-by-$m$ isogenies; however the endomorphism ring can be bigger, and it will play a central role in isogeny-based cryptography.
@@ -197,7 +192,10 @@ Moreover this computation of the automorphism group can be used to obtain a clas
 
 \begin{definition}
     Let $E$ be an elliptic curve over $K$. A \emph{twist} of $E$ is an elliptic curve $E'/K$ with $j(E)=j(E')$, but which is not necessarily isomorphic to $E$ over $K$.
-\end{definition}\todo{example?}
+\end{definition}
+\begin{example}
+    Consider $E_1:y^2=x^3+1$ and $E_2:y^2=x^3-1$ over $\Q$; they both have $j(E_1)=j(E_2)=0$, so they are isomorphic over $\bar\Q$. The only possible isomorphisms between $E_1$ and $E_2$ are given by $(x,y)\mapsto(u^2x,u^3y)$ for some $u\in\bar\Q$, meaning that $u^6=-1$. Since there is no $u\in\Q$ that satisfies the equation, the curves are not $\Q$-isomorphic. However, they are over $\Q(i)$, with the isomorphism $(x,y)\mapsto(-x,iy)$.
+\end{example}
 
 The classification of all twists of a curve in Weierstrass form is then the following:
 \begin{proposition}
@@ -324,7 +322,7 @@ At the heart of isogeny based cryptography lies the use of supersingular ellipti
 
 Most of the following results are due to Deuring, in \cite{Deuring1941}. Let's start with some equivalent definitions.
 \begin{theorem}
-    Let $E/K$ be an elliptic curve, with $\car K=p$; for any $r\ge1$ let $\phi_r:E\to E^{(p^r)}$ the Frobenius isogeny. The following are equivalent\todo{prove this?}
+    Let $E/K$ be an elliptic curve, with $\car K=p$; for any $r\ge1$ let $\phi_r:E\to E^{(p^r)}$ the Frobenius isogeny. The following are equivalent:
     \begin{enumerate}
         \item $E[p^r]=\{O\}$ for some (all) $r\ge1$.
         \item The dual isogeny $\hat\phi_r$ is inseparable for some (all) $r\ge1$.
@@ -348,7 +346,7 @@ Moreover, we have a precise count of how many supersingular $j$-invariants there
 
 One of the first things to notice is that these supersingular curves are actually quite rare: by picking a uniformly random element of $\F_{p^2}$, the probability that it's a supersingular $j$-invariant is $O(p^{-1})$, which for cryptographically-sized primes is negligible.
 
-This means that the trivial sampling algorithm of ``pick a random $j$ and check its supersingularity" has exponential expected running time. Indeed, the checking part is easy, given the following proposition:
+This means that the trivial sampling algorithm of ``pick a random $j$ and check its supersingularity" has exponential expected running time. The checking part is actually easy, given the following proposition.
 \begin{proposition}
     Let $E/\F_q$ be an elliptic curve defined by $y^2=f(x)$ over $\F_q$; let $p=\car\F_q$. Then both of the following are equivalent to $E$ being supersingular:
     \begin{enumerate}
@@ -391,9 +389,9 @@ Observe that if $E/\F_p$ is supersingular, then we are in case 4 and $\pi^2=-p$;
     $$E \text{ is defined over } \F_p\iff \Z[\sqrt{-p}]\subset\End(E)$$
 \end{proposition}
 
-\subsection{Quaternion algebras}
+%\subsection{Quaternion algebras}
 
-\cite{QuatAlg}
+%\cite{QuatAlg}
 
 \begin{example}
     Let $p\equiv3\pmod4$ be a prime and $E:y^2=x^3+x$ over $\F_p$. We then know that $E$ is supersingular and $\# E(\F_p)=p+1$; moreover, let $i^2=-1$ be an element of $\F_{p^2}$.
@@ -421,15 +419,14 @@ Over a finite field $\F_q$, the graph $G_\ell(\F_q)$ is canonically split into o
 
 Since all supersingular $j$-invariants lie in $\F_{p^2}$, all roots of $\Phi_\ell(j(E),t)$ also lie in $\F_{p^2}$ if $E$ is supersingular. This means that all supersingular components of $G_\ell(\F_{p^2})$ are $\ell+1$-regular, i.e. every vertex has degree equal to $\ell+1$. Moreover, the following is an important result for our analysis:
 \begin{theorem}[\cite{Mestre}]
-    For any prime $\ell\neq p$ there is only one supersingular component in $G_\ell(\F_{p^2})$.
+    For any prime $\ell\neq p$ there is a unique supersingular connected component of $G_\ell(\bar\F_p)$. Moreover, the curves having $(p+1)^2$ or $(p-1)^2$ points form two connected components of $G_\ell(\F_{p^2})$, and they both are isomorphic to the supersingular component of $G_\ell(\bar\F_p)$.
 \end{theorem}
-Actually, the theorem stated as above is false: by Tate's theorem there are at least $5$ supersingular components, one for each value of the trace of Frobenius $t\in\{0,\pm p,\pm 2p\}$. What we mean is that there is a single supersingular component in $G_\ell(\bar\F_p)$, and by carefully choosing $\F_{p^2}$-isogenies it is isomorphic to both components of $G_\ell(\F_{p^2})$ with trace $\pm 2p$.
 
 This supersingular component has very peculiar graph properties that make very interesting its use for cryptography, in the sense that is ``behaves like large random graphs".
 
 In general, an undirected graph on $n$ vertices has $n$ real eigenvalues (defined as the eigenvalues of the adjacency matrix, which is symmetric) and if the graph is $k$-regular then we have that $k=\lambda_1\ge\lambda_2\ge\dots \lambda_n\ge -k$.
 
-We now introduce the expander property:\todo{find references}
+We now introduce the expander property:
 \begin{definition}
     Let $\eps>0$ and $k\ge1$. A $k$-regular graph is called \emph{$\eps$-expander} if
     $$\lambda_2\le(1-\eps)k$$
@@ -446,7 +443,7 @@ There is also a stronger notion of expander graph, which is the following:
 \begin{definition}
     A $k$-regular graph is said to be a \emph{Ramanujan graph} if $|\lambda_j|\le2\sqrt{k-1}$ for any $j>1$.
 \end{definition}
-It can be shown that Ramanujan graphs are the ``optimal" expanders, in the sense that for a family of expander graphs with increasing number of vertices, the sequence of the biggest non-trivial eigenvalues $|\lambda_j|$ tends to the $2\sqrt{k-1}$ limit.
+It can be shown that Ramanujan graphs are the ``optimal" expanders, in the sense that for a family of expander graphs with increasing number of vertices, the sequence of the biggest non-trivial eigenvalue $|\lambda_j|$ tends to the $2\sqrt{k-1}$ limit.
 
 Finally, we can upgrade the theorem about the supersingular component:
 \begin{theorem}[\cite{Pizer}]
@@ -474,8 +471,8 @@ The following theorem gives a description of an isogeny volcano.
     \begin{itemize}
         \item If $E$ is not at the floor, there are $\ell+1$ isogenies of degree $\ell$ from $E$.
         \item If $E$ is at the floor, there are no descending $\ell$-isogenies from $E$.
-        \item If $E$ is not at the surface, there are no horizontal $\ell$-isogenies from $E$, and one ascending $\ell$-isogeny.
-        \item If $E$ is at the surface, there are $\left( \frac{\Delta_K}{p} \right)+1$ horizontal $\ell$-isogenies and no ascending $\ell$-isogenies.
+        \item If $E$ is not on the surface, there are no horizontal $\ell$-isogenies from $E$, and one ascending $\ell$-isogeny.
+        \item If $E$ is on the surface, there are $\left( \frac{\Delta_K}{p} \right)+1$ horizontal $\ell$-isogenies and no ascending $\ell$-isogenies.
     \end{itemize}
 \end{theorem}
 
@@ -558,6 +555,6 @@ We then have the following result, which basically states that $Ell_p(\Oc)$ is a
 
 
 
-\section{Montgomery models}
-\cite{Costello_Montgomery} from \cite{Montgomery_curve}.
+%\section{Montgomery models}
+%\cite{Costello_Montgomery} from \cite{Montgomery_curve}.
 

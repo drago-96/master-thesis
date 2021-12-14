@@ -13,7 +13,7 @@ In this section we briefly discuss the security levels of some isogeny-based OT 
     
     \item \cite{dSG_Orsini}: the authors introduce the concept of \emph{masking}, which generalizes the one of hard homogeneous spaces; this allows them to create masks from both SIDH and CSIDH.\\
     They then construct a couple of OT protocols, one with two rounds and the other with three rounds, and prove the UC-security of both of them against semi-honest adversaries.\\
-    Moreover, the authors prove that their two-round protocol can be extended to be secure against malicious adversaries using a transformation by D{\"o}ttling \cite{Dottling}.
+    Moreover, the authors prove that their two-round protocol can be extended to be secure against malicious adversaries using a transformation by D{\"o}ttling \cite{Dottling}, which increases the complexity of the protocol as a side effect.
     
     \item \cite{Alamati}: the authors introduce a new framework based on group actions, from which they derive new cryptographic primitives based on CSIDH. In particular, they construct a ``dual-mode encryption scheme"; this allows them to use the framework by Peikert et al. \cite{PVW} to produce an OT protocol that is UC-secure against malicious adversaries.\\
     The resulting protocols has only two rounds, but the PVW framework transmits single bits, so for sending $n$-bit messages we need to send $O(n)$ public keys and compute $O(n)$ isogenies.
@@ -87,7 +87,7 @@ The precise result is the following.
     \textbf{Honest sender and corrupted receiver.} The simulator is defined by the following instructions:
     \begin{enumerate}
         \item Backdoors the trusted setup and sets the curve $E=t\star E_0$, with a randomly sampled $t\in Cl(\Oc)$.
-        \item Sets its public key as the honest sender $A=s\star E$.
+        \item Sets its public key as the honest sender $A=s\star E$, for a random $s\sample Cl(\Oc)$.
         \item When receiving the curve $C$ from the adversary, there is also an explanation $C=x\star E_R$, with $E_R=E_0,E$ or $E^t$. If $E_R=E$ it sets $\sigma=0$, if $E_R=E^t$ it sets $\sigma=1$, otherwise it sets $\sigma=-1$. If $\sigma\neq -1$, the simulator queries the functionality and gets the message $m_\sigma$.
         \item The simulator samples two random keys $k_i\xleftarrow{}\kgen()$ and begins to monitor the random oracle queries from the adversary for the following values:
         \begin{itemize}
@@ -110,7 +110,7 @@ The precise result is the following.
 
     The theorem will then follow from the fact that both quantities are negligible. Indeed if $\sdv$ aborts, then we can solve a CSIDH problem, while if $\zdv$ can distinguish we can break the $\indcpa$ property of the encryption scheme.
     
-    Indeed, suppose that $\sdv$ does not abort; then we can construct an adversary $\ddv$ for the $\indcpa$ game similarly to what we did in Section \ref{section_dummy}: internally $\ddv$ runs $\zdv$ against $\sdv$, but stopping the execution before the simulator computes $c_{1-\sigma}$.
+    Suppose that $\sdv$ does not abort; then we can construct an adversary $\ddv$ for the $\indcpa$ game similarly to what we did in Section \ref{section_dummy}: internally $\ddv$ runs $\zdv$ against $\sdv$, but stopping the execution before the simulator computes $c_{1-\sigma}$.
     
     Then $\ddv$ takes the input $(m_0,m_1)$ for the honest sender, and sends to the $\indcpa$ oracle the pair of messages $(0,m_{1-\sigma})$, which returns a ciphertext $c$; at this points $\ddv$ resumes the execution, but puts $c_{1-\sigma}=c$. Finally $\ddv$ outputs whatever $\zdv$ outputs.
     

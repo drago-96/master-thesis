@@ -139,7 +139,7 @@ We now change a bit the protocol to make it at least semi-honest. We will prove 
 
 The main target of this proof is to introduce the use of hybrid simulators, which interpolate between $\sdv$ in the ideal world and $\adv$ in the real world, and the reduction of security to both decisional Diffie-Hellman and the $\indcpa$ property of an encryption scheme.
 
-Moreover, since we deal with \emph{static} corruptions, we only need to address the four combinations of honesty/corruptness that can happen. And finally, since we are in the semi-honest case, there is no need to extract inputs from the corrupted parties: the input they will use is the one given by the environment, thus available to the simulator.
+Moreover, since we deal with \emph{static} corruptions, we only need to address the four combinations of honesty/corruption that can happen. And finally, since we are in the semi-honest case, there is no need to extract inputs from the corrupted parties: the input they will use is the one given by the environment, thus available to the simulator.
 
 \begin{figure}[!t]
     \myproc{Tory protocol 2}{
@@ -309,19 +309,19 @@ The approach of combining the AGM and the UC framework has been studied in \cite
 
 \subsection{Defining AGM-UC}
 
-We will keep using the simplified UC framework, with a fixed number of parties for every protocol.
+We will keep using the simplified UC framework, integrating it with the AGM.
 
 The setting involves a group $\mathbb G$ of prime order $p$, with known generator $g$; we collect those parameters in $\mathcal G=(\mathbb G, g, p)$.
 
 \begin{definition}
-    Suppose a protocol $\pi$ uses the group $\mathcal G$. A pair of environment $\edv$ and adversary $\adv$ is said $(\mathcal G,\pi)$-algebraic if whenever $\adv$ sends a $(\texttt{backdoor}, m)$ message to a party and $m$ contains an element $h\in\mathbb G$, then it must provide (to a special ``algebraic tape") an algebraic representation $X$ of $h$, which is a list $X=[(g_1,x_1),\dots,(g_k,x_k)]$ such that $h=\prod_{i=1}^kg_i^{x_i}$ and $g_i$ are group elements already seen by $\adv$ or $\edv$ in the execution of $\pi$.
+    Suppose a protocol $\pi$ uses the group $\mathcal G$. A pair of environment $\zdv$ and adversary $\adv$ is said $(\mathcal G,\pi)$-algebraic if whenever $\adv$ sends a $(\texttt{backdoor}, m)$ message to a party and $m$ contains an element $h\in\mathbb G$, then it must provide (to a special ``algebraic tape") an algebraic representation $X$ of $h$, which is a list $X=[(g_1,x_1),\dots,(g_k,x_k)]$ such that $h=\prod_{i=1}^kg_i^{x_i}$ and $g_i$ are group elements already seen by $\adv$ or $\zdv$ in the execution of $\pi$.
 \end{definition}
 
 Now we are able to define simulation:
 
 \begin{definition}
-    Suppose protocols $\pi$ and $\phi$ involve the same group $\mathcal G$. We say that $\pi$ \emph{$\mathcal G$-AGM emulates} $\phi$ if for any adversary $\adv$ there is a simulator $\sdv$ such that for any environment $\edv$ with $(\edv,\adv)$ that is $(\mathcal G, \pi)$-algebraic we have that also $(\edv,\sdv)$ is $(\mathcal G, \phi)$-algebraic and
-    $$\textsc{\scriptsize EXEC}_{\phi,\sdv,\edv} \cindist \textsc{\scriptsize EXEC}_{\pi,\adv,\edv}$$
+    Suppose protocols $\pi$ and $\phi$ involve the same group $\mathcal G$. We say that $\pi$ \emph{$\mathcal G$-AGM emulates} $\phi$ if for any adversary $\adv$ there is a simulator $\sdv$ such that for any environment $\zdv$ with $(\zdv,\adv)$ that is $(\mathcal G, \pi)$-algebraic we have that also $(\zdv,\sdv)$ is $(\mathcal G, \phi)$-algebraic and
+    $$\textsc{\scriptsize EXEC}_{\phi,\sdv,\zdv} \cindist \textsc{\scriptsize EXEC}_{\pi,\adv,\zdv}$$
 \end{definition}
 
 We can use dummy adversaries also in this algebraic setting; we need only to pay attention to the algebraic representations that the environment send to the adversary, because we don't want to forward them to the actual protocol.
@@ -329,8 +329,8 @@ We can use dummy adversaries also in this algebraic setting; we need only to pay
 \begin{definition}
     Suppose the protocol $\pi$ involves $\mathcal G$. An adversary $\ddv$ is \emph{$(\mathcal G, \pi)$-algebraically dummy} if it only forwards messages in this way:
     \begin{itemize}
-        \item For any received message of the type $(\texttt{backdoor},m)$ from a party $ID$, sends $(\texttt{backdoor},(ID, m))$ to $\edv$.
-        \item For any $(\texttt{input},(ID, m))$ from $\edv$, it sends $(\texttt{input}, m')$ to ID, where $m'$ is equal to $m$, but without all algebraic representations $X$ of elements $h\in\mathbb G$ which are inside $m$.
+        \item For any received message of the type $(\texttt{backdoor},m)$ from a party $ID$, sends $(\texttt{backdoor},(ID, m))$ to $\zdv$.
+        \item For any $(\texttt{input},(ID, m))$ from $\zdv$, it sends $(\texttt{input}, m')$ to ID, where $m'$ is equal to $m$, but without all algebraic representations $X$ of elements $h\in\mathbb G$ which are inside $m$.
     \end{itemize}
 \end{definition}
 
@@ -371,33 +371,33 @@ We use the protocol in figure \ref{prot_CO}, with the functionality presented in
     The protocol $\Pi_{CO}$ AGM-realizes the functionality $\Fun_{OT}$ in the $\Fun_{RO}$-hybrid model under static corruptions.
 \end{theorem}
 \begin{proof}
-    We construct a simulator $\sdv$ for the dummy algebraic adversary in each of the four corruption cases. By definition, this means that all group elements output by $\edv$ to $\sdv$ must have a representation.
+    We construct a simulator $\sdv$ for the dummy algebraic adversary in each of the four corruption cases. By definition, this means that all group elements output by $\zdv$ to $\sdv$ must have a representation.
 
     \textbf{Corrupted sender and corrupted receiver}: Here there is nothing to simulate.
 
-    \textbf{Honest sender and honest receiver}: Can be constructed putting together both simulations as we did before.
-
     \textbf{Corrupted sender and honest receiver}: When $\sdv$ receives $A$ from the environment, it also learns the value $a$ such that $A=g^a$.
-    The simulator then chooses a random $b$, computes $B=g^b$, and sends it back to $\edv$.
+    The simulator then chooses a random $b$, computes $B=g^b$, and sends it back to $\zdv$.
 
     Then it computes the key $k=H(A^b)$. When the environment sends any $(c_0,c_1)$, the simulator sends $(c_0\oplus k, c_1\oplus k)$ to the trusted party and makes it deliver to the honest receiver.
 
     This simulates correctly since the output of the receiver is identical in both the ideal and the real execution; moreover the distributions $g^{a\sigma+b}$ and $g^b$ are identical, so the environment cannot distinguish between the case $\sigma=0$ and $\sigma=1$.
 
-    \textbf{Honest sender and corrupted receiver}: The simulator samples $a$, computes $A=g^a$ and sends it to the environment, which responds with an arbitrary element $B$; since $\edv$ is algebraic, it must also output a representation $B=A^x g^y$.
+    \textbf{Honest sender and corrupted receiver}: The simulator samples $a$, computes $A=g^a$ and sends it to the environment, which responds with an arbitrary element $B$; since $\zdv$ is algebraic, it must also output a representation $B=A^x g^y$.
 
     If $x\in\{0,1\}$, the simulator queries the functionality with this bit, retrieves $m_x$, chooses a random $m_{1-x}$ and finally computes $k_i,c_i$ as specified in the protocol. If $x\not\in\{0,1\}$, the simulator chooses both $m_0$ and $m_1$ as random.
 
-    The simulator also runs the random oracle, and counts the queries the environment makes to it. Moreover, if $x\in\{0,1\}$ and $\edv$ queries for both $B^a$ and $B^a\cdot g^{-a^2}$, of if $x\not\in\{0,1\}$ and $\edv$ queries at least one of $B^a$ or $B^a\cdot g^{-a^2}$, then $\sdv$ aborts.
+    The simulator also runs the random oracle, and counts the queries the environment makes to it. Moreover, if $x\in\{0,1\}$ and $\zdv$ queries for both $B^a$ and $B^a\cdot g^{-a^2}$, of if $x\not\in\{0,1\}$ and $\zdv$ queries at least one of $B^a$ or $B^a\cdot g^{-a^2}$, then $\sdv$ aborts.
 
     \textit{Claim}: $\sdv$ aborts with negligible probability if the discrete logarithm is hard.
 
-    Suppose we want to solve the discrete logarithm problem $A=g^z$, using $\edv$ as an oracle. We feed $\edv$ the element $A$ as coming from the simulator.
+    Suppose we want to solve the discrete logarithm problem $A=g^z$, using $\zdv$ as an oracle. We feed $\zdv$ the element $A$ as coming from the simulator.
     \begin{itemize}
-        \item Case $x\not\in\{0,1\}$. Suppose $\edv$ queries $B^z$; being algebraic, it must know a representation $B^z=A^sg^t$. But this means that $g^{z^2x+zy}=(A^xg^y)^z=B^z=g^{sz+t}$, i.e. $$z^2x+z(y-s)-t\equiv 0\pmod p$$ from which we can compute $z$. In the other case we have that $B^zg^{-z^2}=A^sg^t$, for which the equation is $z^2(x-1)+zy\equiv sz+t\pmod p$, which also has a solution.
+        \item Case $x\not\in\{0,1\}$. Suppose $\zdv$ queries $B^z$; being algebraic, it must know a representation $B^z=A^sg^t$. But this means that $g^{z^2x+zy}=(A^xg^y)^z=B^z=g^{sz+t}$, i.e. $$z^2x+z(y-s)-t\equiv 0\pmod p$$ from which we can compute $z$. In the other case we have that $B^zg^{-z^2}=A^sg^t$, for which the equation is $z^2(x-1)+zy\equiv sz+t\pmod p$, which also has a solution.
         \item Case $x=0$. The environment has queried $B^zg^{-z^2}$, for which it knows a representation $A^sg^t$. Then it gets the equation $zy-z^2\equiv sz+t\pmod p$, which has a solution.
         \item Case $x=1$. The environment has queried $B^z$, and represents it as $A^sg^t$. Then the equation is $z^2+zy\equiv sz+t\pmod p$, which also has a solution.
     \end{itemize}
+
+    \textbf{Honest sender and honest receiver}: This simulation can be constructed putting together both simulations above, as we did in the proof of the toy protocol.
 
     This concludes the proof since if the simulator doesn't abort, the simulation is perfect, given that the keys queried from the random oracle statistically hide the messages. Finally we observe that all the simulators we have constructed are algebraic themselves.
 \end{proof}

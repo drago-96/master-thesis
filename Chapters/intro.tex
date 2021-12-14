@@ -24,7 +24,7 @@ Beyond the NIST competition, also the MPC world is trying to adopt some post-qua
 
 The main idea of isogeny crypto is to use graphs of elliptic curves, where the nodes are supersingular $j$-invariants and the edges are isogenies between them. The reason why this is useful for cryptography is that it's easy to compute a random isogeny from a given curve (i.e. a walk in the graph), but it's hard to find an isogeny given two different curves.
 
-Isogeny-based cryptography has two main constructions, which are SIDH \cite{SIDH11} and CSIDH \cite{CSIDH}. Both are key exchange algorithms, but are quite different: SIDH works on a graph defined over $\F_{p^2}$, while CSIDH is over $\F_p$ and uses the action of the class group on elliptic curves.
+Isogeny-based cryptography has two main constructions, which are SIDH \cite{SIDH11} and CSIDH \cite{CSIDH}. They both are key exchange algorithms, but they are quite different: SIDH works on a graph defined over $\F_{p^2}$, while CSIDH is over $\F_p$ and uses the action of the class group on elliptic curves.
 
 After introducing isogeny crypto with its assumptions and constructions, we will analyze how to build OT protocols based on it. Our focus will be provable security of those protocols, i.e. against what attacks they are secure and if they can be composed to make MPC protocols.
 
@@ -50,7 +50,7 @@ Finally, inspired by the effectiveness of AGM for the Chou and Orlandi protocol,
 
 Our EI model, in the CSIDH setting, will allow us to prove security for the two-round version of Lai et al. protocol. This is a very interesting result, since there is some evidence that the EI model might actually be equivalent to the plain model of UC.
 
-The problem to which the expressiveness of our EI model reduces to is the one of \emph{sampling} random supersingular curves. It is one of the open problems in isogeny-based cryptography, and one that is starting to be believed difficult.
+The problem to which the expressiveness of our EI model reduces is the one of \emph{sampling} random supersingular curves. It is one of the open problems in isogeny-based cryptography, and one that is starting to be believed difficult.
 
 The main result of this thesis is the introduction of the EI model, which allows to prove UC-security for efficient OT protocols, without having to worry too much about input extraction. Moreover, if the sampling problem is hard, we claim that our EI model is equivalent to the full UC model.
 

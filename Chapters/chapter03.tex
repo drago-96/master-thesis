@@ -153,7 +153,7 @@ The semi-honest setting is a very weak model, since even a very little change fr
 Given a functionality $f=(f_1,f_2)$ and a protocol $\pi$, we use the following notation:
 \begin{itemize}
     \item The view of the $i$-th party of an execution of $\pi$ with inputs $x,y$ is denoted by $\texttt{view}_i^\pi(x,y)$ and is equal to $(w^i,r^i;m_1^i,\dots,m_k^i)$, where $w^i$ is its input, $r^i$ its randomness tape and $m_j^i$ is the $j$-th received message.
-    \item The output of party $i$ is denoted by $\texttt{output}_i^\pi(x,y)$; this can obviously be computed from the view. We denote the joint output by $\texttt{output}^\pi(x,y)=(\texttt{output}_1^\pi(x,y),\texttt{output}_2^\pi(x,y))$.
+    \item The output of party $i$ is denoted by $\texttt{output}_i^\pi(x,y)$; this can obviously be computed from the view. We denote the joint output by $$\texttt{output}^\pi(x,y)=(\texttt{output}_1^\pi(x,y),\texttt{output}_2^\pi(x,y)).$$
 \end{itemize}
 
 We are now ready to define security for a two-party protocol.
@@ -247,7 +247,7 @@ All the parties of a protocol are modelled as interactive Turing machines (ITM),
 
 All machines communicate between themselves by being connected to a common router, i.e. there is a special machine with its incoming tapes connected to the outgoing tapes of the other machines, and vice versa.
 
-In any execution, there will be the environment $\zdv$, the adversary $\adv$, the parties $P_1,\dots,P_m$ and possibly an ideal functionality $\Fun$. The communication is then described in Figure \ref{SUC_router}.\todo{Fix original text}
+In any execution, there will be the environment $\zdv$, the adversary $\adv$, the parties $P_1,\dots,P_m$ and possibly an ideal functionality $\Fun$. The communication is then described in Figure \ref{SUC_router}.
 
 Notice that the number of parties and their identities are fixed and known to all.
 
