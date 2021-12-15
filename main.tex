@@ -38,6 +38,15 @@
 \newtheorem{assumption}[problem]{Assumption}
 
 
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    %filecolor=black,
+    linkcolor=black,
+    urlcolor=blue
+}
+
+
 
 \begin{document}
 \makeevenfoot{ruled}{}{\thepage}{}
@@ -49,6 +58,16 @@
 
 \frontmatter
 \include{Frontespizio}
+
+\thispagestyle{empty}
+\null\vspace {\stretch {1}}
+\begin{flushright}
+    \textit{A nonna Gina}
+\end{flushright}
+\vspace {\stretch {2}}\null
+
+\cleardoublepage
+
 
 \tableofcontents
 
