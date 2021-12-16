@@ -159,7 +159,7 @@
         \begin{block}{Why?}
             It is very efficient: the picture is simplified, but it's a $k$-out-of-$n$ OT using DH over elliptic curves (in Edwards model).
             
-            It is secure, since the receiver can't know both the values $g^{ab}g^{a^2(\sigma-i)}$; otherwise he could compute the value $a$, thus solving a discrete logarithm.
+            It is secure, since the receiver can't know both the values $g^{ab}g^{a^2(\sigma-i)}$; otherwise he could know the value $a$, thus computing a discrete logarithm.
         \end{block}
     \end{frame}
 
@@ -262,22 +262,10 @@
     \end{frame}
 
     \begin{frame}
-        \frametitle{Special isogenies}
-        
-        \begin{example}
-            Multiplication-by-m
-        \end{example}
-    
-        \begin{theorem}
-            Dual isogeny
-        \end{theorem}
-    \end{frame}
-
-    \begin{frame}
         \frametitle{Elliptic curves over finite fields}
         
         \begin{definition}
-            Frobenius endomorphism
+            Let $E/\F_q$ be an elliptic curve; then its Frobenius endomorphism is the morphism $\pi: E\to E$ given by $$\pi(X:Y:Z)=(X^q:Y^q:Z^q)$$
         \end{definition}
     
         \begin{theorem}
@@ -362,74 +350,402 @@
     \begin{frame}
         \frametitle{Hard homogeneous spaces}
         
-        \begin{definition}
-            A hard homogeneous space consists of a finite abelian group $G$ acting freely and transitively on a set $X$.
-            
-            The following tasks are required to be easy (i.e. polynomial-time):
-            \begin{enumerate}
-                \item Computing group operations in $G$.
-                \item Computing the action of a group element $g\in G$ on some $x\in X$.
-            \end{enumerate}
-            
-            The following tasks are instead required to be hard (i.e. not polynomial-time):
-            \begin{enumerate}
-                \setcounter{enumi}{2}
-                \item Vectorization: given $x,x'\in X$, find $g\in G$ such that $g\star x=x'$.
-                \item Parallelization: given $x,x',y\in X$ with $g\star x=x'$, compute $y'\in X$ such that $g\star y=y'$.
-            \end{enumerate}
-        \end{definition}
+        \begin{center}
+            \begin{tikzpicture}
+            \node at (3,3) {\bf Common setup};
+            \node at (3,2.5) {Fix abelian group $\F_p^\ast$};
+            \node at (3,2) {Set $N=\# \F_p^\ast=p-1$};
+            \node at (3,1.5) {Fix $g\in\F_p^\ast$};
+            \node at (0,0) {\bf Alice};
+            \node at (6,0) {\bf Bob};
+            \node at (0,-1) {pick random $a\in\Zn{N}$};
+            \node at (0,-1.5) {compute $A=g^a$};
+            \node at (6,-1) {pick random $b\in\Zn{N}$};
+            \node at (6,-1.5) {compute $B=g^b$};
+            \draw[->]
+            (1,-2) to node[auto] {$A$} (5,-2);
+            \draw[->] (5,-2.5) to node[auto] {$B$} (1,-2.5);
+            \node at (3,-3.5) {\alert{$B^a=g^{ba}=g^{ab}=A^b$}};
+            \end{tikzpicture}
+        \end{center}
         
     \end{frame}
 
+    \begin{frame}
+    \frametitle{Hard homogeneous spaces}
+    
+    \begin{center}
+        \begin{tikzpicture}
+        \node at (3,3) {\bf Common setup};
+        \node at (3,2.5) {Fix set $X=\F_p^\ast$};
+        \node at (3,2) {Fix group $G=\Zn{N}$};
+        \node at (3,1.5) {Fix $g\in X$};
+        \node at (0,0) {\bf Alice};
+        \node at (6,0) {\bf Bob};
+        \node at (0,-1) {pick random $a\in G$};
+        \node at (0,-1.5) {compute $A=a\star g$};
+        \node at (6,-1) {pick random $b\in G$};
+        \node at (6,-1.5) {compute $B=b\star g$};
+        \draw[->]
+        (1,-2) to node[auto] {$A$} (5,-2);
+        \draw[->] (5,-2.5) to node[auto] {$B$} (1,-2.5);
+        \node at (3,-3.5) {\alert{$a\star B= a\star(b\star g)=b\star(a\star g)=b\star A$}};
+        \end{tikzpicture}
+    \end{center}
+    
+    \end{frame}
 
     \begin{frame}
-        \frametitle{A HHS from complex multiplication}
+    \frametitle{A HHS from complex multiplication}
+    
+    \begin{center}
+        \begin{tikzpicture}
+        \node at (3,3) {\bf Common setup};
+        \node at (3,2.5) {Fix set $X=Ell_p(\Oc)$};
+        \node at (3,2) {Fix group $G=Cl(\Oc)$};
+        \node at (3,1.5) {Fix $E_0\in X$};
+        \node at (0,0) {\bf Alice};
+        \node at (6,0) {\bf Bob};
+        \node at (0,-1) {pick random $[\mathfrak{a}]\in G$};
+        \node at (0,-1.5) {compute $E_A=[\mathfrak{a}]\star E_0$};
+        \node at (6,-1) {pick random $[\mathfrak{b}]\in G$};
+        \node at (6,-1.5) {compute $E_B=[\mathfrak{b}]\star E_0$};
+        \draw[->]
+        (1,-2) to node[auto] {$E_A$} (5,-2);
+        \draw[->] (5,-2.5) to node[auto] {$E_B$} (1,-2.5);
+        \node at (3,-3.5) {\alert{$[\mathfrak{a}]\star E_B= [\mathfrak{a}]\star([\mathfrak{b}]\star E_0)=[\mathfrak{b}]\star([\mathfrak{a}]\star E_0)=[\mathfrak{b}]\star E_A$}};
+        \end{tikzpicture}
+    \end{center}
     
     \end{frame}
 
 
     \begin{frame}
+        \frametitle{A HHS from complex multiplication}
+        
+        \begin{block}{The setting}
+            Fix a prime prime of the form $p=4\ell_1\cdots\ell_n-1$; fix also $E_0:y^2=x^3+x$, which is supersingular over $\F_p$; define $\Oc:=\End_p(E_0)\cong\Z[\sqrt{-p}]$.
+            
+            \textbf{The group}: $Cl(\Oc)$.
+            
+            \textbf{The set}: $Ell_p(\Oc)$.
+            
+            \textbf{The action}: we only use particular ideals (and their inverses) $\mathfrak{l}_i=(\ell_i,\pi-1)$, which generate $Cl(\Oc)$. The action is easy to compute with Vélu's formula, since $E[\mathfrak{l}_i]=E[\ell_i]\cap E(\F_p)$ has $\ell_i$ points, all defined over $\F_p$.
+        \end{block}
+    
+        \begin{block}{Hard problems}
+            \textbf{Vectorization}: given two curves $E,E'$, find $[\mathfrak{a}]\in Cl(\Oc)$ with smooth norm such that $[\mathfrak{a}]\star E = E'$.       
+        \end{block}
+    
+    \end{frame}
+
+    \begin{frame}
         \frametitle{The CSIDH protocol}
         
         \begin{block}{}
-            \textbf{Setup}: A prime $p=4\ell_1\cdots\ell_n-1$, where $\ell_i$ are small distinct odd primes; $E_0:y^2=x^3+x$ is the base supersingular elliptic curve with $\Oc:=\End_p(E_0)=\Z[\pi]$. Fix also a parameter $m$.
+            \textbf{Setup}: 
+            \begin{itemize}
+                \item A prime $p=4\ell_1\cdots\ell_n-1$
+                \item The curve $E_0:y^2=x^3+x$, with $\Oc:=\End_p(E_0)=\Z[\pi]$.
+            \end{itemize}
             
-            \textbf{Key generation}: Sample a tuple of integers $(e_1,\dots,e_n)$ from $\{ -m,\dots,m \}^n$. This tuple corresponds to the ideal $[\mathfrak{a}] = \prod [\mathfrak{l}_i]^{e_i}$ of $Cl(\Oc)$, where $\mathfrak{l}_i=(\ell_i, \pi-1)$. The public key is the $A$ coefficient of the curve $[\mathfrak{a}]E_0:y^2=x^3+Ax^2+x$ in Montgomery form.
+            \textbf{Key generation}:
+            \begin{itemize}
+                \item Private key is $(e_1,\dots,e_n)$ sampled from $\{ -m,\dots,m \}^n$
+                \item Compute ideal $[\mathfrak{a}] = \prod [\mathfrak{l}_i]^{e_i}$
+                \item Public key is $[\mathfrak{a}]E_0:y^2=x^3+Ax^2+x$
+            \end{itemize}
             
-            \textbf{Key exchange}: Suppose Alice and Bob have key pairs $([\mathfrak{a}], A)$ and $([\mathfrak{b}], B)$. When receiving $B$ from Bob, Alice checks the validity of this public key and then computes the curve $[\mathfrak{a}]E_B$. Bob does the same and computes $[\mathfrak{b}]E_A$. The shared secret is the Montgomery coefficient $S$ of the curve $[\mathfrak{a}][\mathfrak{b}]E_0=[\mathfrak{b}][\mathfrak{a}]E_0$ written as $y^2=x^3+Sx^2+x$.
+            \textbf{Key exchange (Alice point of view)}: 
+            \begin{itemize}
+                \item Suppose key pairs $([\mathfrak{a}], A)$ and $([\mathfrak{b}], B)$.
+                \item Check that $E_B:y^2=x^2+Bx^2+x$ is supersingular.
+                \item Compute the curve $E'=[\mathfrak{a}]E_B$.
+                \item Shared secret is $S$ from $E'$ written as $y^2=x^3+Sx^2+x$.
+            \end{itemize}
         \end{block}
     
     \end{frame}
 
     \begin{frame}
         \frametitle{Quantum security of CSIDH}
+        
+        \begin{block}{Subexponential attack}
+            \begin{itemize}
+                \item CSIDH, and any hard homogeneous space, reduces to the \emph{hidden shift problem}.
+                \item Kuperberg's and Regev's algorithms solve HShP in $O(\exp(\sqrt{\log \# G}))$ for generic $G$.
+                \item For CSIDH, $G=Cl(\Oc)=Cl(\Z[\sqrt{-p}])$ thus $\# G\approx\sqrt{p}$.
+                \item Precise estimations still debated, \texttt{CSIDH-512} might have $2^{64}$-qbit security.
+            \end{itemize}
+        \end{block}
     
     \end{frame}
-
-
     
     
     \section{Security definitions}
     
     \begin{frame}
-        \frametitle{}
+        \frametitle{Perfect secrecy}
+        
+        \begin{definition}
+            The one-time pad is an encryption scheme whose encryption and decryption functions are
+            $$ \enc(k,m)=k\oplus m\;\;\;\;\; \dec(k,c)=k\oplus c,$$
+            where $\oplus$ denotes the bit-wise XOR of the bitstrings.
+        \end{definition}
+    
+        \begin{definition}
+            We say that an encryption scheme $(\kgen,\enc,\dec)$ is \emph{perfectly secure} if for any $m_0,m_1\in\mathcal M$ and all $c\in\mathcal C$ it holds that 
+            $$\prob{\enc(k,m_0)=c} = \prob{\enc(k,m_1)=c}$$
+        \end{definition}
+    
+    \end{frame}
+
+
+    \begin{frame}
+        \frametitle{Game-based security}
+        
+        \begin{block}{Indistinguishability}
+            Given an encryption scheme $(\kgen,\enc,\dec)$ we can define the $\indcpa$ game:
+            
+            \begin{center}
+                \myproc{Game $\indcpa^\adv_\edv(n)$}{
+                    b\sample\bin \\
+                    k\sample\kgen(\secparam) \\
+                    (m_0,m_1)\sample\adv(\texttt{gen}, \secparam, \enc_k) \\
+                    c\sample\enc(k, m_b) \\
+                    b'\sample\adv(\texttt{guess}, c, \enc_k) \\
+                    \pcreturn b==b'
+                }
+            \end{center}
+        \end{block}
     
     \end{frame}
 
     \begin{frame}
-        \frametitle{}
+        \frametitle{Game-based security}
+        
+        \begin{definition}
+            A function $f:\N\to\R$ is said to be \emph{negligible} if for any $c\in\N$ we have that $$f(n)=O(1/n^c)$$
+        \end{definition}
+        
+         \begin{definition}
+            An encryption scheme is said to be $\indcpa$ secure if for any PPT adversary $\adv$ the advantage is negligible.
+            $$\advantage{\indcpa}{\adv,\edv}:=\left| \prob{\indcpa^\adv_\edv(n)=1}-\frac12 \right|$$
+        \end{definition}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Simulation-based security}
+        
+        \begin{block}{The main idea}
+            There is an \emph{ideal world} in which the adversary interacts only with a trusted third party; the \emph{real world} is instead the one running a protocol.
+            
+            If any real world adversary can be \emph{simulated} in the ideal world, then the protocol is \emph{secure}.
+        \end{block}
+    
+        \begin{definition}
+            Let $f=(f_1,f_2)$ be a functionality. We say that protocol $\pi$ \emph{securely computes $f$ in the presence of semi-honest adversaries} if there exists two PPT algorithms $\sdv_1,\sdv_2$ such that
+            $$ \{ (\sdv_i(w^i,f_i(x,y)), f(x,y) ) \}_{x,y} \cindist \{ (\texttt{view}_i^\pi(x,y), \texttt{output}^\pi(x,y)) \}_{x,y} $$
+            for both $i=1,2$. (recall that $w^1=x,w^2=y$)
+        \end{definition}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Malicious adversaries}
+        
+        \begin{alertblock}{The problem}
+            If the adversary can behave any way he wants, he could also \emph{change} the inputs he uses, and the simulator doesn't have access to them.
+            
+            The simulator has then to \emph{extract} the input of the corrupted parties from the adversary.
+        \end{alertblock}
+    
+        \begin{block}{The ideal execution}
+            Suppose $x,y$ are the original inputs, and $\adv$ controls $P_i$.
+            \begin{itemize}
+                \item Honest party $P_j$ sends its input to the trusted party.
+                \item Corrupted party $P_i$ sends anyting he wants.
+                \item Trusted party receives $(x',y')$ and computes $f(x',y')$.
+                \item Trusted party sends $f_i(x',y')$ to the corrupted $P_i$.
+                \item The adversary decides if stopping the protocol or make the third party send $f_j(x',y')$ to $P_j$.
+            \end{itemize}
+        \end{block}
     
     \end{frame}
+
+    \begin{frame}
+        \frametitle{Security against malicious adversaries}
+        
+        \begin{definition}
+            Let $f$ be a two-party functionality, and $\pi$ a protocol that correctly computes $f$. Then $\pi$ is said to \emph{securely compute $f$ with abort in the presence of static malicious adversaries} if for every PPT adversary $\adv$ in the real model, there exists a PPT adversary $\sdv$ in the ideal model such that for any $i\in\{1,2\}$,
+            $$ \{ \textsc{\scriptsize IDEAL}_{f,\sdv,i}(x,y) \}_{x,y} \cindist \{ \textsc{\scriptsize REAL}_{\pi,\adv,i}(x,y) \}_{x,y}$$
+        \end{definition}
     
+        \begin{exampleblock}{Why simulator?}
+            Algorithm $\sdv$ will use algorithm $\adv$ as a \emph{black-box}, using some random values as the input of the honest parties.
+        \end{exampleblock}
+    \end{frame}
+
+
     \begin{frame}
         \frametitle{Universal composability}
+        
+        \begin{block}{A general model}
+            The distinguisher between ideal and real world can be made \emph{interactive}, thus becoming part of the execution; it is called the \emph{environment} $\zdv$.
+        \end{block}
+        
+        \begin{center}
+            \includegraphics[width=\textwidth]{router}
+        \end{center}
+    \end{frame}
+
+
+    \begin{frame}
+        \frametitle{Back to simplest OT}
+        
+        \begin{center}
+            \begin{tikzpicture}
+            \node at (0,0) {\bf Sender};
+            \node at (6,0) {\bf Receiver};
+            \node at (0,-0.5) {Input: $(m_0,m_1)$};
+            \node at (6,-0.5) {Input: $\sigma$};
+            \node at (0,-1.5) {pick random $a\in\Zn{(p-1)}$};
+            \node at (0,-2) {compute $A=g^a$};
+            \node at (6,-1.5) {pick random $b\in\Zn{(p-1)}$};          
+            \draw[->] (1,-2.5) to node[auto] {$A$} (5,-2.5);
+            \node at (6,-3) {compute $B=A^\sigma\cdot g^b$};
+            \draw[->] (5,-3.5) to node[above] {$B$} (1,-3.5);
+            \node at (0,-4) {compute $k_i=H((B/A^i)^a)$};
+            \node at (6,-4) {compute $k_\sigma=H(A^b)$};
+            \node at (0,-4.5) {compute $c_i=m_i\oplus k_i$};
+            \draw[->] (1,-5) to node[above] {$(c_0,c_1)$} (5,-5);
+            \node at (6,-5.5) {compute $m_\sigma=c_\sigma\oplus k_\sigma$};
+            \end{tikzpicture}
+        \end{center}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{The main issue of the simplest OT}
+        
+        \begin{block}{How to extract input?}
+            In case of a corrupted receiver, the simulator extracts the choice bit from the query $A^b$ for the decryption key by the receiver: from this, the simulator knows $g^{ab}$ and may get $\sigma$ from $B^a=g^{a^2\sigma}g^{ab}$.
+            
+            With $\sigma$, simulator can query the functionality and compute a ciphertext decrypting to the right $m_\sigma$.
+        \end{block}
+    
+        \begin{alertblock}{The issue}
+            What if the corrupted receiver queries for the key \emph{after} having received the ciphertexts?
+            
+            The simulator has to query the functionality before sending the ciphertexts in order to complete the simulation for the sender; however it can't know the correct $\sigma$, and the environment can distinguish.
+        \end{alertblock}
+    \end{frame}
+   
+    \begin{frame}
+        \frametitle{The Algebraic Group Model}
+        
+        \begin{exampleblock}{The solution}
+            We extract at a different point of the execution!
+            
+            We need additional information, though.
+        \end{exampleblock}
+    
+        \begin{block}{Algebraic behaviour}
+            We say that a machine is \emph{$G$-algebraic} for some group $G$ if whenever it ouptuts an $h\in G$, it also ouputs $h=\prod g_i^{x_i}$, where $g_i$ are group elements that it has already seen.
+        \end{block}
+    
+        \begin{block}{How it helps}
+            When the adversary outputs the value $B$, it must give an explanation in terms of $A$ and the public generator $g$. In particular, the simulator learns $B=A^xg^y$; if $x\in\bin$ we have extracted $\sigma$, otherwise we will use random messages.
+        \end{block}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{The security of CO in the AGM}
+        
+        \begin{block}{The result}
+            In their paper, Abdalla et al. prove UC-security against adaptive malicious adversaries of the Chou and Orlandi protocol in the AGM.
+        \end{block}
+    
+        \begin{block}{The proof}
+            Using the equation $B=A^xg^y$, the authors construct a simulation if $x\in\bin$, querying the functionality for $m_x$.
+            
+            The adversary must also give a representation of the queried group element; we divide between two types of queries:
+            \begin{itemize}
+                \item Allowed ones: only $k_x$ if $x\in\bin$.
+                \item ``Forbidden" ones: for example, $k_{1-\sigma}$ if $\sigma=x\in\bin$. In this case, the simulator stops the simulation.
+            \end{itemize}
+            However, making a forbidden query implies being able to solve a discrete logarithm.
+        \end{block}
     \end{frame}
 
     
     \section{The Explicit Isogeny model}
         
     \begin{frame}
-        \frametitle{Our result}
+        \frametitle{Our solution}
+        
+        \begin{block}{The plan}
+            \begin{itemize}
+                \item Take a semi-honest two round OT protocol based on isogenies.
+                \item Propose a new model, similar to AGM, called \emph{Explicit Isogenies}.
+                \item Prove that the protocol is UC-secure against malicious adversaries in the EI.
+                \item {\color{gray}Prove that the EI model is equivalent to plain model of computation.}
+                \item Get a post-quantum two-rounds OT protocol that is secure against malicious adversaries.
+            \end{itemize}
+        \end{block}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{The protocol}
+        
+        \begin{center}
+                %\resizebox{0.7\textwidth}{!}{
+                \myproc[codesize=\scriptsize]{Protocol $\Pi_{tw}$}{
+                    \textbf{Sender} \> \> \textbf{Receiver} \\
+                    \text{Input: }(m_0, m_1) \> \> \text{Input: }\sigma \\
+                    s \sample Cl \> \> r \sample Cl \\
+                    A = s\star E \> \>  C = r\star E \\
+                    \> \> \text{if } \sigma=1: C=C^t \\
+                    \> \sendmessageleft*{C} \> \\
+                    k_0 = H(s\star C) \> \>\\
+                    k_1 = H(s\star C^t) \> \>\\
+                    c_i = \enc_{k_i}(m_i) \> \> \\
+                    \> \sendmessageright*{A, (c_0, c_1)} \> \\
+                    \> \> k_\sigma = H(r\star A) \\
+                    \> \> m_\sigma= \dec_{k_\sigma}(c_\sigma) \\
+                }
+            %}
+        \end{center}
+
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{The EI model}
+        
+        \begin{definition}
+            We say that a Turing machine $\adv$ \emph{uses CM-explicit isogenies} if whenever it outputs a supersingular elliptic curve $E/\F_p$, it also outputs a smooth norm ideal $\mathfrak a\in Cl(\Oc)$ such that $E=\mathfrak a\star E_1$, where $E_1$ is a curve that it has already seen, or its twist.
+        \end{definition}
+    
+        \begin{theorem}
+            The protocol $\Pi_{tw}$ CMEI-realizes the functionality $\Fun_{OT}$, if the encryption scheme is $\indcpa$ secure.
+        \end{theorem}
+    
+        \begin{proof}
+            We follow the proof of the simplest OT in AGM: we extract from the public key explanation. If the adversary can query ``forbidden" keys, a CSIDH vectorization problem can be solved. 
+        \end{proof}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{The missing step}
+        
+        \begin{block}{Sampling problem}
+            \includegraphics[width=\linewidth]{images/DeFeo_twitter}
+        \end{block}
+    
+        \begin{block}{The consequences}
+            If sampling is indeed hard, and people start using it as an assumption, EI model should impose no true additional restrictions.
+            
+            Caveat: we need to be able to convert isogeny walks into smooth ideals; another open problem. Or maybe not?
+        \end{block}
+   
     \end{frame}
 
 \end{document}
