@@ -10,7 +10,7 @@
 
 \title{Isogeny-based Oblivious Transfer Protocols}
 \author{Riccardo Zanotto}
-\date{\today}
+\date{December 17, 2021}
 
 
 \begin{document}
@@ -88,84 +88,35 @@
     \end{frame}
 
     \begin{frame}
-        \frametitle{Diffie-Hellman}
+        \frametitle{The simplest OT by Chou and Orlandi}
         
-        \begin{block}{A key-exchange}
-            Diffie-Hellman is a \emph{key-exchange} protocol, meaning that the two parties Alice and Bob can communicate over a public channel and end up with some shared secret value.
-            Usually it takes place in the moltiplicative group $\F_p^\ast$, with generator $g$.
+        \begin{block}{The protocol}
+                    \begin{center}
+                \begin{tikzpicture}
+                \node at (0,0) {\bf Sender};
+                \node at (6,0) {\bf Receiver};
+                \node at (0,-0.5) {Input: $(m_0,m_1)$};
+                \node at (6,-0.5) {Input: $\sigma$};
+                \node at (0,-1.5) {pick random $a\in\Zn{(p-1)}$};
+                \node at (0,-2) {compute $A=g^a$};
+                \node at (6,-1.5) {pick random $b\in\Zn{(p-1)}$};          
+                \draw[->] (1,-2.5) to node[auto] {$A$} (5,-2.5);
+                \node at (6,-3) {compute $B=A^\sigma\cdot g^b$};
+                \draw[->] (5,-3.5) to node[above] {$B$} (1,-3.5);
+                \node at (0,-4) {compute $k_i=H((B/A^i)^a)$};
+                \node at (6,-4) {compute $k_\sigma=H(A^b)$};
+                \node at (0,-4.5) {compute $c_i=m_i\oplus k_i$};
+                \draw[->] (1,-5) to node[above] {$(c_0,c_1)$} (5,-5);
+                \node at (6,-5.5) {compute $m_\sigma=c_\sigma\oplus k_\sigma$};
+                \end{tikzpicture}
+            \end{center}
         \end{block}
         
-        \begin{center}
-            \begin{tikzpicture}
-            \node at (0,0) {\bf Alice};
-            \node at (6,0) {\bf Bob};
-            \node at (0,-1) {pick random $a\in\Zn{(p-1)}$};
-            \node at (0,-1.5) {compute $A=g^a$};
-            \node at (6,-1) {pick random $b\in\Zn{(p-1)}$};
-            \node at (6,-1.5) {compute $B=g^b$};
-            \draw[->]
-            (1,-2) to node[auto] {$A$} (5,-2);
-            \draw[->] (5,-2.5) to node[auto] {$B$} (1,-2.5);
-            \node at (3,-3.5) {\emph{Shared secret} is \alert{$B^a=g^{ab}=A^b$}};
-            \end{tikzpicture}
-        \end{center}
+
     \end{frame}
 
     \begin{frame}
-        \frametitle{Diffie-Hellman}
-        \begin{block}{Security}
-            The shared value between Alice and Bob is actually secret, because an attacker can only get the public keys $A$ and $B$. In order to compute $g^{ab}$ he needs one of $a,b$.
-            
-            Computing a secret $x$ from the value $g^x\pmod p$ is the \emph{discrete logarithm problem}. There are no known polynomial algorithms to solve it, the best is GNFS which is subexponential.
-        \end{block}
-    
-        \pause
-        \begin{block}{ECDH}
-            Notice that $DH$ can be done in any abelian group; in 1980s Koblitz thought ``why don't we use the group of points on an elliptic curve?", and now our phones perform thousands of point additions whenever we open Facebook.
-        \end{block}
-    \end{frame}
-
-    \begin{frame}
-        \frametitle{The simplest OT}
-        
-        \begin{center}
-            \begin{tikzpicture}
-            \node at (0,0) {\bf Sender};
-            \node at (6,0) {\bf Receiver};
-            \node at (0,-0.5) {Input: $(m_0,m_1)$};
-            \node at (6,-0.5) {Input: $\sigma$};
-            \node at (0,-1.5) {pick random $a\in\Zn{(p-1)}$};
-            \node at (0,-2) {compute $A=g^a$};
-            \node at (6,-1.5) {pick random $b\in\Zn{(p-1)}$};          
-            \draw[->] (1,-2.5) to node[auto] {$A$} (5,-2.5);
-            \node at (6,-3) {compute $B=A^\sigma\cdot g^b$};
-            \draw[->] (5,-3.5) to node[above] {$B$} (1,-3.5);
-            \node at (0,-4) {compute $k_i=H((B/A^i)^a)$};
-            \node at (6,-4) {compute $k_\sigma=H(A^b)$};
-            \node at (0,-4.5) {compute $c_i=m_i\oplus k_i$};
-            \draw[->] (1,-5) to node[above] {$(c_0,c_1)$} (5,-5);
-            \node at (6,-5.5) {compute $m_\sigma=c_\sigma\oplus k_\sigma$};
-            \end{tikzpicture}
-        \end{center}
-    \end{frame}
-
-    \begin{frame}
-        \frametitle{The simplest OT}
-        
-        \begin{block}{Who?}
-            Proposed by Chou and Orlandi in 2015.
-        \end{block}
-    
-        \begin{block}{Why?}
-            It is very efficient: the picture is simplified, but it's a $k$-out-of-$n$ OT using DH over elliptic curves (in Edwards model).
-            
-            It is secure, since the receiver can't know both the values $g^{ab}g^{a^2(\sigma-i)}$; otherwise he could know the value $a$, thus computing a discrete logarithm.
-        \end{block}
-    \end{frame}
-
-
-    \begin{frame}
-        \frametitle{The simplest OT}
+        \frametitle{The problems of simplest OT}
         
         \begin{block}{Why not?}
             \begin{itemize}[<+->]
@@ -253,7 +204,7 @@
         \begin{theorem}
             Let $\phi:E_1 \to E_2$ be a non-constant isogeny. Then $\phi$ induces a surjective group homomorphism $E_1(\bar K)\to E_2(\bar K)$ with finite kernel.
             
-            Moreover, separable isogenies are in bijections with finite subgroups of $E_1$.
+            Moreover, separable isogenies are in bijection with finite subgroups of $E_1$.
         \end{theorem}
     
         \begin{block}{Vélu's formula}
@@ -285,6 +236,7 @@
                 \item The dual isogeny $\hat\pi$ is inseparable.
                 \item The map $[p]:E\to E$ is purely inseparable and $j(E)\in\F_{p^2}$.
                 \item $\End(E)$ is a maximal order in a quaternion algebra.
+                \item $p\mid t$, the trace of Frobenius.
             \end{enumerate}
             If any of these properties hold, we say that $E$ is \emph{supersingular}; otherwise $E$ is said to be \emph{ordinary}.
         \end{theorem}
@@ -348,7 +300,7 @@
     \end{frame}
 
     \begin{frame}
-        \frametitle{Hard homogeneous spaces}
+        \frametitle{Diffie-Hellman}
         
         \begin{center}
             \begin{tikzpicture}
@@ -421,7 +373,7 @@
 
 
     \begin{frame}
-        \frametitle{A HHS from complex multiplication}
+        \frametitle{The CSIDH protocol}
         
         \begin{block}{The setting}
             Fix a prime prime of the form $p=4\ell_1\cdots\ell_n-1$; fix also $E_0:y^2=x^3+x$, which is supersingular over $\F_p$; define $\Oc:=\End_p(E_0)\cong\Z[\sqrt{-p}]$.
@@ -440,40 +392,12 @@
     \end{frame}
 
     \begin{frame}
-        \frametitle{The CSIDH protocol}
-        
-        \begin{block}{}
-            \textbf{Setup}: 
-            \begin{itemize}
-                \item A prime $p=4\ell_1\cdots\ell_n-1$
-                \item The curve $E_0:y^2=x^3+x$, with $\Oc:=\End_p(E_0)=\Z[\pi]$.
-            \end{itemize}
-            
-            \textbf{Key generation}:
-            \begin{itemize}
-                \item Private key is $(e_1,\dots,e_n)$ sampled from $\{ -m,\dots,m \}^n$
-                \item Compute ideal $[\mathfrak{a}] = \prod [\mathfrak{l}_i]^{e_i}$
-                \item Public key is $[\mathfrak{a}]E_0:y^2=x^3+Ax^2+x$
-            \end{itemize}
-            
-            \textbf{Key exchange (Alice point of view)}: 
-            \begin{itemize}
-                \item Suppose key pairs $([\mathfrak{a}], A)$ and $([\mathfrak{b}], B)$.
-                \item Check that $E_B:y^2=x^2+Bx^2+x$ is supersingular.
-                \item Compute the curve $E'=[\mathfrak{a}]E_B$.
-                \item Shared secret is $S$ from $E'$ written as $y^2=x^3+Sx^2+x$.
-            \end{itemize}
-        \end{block}
-    
-    \end{frame}
-
-    \begin{frame}
         \frametitle{Quantum security of CSIDH}
         
         \begin{block}{Subexponential attack}
             \begin{itemize}
                 \item CSIDH, and any hard homogeneous space, reduces to the \emph{hidden shift problem}.
-                \item Kuperberg's and Regev's algorithms solve HShP in $O(\exp(\sqrt{\log \# G}))$ for generic $G$.
+                \item Kuperberg's and Regev's quantum algorithms solve HShP in $O(\exp(\sqrt{\log \# G}))$ for generic $G$.
                 \item For CSIDH, $G=Cl(\Oc)=Cl(\Z[\sqrt{-p}])$ thus $\# G\approx\sqrt{p}$.
                 \item Precise estimations still debated, \texttt{CSIDH-512} might have $2^{64}$-qbit security.
             \end{itemize}
@@ -500,45 +424,11 @@
     
     \end{frame}
 
-
-    \begin{frame}
-        \frametitle{Game-based security}
-        
-        \begin{block}{Indistinguishability}
-            Given an encryption scheme $(\kgen,\enc,\dec)$ we can define the $\indcpa$ game:
-            
-            \begin{center}
-                \myproc{Game $\indcpa^\adv_\edv(n)$}{
-                    b\sample\bin \\
-                    k\sample\kgen(\secparam) \\
-                    (m_0,m_1)\sample\adv(\texttt{gen}, \secparam, \enc_k) \\
-                    c\sample\enc(k, m_b) \\
-                    b'\sample\adv(\texttt{guess}, c, \enc_k) \\
-                    \pcreturn b==b'
-                }
-            \end{center}
-        \end{block}
-    
-    \end{frame}
-
-    \begin{frame}
-        \frametitle{Game-based security}
-        
-        \begin{definition}
-            A function $f:\N\to\R$ is said to be \emph{negligible} if for any $c\in\N$ we have that $$f(n)=O(1/n^c)$$
-        \end{definition}
-        
-         \begin{definition}
-            An encryption scheme is said to be $\indcpa$ secure if for any PPT adversary $\adv$ the advantage is negligible.
-            $$\advantage{\indcpa}{\adv,\edv}:=\left| \prob{\indcpa^\adv_\edv(n)=1}-\frac12 \right|$$
-        \end{definition}
-    \end{frame}
-
     \begin{frame}
         \frametitle{Simulation-based security}
         
         \begin{block}{The main idea}
-            There is an \emph{ideal world} in which the adversary interacts only with a trusted third party; the \emph{real world} is instead the one running a protocol.
+            There is an \emph{ideal world} in which the adversary interacts only with a trusted third party; the \emph{real world} instead runs the actual protocol.
             
             If any real world adversary can be \emph{simulated} in the ideal world, then the protocol is \emph{secure}.
         \end{block}
@@ -559,14 +449,15 @@
             The simulator has then to \emph{extract} the input of the corrupted parties from the adversary.
         \end{alertblock}
     
+        \pause
         \begin{block}{The ideal execution}
-            Suppose $x,y$ are the original inputs, and $\adv$ controls $P_i$.
+            Suppose $x,y$ are the original inputs, and $\sdv$ controls $P_i$.
             \begin{itemize}
                 \item Honest party $P_j$ sends its input to the trusted party.
                 \item Corrupted party $P_i$ sends anyting he wants.
                 \item Trusted party receives $(x',y')$ and computes $f(x',y')$.
                 \item Trusted party sends $f_i(x',y')$ to the corrupted $P_i$.
-                \item The adversary decides if stopping the protocol or make the third party send $f_j(x',y')$ to $P_j$.
+                \item Trusted party sends $f_j(x',y')$ to the honest $P_j$.
             \end{itemize}
         \end{block}
     
@@ -576,12 +467,12 @@
         \frametitle{Security against malicious adversaries}
         
         \begin{definition}
-            Let $f$ be a two-party functionality, and $\pi$ a protocol that correctly computes $f$. Then $\pi$ is said to \emph{securely compute $f$ with abort in the presence of static malicious adversaries} if for every PPT adversary $\adv$ in the real model, there exists a PPT adversary $\sdv$ in the ideal model such that for any $i\in\{1,2\}$,
+            Let $f$ be a two-party functionality, and $\pi$ a protocol that correctly computes $f$. Then $\pi$ is said to \emph{securely compute $f$ in the presence of static malicious adversaries} if for every PPT adversary $\adv$ in the real model, there exists a PPT adversary $\sdv$ in the ideal model such that for any $i\in\{1,2\}$,
             $$ \{ \textsc{\scriptsize IDEAL}_{f,\sdv,i}(x,y) \}_{x,y} \cindist \{ \textsc{\scriptsize REAL}_{\pi,\adv,i}(x,y) \}_{x,y}$$
         \end{definition}
     
         \begin{exampleblock}{Why simulator?}
-            Algorithm $\sdv$ will use algorithm $\adv$ as a \emph{black-box}, using some random values as the input of the honest parties.
+            Algorithm $\sdv$ will use algorithm $\adv$ as a \emph{black-box}, using some random values as the input of the honest parties. $\sdv$ will thus \emph{simulate} the honest parties' part of the protocol with fake inputs.
         \end{exampleblock}
     \end{frame}
 
@@ -629,13 +520,14 @@
         \begin{block}{How to extract input?}
             In case of a corrupted receiver, the simulator extracts the choice bit from the query $A^b$ for the decryption key by the receiver: from this, the simulator knows $g^{ab}$ and may get $\sigma$ from $B^a=g^{a^2\sigma}g^{ab}$.
             
-            With $\sigma$, simulator can query the functionality and compute a ciphertext decrypting to the right $m_\sigma$.
+            Upon obtaining $\sigma$, the simulator can query the functionality and compute a ciphertext decrypting to the right $m_\sigma$.
         \end{block}
     
+        \pause
         \begin{alertblock}{The issue}
-            What if the corrupted receiver queries for the key \emph{after} having received the ciphertexts?
+            What if the corrupted receiver computes the key \emph{after} having received the ciphertexts?
             
-            The simulator has to query the functionality before sending the ciphertexts in order to complete the simulation for the sender; however it can't know the correct $\sigma$, and the environment can distinguish.
+            The simulator has to send a choice bit to the trusted party before sending the ciphertexts; however it can't know the correct $\sigma$, and the environment can distinguish.
         \end{alertblock}
     \end{frame}
    
@@ -649,7 +541,7 @@
         \end{exampleblock}
     
         \begin{block}{Algebraic behaviour}
-            We say that a machine is \emph{$G$-algebraic} for some group $G$ if whenever it ouptuts an $h\in G$, it also ouputs $h=\prod g_i^{x_i}$, where $g_i$ are group elements that it has already seen.
+            In AGM we impose that whenever the adversary ouptuts an $h\in G$, it also ouputs $h=\prod g_i^{x_i}$, where $g_i$ are group elements that it has already seen.
         \end{block}
     
         \begin{block}{How it helps}
@@ -667,12 +559,9 @@
         \begin{block}{The proof}
             Using the equation $B=A^xg^y$, the authors construct a simulation if $x\in\bin$, querying the functionality for $m_x$.
             
-            The adversary must also give a representation of the queried group element; we divide between two types of queries:
-            \begin{itemize}
-                \item Allowed ones: only $k_x$ if $x\in\bin$.
-                \item ``Forbidden" ones: for example, $k_{1-\sigma}$ if $\sigma=x\in\bin$. In this case, the simulator stops the simulation.
-            \end{itemize}
-            However, making a forbidden query implies being able to solve a discrete logarithm.
+            The environment should only be able to check if $m_\sigma$ is the correct one, but should not be able to decrypt the other message; this means not knowing the key $k_{1-\sigma}$, i.e. it shouldn't know the group element $g^{ab}g^{\pm a^2}$.
+            
+            The authors argue that indeed the adversary cannot know the other key, since from its group representation and the representation of $B$, the adversary could have computed a discrete logarithm.
         \end{block}
     \end{frame}
 
@@ -686,7 +575,7 @@
             \begin{itemize}
                 \item Take a semi-honest two round OT protocol based on isogenies.
                 \item Propose a new model, similar to AGM, called \emph{Explicit Isogenies}.
-                \item Prove that the protocol is UC-secure against malicious adversaries in the EI.
+                \item Prove that the protocol is UC-secure against malicious adversaries in the EI model.
                 \item {\color{gray}Prove that the EI model is equivalent to plain model of computation.}
                 \item Get a post-quantum two-rounds OT protocol that is secure against malicious adversaries.
             \end{itemize}
@@ -701,7 +590,7 @@
                 \myproc[codesize=\scriptsize]{Protocol $\Pi_{tw}$}{
                     \textbf{Sender} \> \> \textbf{Receiver} \\
                     \text{Input: }(m_0, m_1) \> \> \text{Input: }\sigma \\
-                    s \sample Cl \> \> r \sample Cl \\
+                    s \sample Cl(\Oc) \> \> r \sample Cl(\Oc) \\
                     A = s\star E \> \>  C = r\star E \\
                     \> \> \text{if } \sigma=1: C=C^t \\
                     \> \sendmessageleft*{C} \> \\
@@ -724,12 +613,14 @@
             We say that a Turing machine $\adv$ \emph{uses CM-explicit isogenies} if whenever it outputs a supersingular elliptic curve $E/\F_p$, it also outputs a smooth norm ideal $\mathfrak a\in Cl(\Oc)$ such that $E=\mathfrak a\star E_1$, where $E_1$ is a curve that it has already seen, or its twist.
         \end{definition}
     
+    
+        \pause
         \begin{theorem}
-            The protocol $\Pi_{tw}$ CMEI-realizes the functionality $\Fun_{OT}$, if the encryption scheme is $\indcpa$ secure.
+            The protocol $\Pi_{tw}$ CMEI-realizes the functionality $\Fun_{OT}$ against malicious adversaries.
         \end{theorem}
     
         \begin{proof}
-            We follow the proof of the simplest OT in AGM: we extract from the public key explanation. If the adversary can query ``forbidden" keys, a CSIDH vectorization problem can be solved. 
+            We follow the proof of the simplest OT in AGM: we extract from the public key explanation. If the adversary can know ``forbidden" keys, a CSIDH vectorization problem can be solved. 
         \end{proof}
     \end{frame}
 
@@ -746,6 +637,33 @@
             Caveat: we need to be able to convert isogeny walks into smooth ideals; another open problem. Or maybe not?
         \end{block}
    
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Conclusions}
+        
+        \begin{block}{Results}
+            \begin{itemize}
+                \item New model for analyzing the security of isogeny-based MPC protocols.
+                \item Improved security for a two-round OT protocol.
+                \item If sampling problem is hard, the EI model is equivalent to UC.
+            \end{itemize}
+        \end{block}
+    
+        \begin{block}{Future work}
+            \begin{itemize}
+                \item Study other isogeny-based protocols, trying to make them more efficient.
+                \item Implement and benchmark different versions of the protocols.
+                \item Investigate the sampling problem and its hardness.
+                \item Investigate the possible equivalence of isogeny walks and the CM action.
+            \end{itemize}
+        \end{block}
+    \end{frame}
+
+    \begin{frame}
+    \begin{center}
+        \huge Thanks for your attention!
+    \end{center}
     \end{frame}
 
 \end{document}
